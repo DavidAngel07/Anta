@@ -1,0 +1,133 @@
+/* Estilos generales */
+* {
+  font-family: "Onest", serif;
+  font-optical-sizing: auto;
+  font-weight: weight;
+  font-style: normal;
+}
+
+.container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url(../src/img/fondo.jpg);
+  background-size: cover; /* El fondo cubre toda la pantalla */
+  background-repeat: no-repeat; /* Evita que el fondo se repita */
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+.container-login{
+  background-color: #010058;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 15px 55px 25px 0 rgba(0, 0, 0, 0.85); /* Sombra más pronunciada */
+}
+
+.container-register{
+  background-color: #02007e;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 15px 55px 25px 0 rgba(0, 0, 0, 0.85); /* Sombra más pronunciada */
+}
+
+form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 35px;
+}
+
+h2 {
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  font-size: 24px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #d4d4d4;
+}
+
+.input-login {
+  width: 100%;
+  padding: 0.8rem;
+  border: 3px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  margin-bottom: 1.2rem;
+  background-color: #ffffff;
+  box-shadow: inset 2px 5px 10px rgb(128, 128, 128);
+}
+
+input:focus {
+  border-color: #000fdb;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+/* Botón de envío */
+.button {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+.button:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+/* Mensaje de feedback */
+p {
+  margin-top: 1rem;
+  color: #d9534f;
+  font-weight: bold;
+}
+
+a {
+  background-color: #00719e;
+  padding: 0.4rem;
+  border-radius: 5px;
+  font-size: 15px;
+  text-decoration: none;
+  color:#ffffff;
+  transition: all;
+}
+
+a:hover {
+  background-color: rgb(0, 152, 190);
+}
+
+.logo {
+  position: absolute;
+  top: 50px;  /* Ajusta la distancia desde la parte superior */
+  width: 300px;  /* Tamaño del logo */
+  margin-bottom: 50px;  /* Espacio debajo del logo */
+}

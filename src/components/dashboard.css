@@ -1,0 +1,523 @@
+/* Contenedor principal */
+.dashboard-container {
+  display: flex;
+  min-height: 98vh;
+  background-color: #f4f4fc;
+  flex-direction: column;
+}
+
+.container-aside-contenido{
+  display: flex;
+  min-height: 90vh;
+}
+
+.bi{
+  margin-right: 5px;
+}
+  
+  /* Sidebar (Aside) */
+  .sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidebar h3 {
+    margin-bottom: 20px;
+  }
+  
+  .sidebar ul {
+    width: 100%;
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar ul li {
+    width: 100%;
+    margin: 10px 0;
+    margin-top: 30px;
+  }
+  
+  .sidebar ul li a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 80%;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #000000;
+    background-color: #fcfcfc;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .sidebar ul li a i {
+    margin-right: 10px;
+    font-size: 20px;
+  }
+  
+  .sidebar ul li a:hover {
+    background-color: #ebebfa;
+  }
+  
+  .sidebar ul li a.active {
+    background-color: #bcc8ff;
+    color: #000d80;
+  }
+  
+  /* Contenido principal */
+  .main-content {
+    flex-grow: 1;
+    padding: 20px;
+  }  
+  
+  .main-content h2 {
+    margin-bottom: 20px;
+  }
+  
+  section {
+    margin-bottom: 40px;
+  }
+  
+  section h3 {
+    color: #000d80;
+  }
+  
+  /* Estilo de la lista de productos y fórmulas (opcional) */
+  ul {
+    list-style-type: none;
+    padding-left: 20px;
+  }
+  
+  ul li {
+    margin-bottom: 10px;
+  }
+  
+  .tb {
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    margin-top: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .tabla th, .tabla td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #dddddd;
+    font-size: 16px;
+  }
+  
+  .tabla th {
+    background-color: #f4f4fc;
+    color: rgb(0, 0, 0);
+  }
+  
+  .tabla tbody tr:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .tabla tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  .tabla td {
+    color: #333;
+  }
+  
+  .tabla th:first-child, .tabla td:first-child {
+    border-left: none;
+  }
+  
+  .tabla th:last-child, .tabla td:last-child {
+    border-right: none;
+  }
+
+  /* Ajustar ancho de las columnas de los botones */
+.productos th:last-child,
+.productos th:nth-last-child(2),
+.productos td:last-child,
+.productos td:nth-last-child(2) {
+  width: 80px; /* Ajusta el valor según lo necesites */
+  text-align: center;
+}
+  
+.procesos th,
+.procesos td {
+  width: 150px; /* Ajusta este valor según lo necesites */
+}
+
+
+/* Barra de navegación superior */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 10px 20px;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  width: 100%;
+}
+
+.logo-nav {
+  height: 60px;
+  margin-left: 50px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.btn-cerrar-sesion,  .btn_eliminar{
+background-color: #be1300;
+color: #fff;
+}
+
+.btn_editar{
+  background-color: #ffd000;
+  color: #000000;
+  }
+
+.btn-cerrar-sesion, .btn_eliminar, .btn_editar{
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 45px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-cerrar-sesion:hover,  .btn_eliminar:hover{
+  background-color: #800d00;
+}
+
+.btn_editar:hover{
+  background-color: #e49400;
+}
+
+.btn_azul, .volver {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #0025c9;
+  color: #fff;
+  border-radius: 45px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn_azul:hover, .volver:hover {
+  background-color: #000d46;
+}
+
+/* Contenedor para alinear el h3 y el a */
+.header-agregar {
+  display: flex;  /* Utilizamos flexbox */
+  justify-content: space-between;  /* Esto alinea los elementos a los extremos */
+  align-items: center;  /* Alinea verticalmente los elementos */
+  margin-bottom: 20px;  /* Espacio entre el encabezado y el formulario */
+}
+
+.header-agregar h3 {
+  margin: 0;  /* Elimina el margen por defecto */
+  text-align: center;  /* Centra el texto del h3 */
+  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+}
+
+.header-editar {
+  display: flex;  /* Utilizamos flexbox */
+  justify-content: space-between;  /* Esto alinea los elementos a los extremos */
+  align-items: center;  /* Alinea verticalmente los elementos */
+  margin-bottom: 20px;  /* Espacio entre el encabezado y el formulario */
+}
+
+.header-editar h3 {
+  margin: 0;  /* Elimina el margen por defecto */
+  text-align: center;  /* Centra el texto del h3 */
+  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+}
+
+/* Contenedor principal del formulario */
+.frm_agregar_producto {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los campos de texto */
+.frm_agregar_producto input{
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.frm_agregar_producto select{
+  width: 106%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+/* Efecto de enfoque en los campos de texto */
+.frm_agregar_producto input:focus {
+  border-color: #4CAF50;
+  outline: none;
+  background-color: #fff;
+}
+
+/* Estilo para el botón de submit */
+.frm_agregar_producto .btn-submit {
+  width: 100%;
+  padding: 12px;
+  margin: 20px 0 0;
+  background-color: #008604;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+/* Efecto hover para el botón */
+.frm_agregar_producto .btn-submit:hover {
+  background-color: #005804;
+}
+
+/* Estilos para los placeholders */
+.frm_agregar_producto input::placeholder {
+  color: #888;
+  font-style: italic;
+}
+
+/* Diseño para el formulario móvil */
+@media (max-width: 480px) {
+  .frm_agregar_producto {
+    padding: 15px;
+  }
+  .frm_agregar_producto input, .frm_agregar_producto .btn-submit {
+    font-size: 14px;
+  }
+}
+/* Estilo para el botón de submit */
+.btn-submit-editar {
+  width: 100%;
+  padding: 12px;
+  margin: 20px 0 0;
+  background-color: #ffd000;
+  color: #000000;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit-editar:hover {
+  background-color: #bd9a00;
+}
+
+
+/* Estilos opcionales para la tabla */
+.formulas-container {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formulas-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: 'Arial', sans-serif;
+}
+
+.formulas-table th, .formulas-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #dddddd;
+  font-size: 16px;
+}
+
+.formulas-table .ultima-columna {
+  width: 50px; /* Ajusta el tamaño según lo necesites */
+  text-align: center; /* Centra el contenido en la columna */
+}
+
+.formulas-table td i {
+  font-size: 20px; /* Tamaño del ícono en la columna de eliminar */
+}
+
+.formulas-table th {
+  background-color: #f2f2f2;
+}
+
+.formulas-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.formulas-table td {
+  width: 25%; /* Asegura que todas las columnas tengan el mismo tamaño */
+}
+
+.formulas-table td select,
+.formulas-table td input {
+  width: 100%; /* Los campos ocupan todo el ancho de la celda */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.frm_peso_color form {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.frm_peso_color .btn-submit {
+  width: auto; /* El botón ocupa solo el espacio necesario */
+  padding: 12px;
+  background-color: #008604;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.frm_peso_color .btn-submit:hover {
+  background-color: #005804;
+}
+
+.frm_peso_color {
+  display: flex;
+  flex-wrap: wrap; /* Asegura que los elementos no se desborden */
+  gap: 10px; /* Espacio entre los elementos */
+  align-items: center; /* Alinea los elementos verticalmente al centro */
+}
+
+.frm_peso_color form {
+  display: flex;
+  flex-direction: row; /* Los elementos estarán en una fila */
+  gap: 10px; /* Espacio entre los elementos dentro del formulario */
+  width: 100%; /* Se asegura que ocupe todo el espacio disponible */
+}
+
+.frm_peso_color .form-fields {
+  display: flex;
+  gap: 10px; /* Espacio entre el input y el select */
+  align-items: center;
+}
+
+.frm_peso_color label {
+  margin-right: 10px; /* Espacio entre la etiqueta y el siguiente campo */
+  color: black;
+  display: inline-block; /* Evita que se rompan en línea */
+}
+
+.frm_peso_color input,
+.frm_peso_color select {
+  padding: 5px;
+  width: 150px; /* Ajusta el tamaño de los campos */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.frm_peso_color .btn-submit {
+  width: 300px; /* El botón no ocupa todo el ancho */
+  padding: 12px;
+  background-color: #008604;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: auto; /* Empuja el botón a la derecha */
+}
+
+/* Efecto hover para el botón */
+.frm_peso_color .btn-submit:hover {
+  background-color: #005804;
+}
+
+.btn-agregar {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 50%; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar:hover {
+  background-color: #ffffff; /* Efecto al pasar el ratón */
+}
+
+.i_agregar {
+  font-size: 24px; /* Tamaño del ícono */
+  color: green; /* Color del ícono */
+}
+
+.btn-eliminar {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 50%; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-eliminar:hover {
+  background-color: #ffffff; /* Efecto al pasar el ratón */
+}
+
+.i_eliminar {
+  font-size: 24px; /* Tamaño del ícono */
+  color: red; /* Color del ícono */
+}
