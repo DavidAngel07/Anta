@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './dashboard.css';
 import logo from '../img/ANTA-2.png';
-import Productos from '../components/productos';
-import Formulas from '../components/formulas';
-import Procesos from '../components/procesos';
-
+import Productos from './productos';
+import Procesos from './procesos';
+import Perfil from './perfil';
+import Simulador from './simulador';
 
 const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -13,7 +13,8 @@ const Dashboard = () => {
     proveedor: '',
     cantidad: '',
     medida: '',
-    precio: ''
+    precio: '',
+    porcentaje: ''  // Añadido el campo porcentaje
   });
 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);  // Para almacenar el producto seleccionado
@@ -33,6 +34,36 @@ const handleSectionChange = (section, producto = null) => {
   }
 };
 
+const handleLogout = async () => {
+  try {
+    // Obtener el correo del usuario (asegúrate de que esté disponible de alguna manera)
+    const correo = 'usuario@correo.com'; // Debes obtener el correo de forma dinámica
+    
+    // Hacer la solicitud al servidor para actualizar el estado de "online" en la base de datos
+    const response = await fetch('/logout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ correo }), // Enviar el correo al servidor
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cerrar sesión en el servidor');
+    }
+
+    // Eliminar el token del localStorage
+    localStorage.removeItem('token');
+
+    // Redirigir a la página de login
+    window.location.href = '/login';
+
+  } catch (error) {
+    console.error('Error al cerrar sesión:', error);
+  }
+};
+
+
 
   // Maneja el cambio de los campos del formulario
   const handleInputChange = (e) => {
@@ -47,8 +78,8 @@ const handleSectionChange = (section, producto = null) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    // Asegurarse de que todos los campos estén llenos
-    if (!formData.producto || !formData.proveedor || !formData.cantidad || !formData.medida || !formData.precio) {
+    // Validar que todos los campos estén llenos
+    if (!formData.producto || !formData.proveedor || !formData.cantidad || !formData.medida || !formData.precio || !formData.porcentaje) {
       alert('Por favor, complete todos los campos');
       return;
     }
@@ -79,7 +110,7 @@ const handleSectionChange = (section, producto = null) => {
         alert(successMessage);
   
         // Limpiar formulario y regresar a la sección de productos
-        setFormData({ producto: '', proveedor: '', cantidad: '', medida: '', precio: '' });
+        setFormData({ producto: '', proveedor: '', cantidad: '', medida: '', precio: '', porcentaje: '' });
         setActiveSection('productos');
       } else {
         alert('Error al procesar el producto');
@@ -97,7 +128,7 @@ const handleSectionChange = (section, producto = null) => {
       <nav className="top-nav">
         <img src={logo} alt="Logo" className="logo-nav" />
         <div className="nav-right">
-          <a href="/login" className="btn-cerrar-sesion">Cerrar Sesión</a>
+          <a href="/login" className="btn-cerrar-sesion" onClick={() => handleLogout()}>Cerrar Sesión</a>
         </div>
       </nav>
       <div className='container-aside-contenido'>
@@ -125,17 +156,25 @@ const handleSectionChange = (section, producto = null) => {
                 href="#procesos"
                 onClick={() => handleSectionChange('procesos')}
                 className={activeSection === 'procesos' ? 'active' : ''}>
-                <i class="bi bi-hdd-rack"></i> Procesos
+                <i className="bi bi-hdd-rack"></i> Procesos
               </a>
             </li>
             <li>
               <a
-                href="#formulas"
-                onClick={() => handleSectionChange('formulas')}
-                className={activeSection === 'formulas' ? 'active' : ''}>
-                <i className="bi bi-calculator"></i> Fórmulas
+                href="#simulador"
+                onClick={() => handleSectionChange('simulador')}
+                className={activeSection === 'simulador' ? 'active' : ''}>
+                <i className="bi bi-calculator"></i> Simulador
               </a>
             </li>
+            {/*<li>
+              <a
+                href="#perfil"
+                onClick={() => handleSectionChange('perfil')}
+                className={activeSection === 'perfil' ? 'active' : ''}>
+                <i className="bi bi-calculator"></i> Perfil
+              </a>
+            </li>*/}
           </ul>
         </aside>
 
@@ -164,12 +203,18 @@ const handleSectionChange = (section, producto = null) => {
           </section>
         )}
 
-
-        {activeSection === 'formulas' && (
-          <section id="formulas">
-            <Formulas />
+        {activeSection === 'simulador' && (
+          <section id="simulador">
+            <Simulador />
           </section>
         )}
+
+        {activeSection === 'perfil' && (
+          <section id="perfil">
+            <Perfil />
+          </section>
+        )}
+
         {activeSection === 'agregar_producto' && (
           <section id="agregar_producto">
             <div className="header-agregar">
@@ -179,49 +224,57 @@ const handleSectionChange = (section, producto = null) => {
               <h3>Agregar Producto</h3>
             </div>
             <div className='container_agregar_producto'>
-              <form className='frm_agregar_producto' onSubmit={handleSubmit}>
-                <input 
-                  type='text' 
-                  placeholder='Producto' 
-                  name='producto' 
-                  value={formData.producto} 
-                  onChange={handleInputChange} 
-                />
-                <input 
-                  type='text' 
-                  placeholder='Proveedor' 
-                  name='proveedor' 
-                  value={formData.proveedor} 
-                  onChange={handleInputChange} 
-                />
-                <input 
-                  type='number' 
-                  placeholder='Cantidad' 
-                  name='cantidad' 
-                  value={formData.cantidad} 
-                  onChange={handleInputChange} 
-                />
-                <select
-                  name="medida"
-                  value={formData.medida}
-                  onChange={handleInputChange}
-                  className="select-medida"
-                >
-                  <option value="" disabled selected>
-                    Unidad de medida
-                  </option>
-                  <option value="kg">kg</option>
-                  <option value="mg">mg</option>
-                </select>
-                <input 
-                  type='number' 
-                  placeholder='Precio' 
-                  name='precio' 
-                  value={formData.precio} 
-                  onChange={handleInputChange} 
-                />
-                <button type="submit" className='btn-submit'>Guardar Producto</button>
-              </form>
+            <form className='frm_agregar_producto' onSubmit={handleSubmit}>
+      <input 
+        type='text' 
+        placeholder='Producto' 
+        name='producto' 
+        value={formData.producto} 
+        onChange={handleInputChange} 
+      />
+      <input 
+        type='text' 
+        placeholder='Proveedor' 
+        name='proveedor' 
+        value={formData.proveedor} 
+        onChange={handleInputChange} 
+      />
+      <input 
+        type='number' 
+        placeholder='Cantidad' 
+        name='cantidad' 
+        value={formData.cantidad} 
+        onChange={handleInputChange} 
+      />
+      <select
+        name="medida"
+        value={formData.medida}
+        onChange={handleInputChange}
+        className="select-medida"
+      >
+        <option value="" disabled selected>
+          Unidad de medida
+        </option>
+        <option value="kg">kg</option>
+        <option value="mg">mg</option>
+      </select>
+      <input 
+        type='number' 
+        placeholder='Precio' 
+        name='precio' 
+        value={formData.precio} 
+        onChange={handleInputChange} 
+      />
+      <input 
+  type="number" 
+  step="0.0001"  // Permite decimales
+  placeholder="Porcentaje" 
+  name="porcentaje" 
+  value={formData.porcentaje} 
+  onChange={handleInputChange} 
+/>
+      <button type="submit" className='btn-submit'>Guardar Producto</button>
+    </form>
             </div>
           </section>
         )}

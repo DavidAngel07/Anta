@@ -120,9 +120,20 @@ app.post('/logout', (req, res) => {
   // Cambiar el estado "online" a 0 cuando el usuario cierre sesión
   db.query('UPDATE usuarios SET online = 0 WHERE correo = ?', [correo], (err, result) => {
     if (err) {
+      console.error('Error al actualizar el estado online:', err);
       return res.status(500).send('Error al actualizar el estado online.');
     }
 
+    // Verificar si la actualización fue exitosa
+    if (result.affectedRows === 0) {
+      console.error(`No se pudo actualizar el estado online para el correo ${correo}.`);
+      return res.status(500).send('No se pudo actualizar el estado online.');
+    }
+
+    // Mostrar en consola el resultado de la sesión cerrada
+    console.log(`Usuario ${correo} ha cerrado sesión exitosamente.`);
+    
+    // Devolver respuesta
     res.status(200).send('Sesión cerrada exitosamente.');
   });
 });
@@ -180,16 +191,16 @@ app.get('/productos', (req, res) => {
   
 // Ruta para agregar un nuevo producto
 app.post('/productos', (req, res) => {
-  const { producto, proveedor, cantidad, medida, precio } = req.body;
+  const { producto, proveedor, cantidad, medida, precio, porcentaje } = req.body;
 
   // Validar los datos
-  if (!producto || !proveedor || !cantidad || !medida || !precio) {
+  if (!producto || !proveedor || !cantidad || !medida || !precio || porcentaje === undefined) {
     return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios' });
   }
 
   // Consulta SQL para insertar el producto
-  const query = 'INSERT INTO productos (producto, proveedor, cantidad, medida, precio) VALUES (?, ?, ?, ?, ?)';
-  db.query(query, [producto, proveedor, cantidad, medida, precio], (err, result) => {
+  const query = 'INSERT INTO productos (producto, proveedor, cantidad, medida, precio, porcentaje) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(query, [producto, proveedor, cantidad, medida, precio, porcentaje], (err, result) => {
     if (err) {
       console.error('Error al agregar el producto:', err);
       return res.status(500).json({ success: false, message: 'Error al agregar el producto' });
@@ -221,16 +232,16 @@ app.delete('/productos/:id', (req, res) => {
 // Ruta para actualizar un producto
 app.put('/productos/:id', (req, res) => {
   const { id } = req.params; // Obtenemos el id del producto desde la URL
-  const { producto, proveedor, cantidad, medida, precio } = req.body; // Obtenemos los datos actualizados del cuerpo de la solicitud
+  const { producto, proveedor, cantidad, medida, precio, porcentaje } = req.body; // Obtenemos los datos actualizados del cuerpo de la solicitud
 
   // Validar que todos los campos sean proporcionados
-  if (!producto || !proveedor || !cantidad || !medida || !precio) {
+  if (!producto || !proveedor || !cantidad || !medida || !precio || porcentaje === undefined) {
     return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios' });
   }
 
   // Consulta SQL para actualizar el producto
-  const query = 'UPDATE productos SET producto = ?, proveedor = ?, cantidad = ?, medida = ?, precio = ? WHERE id = ?';
-  db.query(query, [producto, proveedor, cantidad, medida, precio, id], (err, result) => {
+  const query = 'UPDATE productos SET producto = ?, proveedor = ?, cantidad = ?, medida = ?, precio = ?, porcentaje = ? WHERE id = ?';
+  db.query(query, [producto, proveedor, cantidad, medida, precio, porcentaje, id], (err, result) => {
     if (err) {
       console.error('Error al actualizar el producto:', err);
       return res.status(500).json({ success: false, message: 'Error al actualizar el producto' });
@@ -264,16 +275,26 @@ app.get('/api/lotes_cueros', (req, res) => {
   });
 });
 
+// Ruta para obtener los procesos
+app.get('/api/procesos', (req, res) => {
+  db.query('SELECT nombre_proceso FROM procesos', (err, results) => {
+    if (err) {
+      return res.status(500).send('Error al obtener los procesos.');
+    }
+    res.status(200).json(results);  // Enviar los lotes como respuesta en formato JSON
+  });
+});
+
 // Ruta para agregar un nuevo lote
 app.post('/api/lotes_cueros', (req, res) => {
-  const { tipo_cuero, cantidad } = req.body;
+  const { tipo_cuero, cantidad, peso } = req.body;
 
-  if (!tipo_cuero || !cantidad) {
+  if (!tipo_cuero || !cantidad || !peso) {
     return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios' });
   }
 
-  // Obtener el primer proceso disponible
-  db.query('SELECT id FROM procesos ORDER BY id ASC LIMIT 1', (err, results) => {
+  // Obtener el primer proceso disponible con el nombre
+  db.query('SELECT nombre_proceso FROM procesos ORDER BY orden ASC LIMIT 1', (err, results) => {
     if (err) {
       console.error('Error al obtener el primer proceso:', err);
       return res.status(500).json({ success: false, message: 'Error al obtener el proceso inicial.' });
@@ -283,20 +304,51 @@ app.post('/api/lotes_cueros', (req, res) => {
       return res.status(400).json({ success: false, message: 'No hay procesos definidos.' });
     }
 
-    const procesoInicial = results[0].id;
+    const procesoInicial = results[0].nombre_proceso;  // Usar el nombre del proceso
+    console.log('Proceso inicial seleccionado:', procesoInicial); // Verificar que sea el nombre del proceso
 
     // Insertar el lote con datos predeterminados
     const query = `
-      INSERT INTO lotes_cueros (tipo_cuero, cantidad, fecha_creacion, color, proceso_actual)
-      VALUES (?, ?, NOW(), 'indefinido', ?)
+        INSERT INTO lotes_cueros (tipo_cuero, cantidad, fecha_creacion, peso, proceso_actual)
+        VALUES (?, ?, NOW(), ?, ?)
     `;
-    db.query(query, [tipo_cuero, cantidad, procesoInicial], (err, result) => {
+    console.log('Consulta SQL:', query, [tipo_cuero, cantidad, peso, procesoInicial]); // Verificar la consulta
+
+    db.query(query, [tipo_cuero, cantidad, peso, procesoInicial], (err, result) => {
       if (err) {
         console.error('Error al agregar el lote:', err);
         return res.status(500).json({ success: false, message: 'Error al agregar el lote.' });
       }
-      res.status(200).console.log("Fecha de creación generada:", new Date());
-      res.status(200).json({ success: true, message: 'Lote agregado correctamente' });
+
+      // Obtener el lote recién creado con el nombre del proceso
+      const responseData = {
+        id: result.insertId,
+        tipo_cuero,
+        cantidad,
+        fecha_creacion: new Date(),
+        peso,
+        proceso_actual: procesoInicial, // Aquí se devuelve el nombre del proceso
+      };
+
+      // Responder con éxito incluyendo el nombre del proceso
+      return res.status(200).json({
+        success: true,
+        message: 'Lote agregado correctamente',
+        lote: responseData,
+      });
     });
+  });
+});
+
+app.get('/api/lotes_cueros/:id', (req, res) => {
+  const { id } = req.params;
+  db.query('SELECT * FROM lotes_cueros WHERE id = ?', [id], (err, result) => {
+      if (err) {
+          return res.status(500).send('Error al obtener el lote.');
+      }
+      if (result.length === 0) {
+          return res.status(404).send('Lote no encontrado.');
+      }
+      res.status(200).json(result[0]);
   });
 });

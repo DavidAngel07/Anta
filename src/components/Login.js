@@ -16,27 +16,30 @@ const Login = () => {
     setCargando(true);
   
     try {
-      const response = await axios.post('http://localhost:3001/login', {
-        correo,
-        contraseña,
+      const response = await fetch('http://localhost:3001/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ correo, contraseña }),
       });
-  
-      setMensaje('Inicio de sesión exitoso');
-      setCargando(false);
-  
-      // Redirige al Dashboard en caso de éxito
-      navigate('/dashboard');
-    } catch (error) {
-      const mensajeError =
-        error.response && error.response.data
-          ? error.response.data
-          : 'Error al iniciar sesión. Por favor, intenta de nuevo.';
-  
-      setMensaje(mensajeError);
-      setCargando(false);
-    }
-  };
-  
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+          // Guardamos el token en localStorage
+          localStorage.setItem('token', data.token);
+          // Redirigimos al Dashboard
+          window.location.href = '/dashboard';
+      } else {
+          console.error(data.message);
+      }
+  } catch (error) {
+      console.error("Error al hacer login:", error);
+  }
+};
+
+ 
 
   return (
     <div className='container'>

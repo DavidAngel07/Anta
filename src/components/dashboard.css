@@ -1,14 +1,15 @@
 /* Contenedor principal */
+
 .dashboard-container {
   display: flex;
   min-height: 98vh;
+  min-width: 100vh;
   background-color: #f4f4fc;
   flex-direction: column;
 }
 
 .container-aside-contenido{
   display: flex;
-  min-height: 90vh;
 }
 
 .bi{
@@ -17,7 +18,7 @@
   
   /* Sidebar (Aside) */
   .sidebar {
-    width: 250px;
+    width: 200px;
     background-color: #ffffff;
     padding: 20px;
     display: flex;
@@ -73,6 +74,8 @@
   .main-content {
     flex-grow: 1;
     padding: 20px;
+    height: 85vh; /* Hace que el contenedor ocupe el 100% de la altura de la ventana */
+    overflow-y: auto; /* Añade el scroll vertical si el contenido excede la altura */
   }  
   
   .main-content h2 {
@@ -116,7 +119,7 @@
   
   .tabla th, .tabla td {
     padding: 15px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #dddddd;
     font-size: 16px;
   }
@@ -157,8 +160,20 @@
   
 .procesos th,
 .procesos td {
-  width: 150px; /* Ajusta este valor según lo necesites */
+  width: 170px; /* Valor por defecto para las columnas que no estén especificadas */
 }
+
+/* Séptima columna (Proceso Actual) */
+.procesos th:nth-child(1),
+.procesos td:nth-child(1) {
+  width: 40px;
+}
+/* Séptima columna (Proceso Actual) */
+.procesos th:nth-child(7),
+.procesos td:nth-child(7) {
+  width: 30px;
+}
+
 
 
 /* Barra de navegación superior */
@@ -171,7 +186,6 @@
   color: #fff;
   position: sticky;
   top: 0;
-  width: 100%;
 }
 
 .logo-nav {
@@ -196,7 +210,12 @@ color: #fff;
   color: #000000;
   }
 
-.btn-cerrar-sesion, .btn_eliminar, .btn_editar{
+  .btn_ver{
+    background-color: #65b3fc;
+    color: #000000;
+    }
+
+.btn-cerrar-sesion, .btn_eliminar, .btn_editar, .btn_ver{
   display: inline-block;
   padding: 10px 15px;
   border-radius: 45px;
@@ -210,6 +229,10 @@ color: #fff;
 
 .btn_editar:hover{
   background-color: #e49400;
+}
+
+.btn_ver:hover{
+  background-color: #c0ebff;
 }
 
 .btn_azul, .volver {
@@ -348,7 +371,7 @@ color: #fff;
 
 
 /* Estilos opcionales para la tabla */
-.formulas-container {
+.lote-container {
   padding: 20px;
   background-color: #ffffff;
   border-radius: 12px;
@@ -356,7 +379,7 @@ color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.formulas-table {
+.lote-table {
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
@@ -365,50 +388,66 @@ color: #fff;
   font-family: 'Arial', sans-serif;
 }
 
-.formulas-table th, .formulas-table td {
+.lote-table th {
   padding: 15px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid #dddddd;
   font-size: 16px;
 }
 
-.formulas-table .ultima-columna {
+.lote-table td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #dddddd;
+  font-size: 16px;
+}
+
+.lote-table .ultima-columna {
   width: 50px; /* Ajusta el tamaño según lo necesites */
   text-align: center; /* Centra el contenido en la columna */
 }
 
-.formulas-table td i {
+.lote-table td i {
   font-size: 20px; /* Tamaño del ícono en la columna de eliminar */
 }
 
-.formulas-table th {
+.lote-table th {
   background-color: #f2f2f2;
 }
 
-.formulas-table tr:nth-child(even) {
+.lote-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-.formulas-table td {
+.lote-table td {
   width: 25%; /* Asegura que todas las columnas tengan el mismo tamaño */
 }
 
-.formulas-table td select,
-.formulas-table td input {
+.lote-table td select,
+.lote-table td input {
   width: 100%; /* Los campos ocupan todo el ancho de la celda */
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.frm_peso_color form {
+.total-general{
+  text-align: right;
+  margin-right: 150px;
+}
+
+.frm_des_div{
+  margin-top: 50px;
+}
+
+.frm_des_div form, .frm_sulfurada form {
   display: flex;
   gap: 10px;
   justify-content: space-between;
   width: 100%;
 }
 
-.frm_peso_color .btn-submit {
+.frm_des_div .btn-submit, .frm_sulfurada .btn-submit {
   width: auto; /* El botón ocupa solo el espacio necesario */
   padding: 12px;
   background-color: #008604;
@@ -420,45 +459,45 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.frm_peso_color .btn-submit:hover {
+.frm_des_div .btn-submit:hover, .frm_sulfurada .btn-submit:hover {
   background-color: #005804;
 }
 
-.frm_peso_color {
+.frm_des_div, .frm_sulfurada {
   display: flex;
   flex-wrap: wrap; /* Asegura que los elementos no se desborden */
   gap: 10px; /* Espacio entre los elementos */
   align-items: center; /* Alinea los elementos verticalmente al centro */
 }
 
-.frm_peso_color form {
+.frm_des_div form, .frm_sulfurada form {
   display: flex;
   flex-direction: row; /* Los elementos estarán en una fila */
   gap: 10px; /* Espacio entre los elementos dentro del formulario */
   width: 100%; /* Se asegura que ocupe todo el espacio disponible */
 }
 
-.frm_peso_color .form-fields {
+.frm_des_div .form-fields, .frm_sulfurada .form-fields {
   display: flex;
   gap: 10px; /* Espacio entre el input y el select */
   align-items: center;
 }
 
-.frm_peso_color label {
+.frm_des_div label, .frm_sulfurada label {
   margin-right: 10px; /* Espacio entre la etiqueta y el siguiente campo */
   color: black;
   display: inline-block; /* Evita que se rompan en línea */
 }
 
-.frm_peso_color input,
-.frm_peso_color select {
+.frm_des_div input, .frm_sulfurada input,
+.frm_des_div select, .frm_sulfurada select {
   padding: 5px;
   width: 150px; /* Ajusta el tamaño de los campos */
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-.frm_peso_color .btn-submit {
+.frm_des_div .btn-submit, .frm_sulfurada .btn-submit {
   width: 300px; /* El botón no ocupa todo el ancho */
   padding: 12px;
   background-color: #008604;
@@ -472,8 +511,90 @@ color: #fff;
 }
 
 /* Efecto hover para el botón */
-.frm_peso_color .btn-submit:hover {
+.frm_des_div .btn-submit:hover, .frm_sulfurada .btn-submit:hover {
   background-color: #005804;
+}
+
+.btn-descargar-pdf{
+  background-color:#dd0000;
+  border: none;
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 25px; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar-sulf{
+  background-color:#008604;
+  border: none;
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 25px; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-guardar{
+  background-color:#0037cf;
+  border: none;
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 250px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 25px; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar-sulf-container {
+  display: flex;
+  justify-content: center; /* Centra el botón */
+  margin-top: 20px; /* Espacio entre el contenido y el botón */
+}
+
+.btn-agregar-sulf:hover {
+  background-color: rgb(0, 68, 0);
+}
+
+.btn-descargar-pdf:hover {
+  background-color: rgb(102, 0, 0);
+}
+
+.btn-guardar:hover {
+  background-color: rgb(10, 0, 68);
+}
+
+.btn-guardar:disabled {
+  background-color: #6f9dff; /* Color de fondo cuando está deshabilitado */
+  color: #ffffff; /* Color del texto cuando está deshabilitado */
+  cursor: not-allowed; /* Cambia el cursor a no permitido */
+}
+
+.lote-content .header-container {
+  display: flex;
+  justify-content: space-between; /* Alinea el h4 a la izquierda y el botón a la derecha */
+  align-items: center; /* Centra verticalmente los elementos dentro del contenedor */
+}
+
+.lote-content .btn-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
 }
 
 .btn-agregar {
@@ -520,4 +641,144 @@ color: #fff;
 .i_eliminar {
   font-size: 24px; /* Tamaño del ícono */
   color: red; /* Color del ícono */
+}
+
+.lote_titulo h2 {
+  margin: 0;  /* Elimina el margen por defecto */
+  text-align: center;  /* Centra el texto del h3 */
+  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+  color: #0014ca;
+  font-size: 30px;
+}
+
+.lote_subtitulo h1{
+  color: #000d80;
+  padding: 15px;
+  font-size: 20px;
+  margin-top: 5px;
+  margin: 0;
+}
+
+.lote-container {
+  margin: 20px;
+  font-size: 15px;
+}
+
+.lote_subtitulo i {
+  transition: transform 0.3s ease;
+}
+
+.lote_subtitulo{
+  display: flex; 
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f4f4fc;
+  border-radius: 15px;
+}
+
+.lote-content {
+  margin: 10px;
+  box-shadow: 0 0 10px rgba(0, 2, 138, 0.1);
+  border-radius: 10px;
+  padding: 15px;
+  padding-top: 0.5px;
+  display: block;
+}
+
+.lote-content h4{
+  background-color: #000d46;
+  color: #e6eaff;
+  width: 150px;
+  border-radius: 35px;
+  text-align: center;
+  padding: 10px;
+}
+
+.nav-procesos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-procesos a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  color: #000d46;
+  text-decoration: none;
+  font-weight: normal;
+  padding: 8px 12px;
+  transition: all 0.3s ease;
+}
+
+.nav-procesos ul {
+  display: flex;
+  list-style: none;
+  gap: 20px;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-procesos li {
+  padding: 10px 15px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent; /* Línea indicadora */
+  transition: border-color 0.3s, color 0.3s;
+}
+
+.nav-procesos li.active a {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.nav-procesos li.active {
+  border-bottom: 2px solid #000d46; /* Marca la pestaña activa */
+}
+
+.nav-procesos .active-tab {
+  font-weight: bold;
+  font-size: 18px;
+  color: #020083; /* Puedes cambiar el color */
+}
+
+.perfil-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.perfil-info, .perfil-editar {
+  width: 48%; /* Ajusta el ancho según sea necesario */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.perfil-info h2, .perfil-editar h2{
+  margin-bottom: 20px;
+}
+
+.perfil-info form div, .perfil-editar div{
+  margin-bottom: 15px;
+}
+
+.perfil-info label, .perfil-editar label{
+  display: block;
+  margin-bottom: 5px;
+}
+
+.perfil-info input, .perfil-editar input{
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.perfil-info button, .perfil-editar button{
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
 }
