@@ -12,11 +12,11 @@ app.use(express.json());
 
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST || 'mysql.railway.internal',
+  host: process.env.MYSQL_HOST || 'crossover.proxy.rlwy.net',
   user: process.env.MYSQL_USER || 'root',
   password: process.env.MYSQL_PASSWORD || 'PRyQrtojaQmbSELgrRirBkSFHMKGSQrq',
-  database: process.env.MYSQL_DATABASE || 'railway',
-  port: process.env.MYSQL_PORT || '3306',
+  database: process.env.MYSQL_DATABASE || 'anta',
+  port: process.env.MYSQL_PORT || '24421',
 });
 
 db.connect((err) => {
