@@ -43,7 +43,7 @@ const Lote = ({ loteId }) => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('http://localhost:3001/productos');
+        const response = await fetch('httpa://anta-production.up.railway.app/productos');
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -57,7 +57,7 @@ const Lote = ({ loteId }) => {
   useEffect(() => {
     const fetchLote = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/lotes_cueros/${loteId}`); // Ruta corregida
+        const response = await fetch(`httpa://anta-production.up.railway.app/api/lotes_cueros/${loteId}`); // Ruta corregida
   
         if (!response.ok) {
           const errorData = await response.json(); // Obtén los detalles del error desde el backend
@@ -84,7 +84,7 @@ const Lote = ({ loteId }) => {
   useEffect(() => {
     const fetchSulfuradas = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/sulfuradas/${loteId}`);
+        const response = await fetch(`httpa://anta-production.up.railway.app/api/sulfuradas/${loteId}`);
         if (!response.ok) {
           throw new Error('Error al obtener sulfuradas');
         }

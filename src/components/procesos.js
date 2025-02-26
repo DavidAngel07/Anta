@@ -19,7 +19,7 @@ const Procesos = () => {
   useEffect(() => {
     const obtenerLotes = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/lotes_cueros");
+        const response = await axios.get("https://anta-production.up.railway.app/api/lotes_cueros");
         setLotes(response.data);
       } catch (error) {
         console.error("Error al obtener los lotes:", error);
@@ -28,7 +28,7 @@ const Procesos = () => {
 
     const obtenerProcesos = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/procesos");
+        const response = await axios.get("https://anta-production.up.railway.app/api/procesos");
         setProcesos(response.data);
       } catch (error) {
         console.error("Error al obtener los procesos:", error);
@@ -46,7 +46,7 @@ const Procesos = () => {
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3001/api/lotes_cueros", {
+      const response = await axios.post("https://anta-production.up.railway.app/api/lotes_cueros", {
         tipo_cuero: tipoCuero,
         cantidad,
         peso,

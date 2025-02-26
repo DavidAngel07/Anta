@@ -86,12 +86,12 @@ const handleLogout = async () => {
   
     try {
       let response;
-      let url = 'http://localhost:3001/productos';
+      let url = 'https://anta-production.up.railway.app/productos';
       let method = 'POST';  // Predeterminado a POST, para agregar productos
   
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
-        url = `http://localhost:3001/productos/${productoSeleccionado.id}`;  // Usamos el ID del producto
+        url = `https://anta-production.up.railway.app/productos/${productoSeleccionado.id}`;  // Usamos el ID del producto
         method = 'PUT';  // Cambiamos el método a PUT para la actualización
       }
   
