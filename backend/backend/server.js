@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');  // Agregamos JWT para manejo de sesión
-
+require("dotenv").config(); // Para leer las variables de entorno desde un archivo .env
 const app = express();
 
 // Middlewares
@@ -12,19 +12,22 @@ app.use(express.json());
 
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'anta',
+  host: process.env.MYSQL_HOST || 'mysql.railway.internal',
+  user: process.env.MYSQL_USER || 'root',
+  password: process.env.MYSQL_PASSWORD || 'xIbwUShObLhAtbkPlQaeeTWszVKVOmkj',
+  database: process.env.MYSQL_DATABASE || 'railway',
+  port: process.env.MYSQL_PORT || '3306',
 });
 
 db.connect((err) => {
   if (err) {
-    console.error('❌ Error conectando a la base de datos:', err);
-  } else {
-    console.log('✅ Conectado a la base de datos MySQL');
+    console.error("❌Error conectando a la base de datos:", err);
+    return;
   }
+  console.log("✅Conectado a la base de datos MySQL en Railway");
 });
+
+module.exports = db;
 
 // ✅ Ruta para registrar un usuario
 app.post('/register', (req, res) => {
