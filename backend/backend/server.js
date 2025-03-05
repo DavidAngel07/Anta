@@ -3,7 +3,7 @@ const mysql = require('mysql');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');  // Agregamos JWT para manejo de sesión
-require("dotenv").config(); // Para leer las variables de entorno desde un archivo .env
+require('dotenv').config(); // Para leer las variables de entorno desde un archivo .env
 const app = express();
 
 // Middlewares
