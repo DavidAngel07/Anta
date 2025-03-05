@@ -1,15 +1,16 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');  // Agregamos JWT para manejo de sesión
 require('dotenv').config(); // Para leer las variables de entorno desde un archivo .env
 const app = express();
 
-// Middlewares
-app.use(cors({ origin: "https://anta-production.up.railway.app" }));
-app.use(express.json());
-
+const corsOptions = {
+  origin: ["https://anta-production.up.railway.app", "http://fulfilling-clarity-production.up.railway.app"], 
+  credentials: true
+};
+app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST || 'crossover.proxy.rlwy.net',
