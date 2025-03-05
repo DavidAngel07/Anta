@@ -177,10 +177,10 @@ app.get('/dashboard', verificarSesion, (req, res) => {
 });
 
 // 🚀 Iniciar el servidor
-const PORT = process.env.PORT || 3001;
+const PORT = "https://fulfilling-clarity-production.up.railway.app";
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en https://fulfilling-clarity-production.up.railway.app${PORT}`);
 });
 
 // Ruta para obtener productos
