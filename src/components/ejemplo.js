@@ -21,7 +21,7 @@ const Formulas = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('https://anta-production.up.railway.app/productos'); // Asegúrate de que la URL sea correcta
+        const response = await fetch('https://backend-anta.up.railway.app/productos'); // Asegúrate de que la URL sea correcta
         const data = await response.json();
         setProductos(data); // Guardamos los productos en el estado
       } catch (error) {

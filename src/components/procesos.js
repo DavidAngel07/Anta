@@ -19,7 +19,7 @@ const Procesos = () => {
   useEffect(() => {
     const obtenerLotes = async () => {
       try {
-        const response = await axios.get("https://anta-production.up.railway.app/api/lotes_cueros");
+        const response = await axios.get("https://backend-anta.up.railway.app/api/lotes_cueros");
         setLotes(response.data);
       } catch (error) {
         console.error("Error al obtener los lotes:", error);
@@ -28,7 +28,7 @@ const Procesos = () => {
 
     const obtenerProcesos = async () => {
       try {
-        const response = await axios.get("https://anta-production.up.railway.app/api/procesos");
+        const response = await axios.get("https://backend-anta.up.railway.app/api/procesos");
         setProcesos(response.data);
       } catch (error) {
         console.error("Error al obtener los procesos:", error);

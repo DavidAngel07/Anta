@@ -12,7 +12,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      await axios.post('https://anta-production.up.railway.app/register', {
+      await axios.post('https://backend-anta.up.railway.app/register', {
         nombre,
         correo,
         contraseña,

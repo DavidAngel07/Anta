@@ -7,7 +7,7 @@ require('dotenv').config(); // Para leer las variables de entorno desde un archi
 const app = express();
 
 const corsOptions = {
-  origin: ["https://anta-production.up.railway.app", "http://fulfilling-clarity-production.up.railway.app"], 
+  origin: ["https://anta-production.up.railway.app"], 
   credentials: true
 };
 app.use(cors(corsOptions));
@@ -177,10 +177,10 @@ app.get('/dashboard', verificarSesion, (req, res) => {
 });
 
 // 🚀 Iniciar el servidor
-const PORT = "https://fulfilling-clarity-production.up.railway.app";
+const PORT = "https://backend-anta.up.railway.app";
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en https://fulfilling-clarity-production.up.railway.app${PORT}`);
+  console.log(`Servidor corriendo en https://backend-anta.up.railway.app`);
 });
 
 // Ruta para obtener productos
