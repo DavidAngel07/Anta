@@ -6,16 +6,19 @@ const jwt = require("jsonwebtoken"); // Agregamos JWT para manejo de sesión
 require("dotenv").config(); // Para leer las variables de entorno desde un archivo .env
 const app = express();
 app.use(express.json());
+
 const corsOptions = {
   origin: [
-    "http://localhost:3000", // Desarrollo
-    "https://anta-system.up.railway.app/", // Producción (ajusta la URL)
+    "http://localhost:3000",  // Para desarrollo local
+    "https://anta-system.up.railway.app",  // Para producción en Railway
   ],
   credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
 };
-app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
+
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
   host: process.env.MYSQL_HOST,  

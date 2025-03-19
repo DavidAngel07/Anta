@@ -13,7 +13,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setCargando(true);
-
+    setMensaje(""); // Limpiar mensaje anterior
+  
     try {
       const response = await fetch("https://anta-backend.up.railway.app/login", {
         method: "POST",
@@ -21,22 +22,28 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ correo, contraseña }),
+        credentials: "include", // Esto permite enviar cookies/sesiones si usas JWT
       });
-
-      const data = await response.json();
-
-      if (response.status === 200) {
-        // Guardamos el token en localStorage
-        localStorage.setItem("token", data.token);
-        // Redirigimos al Dashboard
-        window.location.href = "/dashboard";
-      } else {
-        console.error(data.message);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error en el inicio de sesión");
       }
+  
+      const data = await response.json();
+  
+      // Guardamos el token en localStorage
+      localStorage.setItem("token", data.token);
+  
+      // Redirigimos al Dashboard
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error al hacer login:", error);
+      setMensaje(error.message); // Muestra el mensaje de error en la UI
+    } finally {
+      setCargando(false);
     }
-  };
+  };  
 
   return (
     <div className="container">
