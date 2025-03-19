@@ -11,14 +11,6 @@ const corsOptions = {
   credentials: true,
 };
 
-const fs = require("fs");
-
-fs.readdirSync("./").forEach(file => {
-    console.log("Archivo/Carpeta:", file);
-});
-
-console.log("Iniciando servidor...");
-
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
