@@ -11,15 +11,15 @@ const Procesos = () => {
   const [cantidad, setCantidad] = useState("");
   const [peso, setPeso] = useState("");
   const [procesoActual, setProcesoActual] = useState("");
-  const [activeSection, setActiveSection] = useState("procesos"); // Estado para manejar la sección activa
-  const [selectedLote, setSelectedLote] = useState(null); // Almacena el lote seleccionado
+  const [activeSection, setActiveSection] = useState("procesos");
+  const [selectedLote, setSelectedLote] = useState(null);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const obtenerLotes = async () => {
       try {
-        const response = await axios.get("https://backend-anta.up.railway.app/api/lotes_cueros");
+        const response = await axios.get("http://localhost:3001/api/lotes_cueros");
         setLotes(response.data);
       } catch (error) {
         console.error("Error al obtener los lotes:", error);
@@ -28,7 +28,7 @@ const Procesos = () => {
 
     const obtenerProcesos = async () => {
       try {
-        const response = await axios.get("https://backend-anta.up.railway.app/api/procesos");
+        const response = await axios.get("http://localhost:3001/api/procesos");
         setProcesos(response.data);
       } catch (error) {
         console.error("Error al obtener los procesos:", error);
@@ -39,6 +39,21 @@ const Procesos = () => {
     obtenerProcesos();
   }, []);
 
+  useEffect(() => {
+    if (activeSection === "procesos") {
+      // Cargar los lotes cada vez que se vuelve a la sección de procesos
+      const obtenerLotes = async () => {
+        try {
+          const response = await axios.get("http://localhost:3001/api/lotes_cueros");
+          setLotes(response.data);
+        } catch (error) {
+          console.error("Error al obtener los lotes:", error);
+        }
+      };
+      obtenerLotes();
+    }
+  }, [activeSection]);
+
   const toggleFormulario = () => {
     setFormularioVisible(!isFormularioVisible);
   };
@@ -46,7 +61,7 @@ const Procesos = () => {
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("https://anta-production.up.railway.app/api/lotes_cueros", {
+      const response = await axios.post("http://localhost:3001/api/lotes_cueros", {
         tipo_cuero: tipoCuero,
         cantidad,
         peso,
@@ -59,6 +74,7 @@ const Procesos = () => {
         setPeso("");
         setProcesoActual("");
         setFormularioVisible(false);
+        // Actualizar el estado de lotes con el nuevo lote
         setLotes((prev) => [...prev, response.data.lote]);
       }
     } catch (error) {
@@ -150,9 +166,9 @@ const Procesos = () => {
                       <td>{lote.peso} kl</td>
                       <td>{lote.proceso_actual}</td>
                       <td>
-                      <a href="#lote" className="btn_ver" onClick={() => mostrarLote(lote)}>
+                        <a href="#lote" className="btn_ver" onClick={() => mostrarLote(lote)}>
                           Ver
-                      </a>
+                        </a>
                       </td>
                     </tr>
                   ))}
@@ -166,15 +182,13 @@ const Procesos = () => {
       {activeSection === "lote" && selectedLote && (
         <section id="lote">
           <a href="#procesos" onClick={() => setActiveSection("procesos")} className="btn_azul">
-          <i className="bi bi-backspace"></i>Volver
+            <i className="bi bi-backspace"></i>Volver
           </a>
           <Lote loteId={selectedLote.id} />
         </section>
       )}
-
     </div>
   );
 };
 
 export default Procesos;
-

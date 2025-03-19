@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const Formulas = () => {
   // Estado para almacenar los productos de la base de datos
   const [productos, setProductos] = useState([]);
-  
+
   // Estado para almacenar las filas de la tabla
   const [filas, setFilas] = useState([
-    { id: 1, producto: '', cantidad: '', precio: '' },
-    { id: 2, producto: '', cantidad: '', precio: '' },
-    { id: 3, producto: '', cantidad: '', precio: '' },
-    { id: 4, producto: '', cantidad: '', precio: '' },
-    { id: 5, producto: '', cantidad: '', precio: '' },
+    { id: 1, producto: "", cantidad: "", precio: "" },
+    { id: 2, producto: "", cantidad: "", precio: "" },
+    { id: 3, producto: "", cantidad: "", precio: "" },
+    { id: 4, producto: "", cantidad: "", precio: "" },
+    { id: 5, producto: "", cantidad: "", precio: "" },
   ]);
 
   // Estado para el peso y color
-  const [peso, setPeso] = useState('');
-  const [color, setColor] = useState('');
+  const [peso, setPeso] = useState("");
+  const [color, setColor] = useState("");
 
   // Usamos useEffect para obtener los productos cuando el componente se monte
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch('https://backend-anta.up.railway.app/productos'); // Asegúrate de que la URL sea correcta
+        const response = await fetch("http://localhost:3001/productos"); // Asegúrate de que la URL sea correcta
         const data = await response.json();
         setProductos(data); // Guardamos los productos en el estado
       } catch (error) {
-        console.error('Error al obtener los productos:', error);
+        console.error("Error al obtener los productos:", error);
       }
     };
 
@@ -52,18 +52,25 @@ const Formulas = () => {
 
   // Función para calcular el precio dividido entre la cantidad
   const calcularPrecio = () => {
-    if (!peso || !color || filas.some(fila => !fila.producto || !fila.cantidad)) {
+    if (
+      !peso ||
+      !color ||
+      filas.some((fila) => !fila.producto || !fila.cantidad)
+    ) {
       // Si el peso, color o algún select está vacío, mostramos una alerta
-      alert('Por favor, completa todos los campos antes de calcular.');
+      alert("Por favor, completa todos los campos antes de calcular.");
       return;
     }
 
     // Si todos los campos están llenos, realizamos el cálculo
-    const nuevasFilas = filas.map(fila => {
-      const productoSeleccionado = productos.find(producto => producto.id === parseInt(fila.producto));
+    const nuevasFilas = filas.map((fila) => {
+      const productoSeleccionado = productos.find(
+        (producto) => producto.id === parseInt(fila.producto)
+      );
       if (productoSeleccionado && fila.cantidad > 0) {
         // Usamos la cantidad del producto en la base de datos para el cálculo
-        const precioPorUnidad = productoSeleccionado.precio / productoSeleccionado.cantidad; // Dividimos el precio entre la cantidad del producto
+        const precioPorUnidad =
+          productoSeleccionado.precio / productoSeleccionado.cantidad; // Dividimos el precio entre la cantidad del producto
         return { ...fila, precio: precioPorUnidad.toFixed(2) }; // Asignamos el precio calculado
       }
       return fila;
@@ -74,44 +81,43 @@ const Formulas = () => {
 
   // Función para formatear los valores en pesos colombianos
   const formatoMoneda = (valor) => {
-  return new Intl.NumberFormat('es-CO', {
-    style: 'currency', // Esto mantiene el signo de pesos colombianos
-    currency: 'COP', // Asegura que sea en pesos colombianos
-    minimumFractionDigits: 0, // Elimina los decimales
-    maximumFractionDigits: 0, // Elimina los decimales
-  }).format(valor);
-};
-
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency", // Esto mantiene el signo de pesos colombianos
+      currency: "COP", // Asegura que sea en pesos colombianos
+      minimumFractionDigits: 0, // Elimina los decimales
+      maximumFractionDigits: 0, // Elimina los decimales
+    }).format(valor);
+  };
 
   // Agregar una nueva fila
   const handleAgregarFila = () => {
     const nuevaFila = {
       id: filas.length + 1, // Generamos un ID único
-      producto: '',
-      cantidad: '',
-      precio: '',
+      producto: "",
+      cantidad: "",
+      precio: "",
     };
     setFilas([...filas, nuevaFila]); // Agregamos la nueva fila al estado
   };
 
   // Eliminar una fila
   const handleEliminarFila = (id) => {
-    const nuevasFilas = filas.filter(fila => fila.id !== id); // Filtramos la fila por su ID
+    const nuevasFilas = filas.filter((fila) => fila.id !== id); // Filtramos la fila por su ID
     setFilas(nuevasFilas); // Actualizamos el estado
   };
 
   return (
     <div className="formulas-container">
-      <div className='frm_peso_color'>
+      <div className="frm_peso_color">
         <form>
-          <label style={{color: "black"}}>Peso total</label>
+          <label style={{ color: "black" }}>Peso total</label>
           <input
             type="text"
             value={peso}
             onChange={handlePesoChange}
-            placeholder='Ingrese el peso'
+            placeholder="Ingrese el peso"
           />
-          <label style={{color: "black"}}>Color</label>
+          <label style={{ color: "black" }}>Color</label>
           <select
             name="color"
             className="select-medida"
@@ -125,11 +131,7 @@ const Formulas = () => {
             <option value="Cafe">Cafe</option>
             <option value="Roble">Roble</option>
           </select>
-          <button
-            type="button"
-            className='btn-submit'
-            onClick={calcularPrecio}
-          >
+          <button type="button" className="btn-submit" onClick={calcularPrecio}>
             Calcular
           </button>
         </form>
@@ -178,7 +180,10 @@ const Formulas = () => {
                   className="btn-eliminar"
                   onClick={() => handleEliminarFila(fila.id)}
                 >
-                  <i className="bi bi-x-circle-fill i_eliminar" style={{color: 'red', fontSize: '24px'}}></i>
+                  <i
+                    className="bi bi-x-circle-fill i_eliminar"
+                    style={{ color: "red", fontSize: "24px" }}
+                  ></i>
                 </button>
               </td>
             </tr>
@@ -188,7 +193,10 @@ const Formulas = () => {
 
       {/* Botón para agregar una fila más */}
       <button className="btn-agregar" onClick={handleAgregarFila}>
-        <i className="bi bi-plus-circle" style={{color: 'green', fontSize: '24px'}}></i>
+        <i
+          className="bi bi-plus-circle"
+          style={{ color: "green", fontSize: "24px" }}
+        ></i>
       </button>
     </div>
   );

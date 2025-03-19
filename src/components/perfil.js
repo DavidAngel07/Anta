@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 const Perfil = () => {
   const [usuario, setUsuario] = useState(null);
   const [formData, setFormData] = useState({
-    nombre: '',
-    email: '',
-    telefono: '',
+    nombre: "",
+    email: "",
+    telefono: "",
     // Agrega más campos según sea necesario
   });
 
@@ -13,7 +13,7 @@ const Perfil = () => {
     // Simulación de una llamada a la API para obtener la información del usuario
     const fetchUsuario = async () => {
       // Aquí deberías hacer la llamada a tu API
-      const response = await fetch('https://backend-anta.up.railway.app/api/usuario/1'); // Cambia la URL según tu API
+      const response = await fetch("http://localhost:3001/api/usuario/1"); // Cambia la URL según tu API
       const data = await response.json();
       setUsuario(data);
       setFormData(data); // Inicializa el formulario con los datos del usuario
@@ -30,19 +30,19 @@ const Perfil = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Aquí deberías hacer la llamada a tu API para guardar los cambios
-    const response = await fetch('https://backend-anta.up.railway.app/api/usuario/1', {
-      method: 'PUT',
+    const response = await fetch("http://localhost:3001/api/usuario/1", {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
     });
 
     if (response.ok) {
-      alert('Información actualizada correctamente');
+      alert("Información actualizada correctamente");
       // Puedes volver a obtener la información del usuario si es necesario
     } else {
-      alert('Error al actualizar la información');
+      alert("Error al actualizar la información");
     }
   };
 
@@ -52,9 +52,15 @@ const Perfil = () => {
         <h2>Información del Usuario</h2>
         {usuario ? (
           <ul>
-            <li><strong>Nombre:</strong> {usuario.nombre}</li>
-            <li><strong>Email:</strong> {usuario.email}</li>
-            <li><strong>Teléfono:</strong> {usuario.telefono}</li>
+            <li>
+              <strong>Nombre:</strong> {usuario.nombre}
+            </li>
+            <li>
+              <strong>Email:</strong> {usuario.email}
+            </li>
+            <li>
+              <strong>Teléfono:</strong> {usuario.telefono}
+            </li>
             {/* Agrega más campos según sea necesario */}
           </ul>
         ) : (
