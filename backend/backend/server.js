@@ -49,18 +49,18 @@ app.post("/register", (req, res) => {
     [correo],
     (err, results) => {
       if (err) {
-        return res.status(500).send("Error al verificar el correo.");
+        return res.status(500).json("Error al verificar el correo.");
       }
 
       if (results.length > 0) {
-        return res.status(400).send("El correo ya está registrado.");
+        return res.status(400).json("El correo ya está registrado.");
       }
 
       // Encriptar la contraseña
       const saltRounds = 10;
       bcrypt.hash(contraseña, saltRounds, (err, hash) => {
         if (err) {
-          return res.status(500).send("Error al encriptar la contraseña.");
+          return res.status(500).json("Error al encriptar la contraseña.");
         }
 
         // Insertar el usuario en la base de datos
@@ -68,9 +68,9 @@ app.post("/register", (req, res) => {
           "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
         db.query(sql, [nombre, correo, hash], (err, result) => {
           if (err) {
-            return res.status(500).send("Error al registrar el usuario.");
+            return res.status(500).json("Error al registrar el usuario.");
           }
-          res.status(200).send("Usuario registrado exitosamente.");
+          res.status(200).json("Usuario registrado exitosamente.");
         });
       });
     }
@@ -88,22 +88,22 @@ app.post("/login", (req, res) => {
     (err, results) => {
       if (err) {
         console.error("Error al buscar el correo:", err);
-        return res.status(500).send("Error al buscar el correo.");
+        return res.status(500).json("Error al buscar el correo.");
       }
 
       if (results.length === 0) {
-        return res.status(400).send("Correo no registrado.");
+        return res.status(400).json("Correo no registrado.");
       }
 
       // Comparar la contraseña ingresada con la almacenada
       bcrypt.compare(contraseña, results[0].contraseña, (err, isMatch) => {
         if (err) {
           console.error("Error al comparar la contraseña:", err);
-          return res.status(500).send("Error al comparar la contraseña.");
+          return res.status(500).json("Error al comparar la contraseña.");
         }
 
         if (!isMatch) {
-          return res.status(400).send("Contraseña incorrecta.");
+          return res.status(400).json("Contraseña incorrecta.");
         }
 
         // Logueamos el estado del usuario
@@ -118,7 +118,7 @@ app.post("/login", (req, res) => {
               console.error("Error al actualizar estado online:", err);
               return res
                 .status(500)
-                .send("Error al actualizar el estado online.");
+                .json("Error al actualizar el estado online.");
             }
 
             // Verificamos si la actualización fue exitosa
@@ -128,7 +128,7 @@ app.post("/login", (req, res) => {
               );
               return res
                 .status(500)
-                .send("No se pudo actualizar el estado online.");
+                .json("No se pudo actualizar el estado online.");
             }
 
             console.log(`Estado online de ${correo} actualizado a 1.`);
@@ -159,7 +159,7 @@ app.post("/logout", (req, res) => {
     (err, result) => {
       if (err) {
         console.error("Error al actualizar el estado online:", err);
-        return res.status(500).send("Error al actualizar el estado online.");
+        return res.status(500).json("Error al actualizar el estado online.");
       }
 
       // Verificar si la actualización fue exitosa
@@ -167,14 +167,14 @@ app.post("/logout", (req, res) => {
         console.error(
           `No se pudo actualizar el estado online para el correo ${correo}.`
         );
-        return res.status(500).send("No se pudo actualizar el estado online.");
+        return res.status(500).json("No se pudo actualizar el estado online.");
       }
 
       // Mostrar en consola el resultado de la sesión cerrada
       console.log(`Usuario ${correo} ha cerrado sesión exitosamente.`);
 
       // Devolver respuesta
-      res.status(200).send("Sesión cerrada exitosamente.");
+      res.status(200).json("Sesión cerrada exitosamente.");
     }
   );
 });
@@ -198,7 +198,7 @@ const verificarSesion = (req, res, next) => {
       [decoded.id],
       (err, result) => {
         if (err) {
-          return res.status(500).send("Error al verificar estado online.");
+          return res.status(500).json("Error al verificar estado online.");
         }
 
         if (result.length === 0 || result[0].online === 0) {
