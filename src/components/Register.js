@@ -12,7 +12,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      await axios.post("http://localhost:3001/register", {
+      await axios.post("anta-backend.up.railway.app/register", {
         nombre,
         correo,
         contraseña,

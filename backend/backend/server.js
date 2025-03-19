@@ -14,19 +14,20 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST || "localhost",
-  user: process.env.MYSQL_USER || "root",
-  password: process.env.MYSQL_PASSWORD || "",
-  database: process.env.MYSQL_DATABASE || "anta",
-  port: process.env.MYSQL_PORT || "3306",
+  host: process.env.MYSQL_HOST,  
+  user: process.env.MYSQL_USER,  
+  password: process.env.MYSQL_PASSWORD,  
+  database: process.env.MYSQL_DATABASE,  
+  port: process.env.MYSQL_PORT || 3306,  
 });
 
+// Conectar a la base de datos
 db.connect((err) => {
   if (err) {
-    console.error("❌Error conectando a la base de datos:", err);
-    return;
+    console.error("❌ Error conectando a la base de datos:", err);
+  } else {
+    console.log("✅ Conexión exitosa a la base de datos");
   }
-  console.log("✅Conectado a la base de datos MySQL");
 });
 
 module.exports = db;
@@ -213,7 +214,7 @@ app.get("/dashboard", verificarSesion, (req, res) => {
 const PORT = 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:3001`);
+  console.log(`Servidor corriendo en anta-backend.up.railway.app`);
 });
 
 // Ruta para obtener productos

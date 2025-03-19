@@ -101,12 +101,12 @@ const Dashboard = () => {
 
     try {
       let response;
-      let url = "http://localhost:3001/productos";
+      let url = "anta-backend.up.railway.app/productos";
       let method = "POST"; // Predeterminado a POST, para agregar productos
 
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
-        url = `http://localhost:3001/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
+        url = `anta-backend.up.railway.app/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
         method = "PUT"; // Cambiamos el método a PUT para la actualización
       }
 
