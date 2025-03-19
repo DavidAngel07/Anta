@@ -1,7 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken"); // Agregamos JWT para manejo de sesión
 require("dotenv").config(); // Para leer las variables de entorno desde un archivo .env
 const app = express();
