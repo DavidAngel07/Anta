@@ -19,7 +19,6 @@ fs.readdirSync("./").forEach(file => {
 
 console.log("Iniciando servidor...");
 
-
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
