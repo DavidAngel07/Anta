@@ -7,9 +7,13 @@ require("dotenv").config(); // Para leer las variables de entorno desde un archi
 const app = express();
 app.use(express.json());
 const corsOptions = {
-  origin: ["http://localhost:3000"],
+  origin: [
+    "http://localhost:3000", // Desarrollo
+    "https://anta-system.up.railway.app/", // Producción (ajusta la URL)
+  ],
   credentials: true,
 };
+app.use(cors(corsOptions));
 
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
