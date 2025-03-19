@@ -20,7 +20,7 @@ const Simulador = () => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch("anta-backend.up.railway.app/productos");
+        const response = await fetch("https://anta-backend.up.railway.app/productos");
         const data = await response.json();
         setProductos(data);
       } catch (error) {

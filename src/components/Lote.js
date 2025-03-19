@@ -47,7 +47,7 @@ const Lote = ({ loteId }) => {
   useEffect(() => {
     const fetchProductos = async () => {
       try {
-        const response = await fetch("anta-backend.up.railway.app/productos");
+        const response = await fetch("https://anta-backend.up.railway.app/productos");
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -62,7 +62,7 @@ const Lote = ({ loteId }) => {
     const fetchLote = async () => {
       try {
         const response = await fetch(
-          `anta-backend.up.railway.app/api/lotes_cueros/${loteId}`
+          `https://anta-backend.up.railway.app/api/lotes_cueros/${loteId}`
         ); // Ruta corregida
 
         if (!response.ok) {

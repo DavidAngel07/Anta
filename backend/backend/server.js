@@ -214,7 +214,7 @@ app.get("/dashboard", verificarSesion, (req, res) => {
 const PORT = 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en anta-backend.up.railway.app`);
+  console.log(`Servidor corriendo en https://anta-backend.up.railway.app`);
 });
 
 // Ruta para obtener productos
