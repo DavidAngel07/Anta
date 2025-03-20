@@ -153,29 +153,30 @@ app.post("/login", (req, res) => {
 
 // ✅ Ruta para cerrar sesión
 app.post("/logout", (req, res) => {
-  const { id } = req.body; // Ahora recibimos el ID del usuario
+  const { correo } = req.body;
 
-  if (!id) {
-    console.error("Error: No se recibió el ID en la solicitud.");
-    return res.status(400).json("ID no proporcionado.");
+  if (!correo) {
+    return res.status(400).json("Correo no proporcionado.");
   }
 
-  console.log(`📩 Recibida solicitud de logout para usuario ID: ${id}`);
+  console.log(`📩 Recibida solicitud de logout para: ${correo}`);
 
-  const sql = "UPDATE usuarios SET online = 0 WHERE id = ?";
-  db.query(sql, [id], (err, result) => {
+  const sql = "UPDATE usuarios SET online = 0 WHERE correo = ?";
+  db.query(sql, [correo], (err, result) => {
     if (err) {
-      console.error("❌ Error al actualizar el estado online:", err);
       return res.status(500).json("Error al actualizar el estado online.");
     }
 
     if (result.affectedRows === 0) {
-      console.warn(`⚠️ No se encontró usuario con el ID ${id}.`);
       return res.status(404).json("No se encontró el usuario.");
     }
 
-    console.log(`✅ Usuario con ID ${id} ha cerrado sesión exitosamente.`);
-    res.status(200).json("Sesión cerrada exitosamente.");
+    console.log(`✅ Usuario ${correo} ha cerrado sesión exitosamente.`);
+
+    // Enviar respuesta indicando que debe eliminar el token
+    res
+      .status(200)
+      .json({ message: "Sesión cerrada exitosamente.", logout: true });
   });
 });
 
@@ -194,8 +195,8 @@ const verificarSesion = (req, res, next) => {
 
     // Verificar que el usuario esté online en la base de datos
     db.query(
-      "SELECT online FROM usuarios WHERE id = ?",
-      [decoded.id],
+      "SELECT online FROM usuarios WHERE correo = ?",
+      [decoded.correo],
       (err, result) => {
         if (err) {
           return res.status(500).json("Error al verificar estado online.");
