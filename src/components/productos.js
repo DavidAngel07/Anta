@@ -48,7 +48,13 @@ const Productos = ({ handleSectionChange }) => {
   };
 
   if (loading) {
-    return <div>Cargando productos...</div>;
+    return <div class="loading-wave">
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+    <div class="loading-bar"></div>
+  </div>
+  ;
   }
 
   if (error) {
