@@ -85,7 +85,7 @@ const Dashboard = () => {
   // Maneja el envío del formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validar que todos los campos estén llenos
     if (
       !formData.producto ||
@@ -98,34 +98,40 @@ const Dashboard = () => {
       alert("Por favor, complete todos los campos");
       return;
     }
-
+  
     try {
       let response;
       let url = "https://anta-backend.up.railway.app/productos";
       let method = "POST"; // Predeterminado a POST, para agregar productos
-
+  
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
         url = `https://anta-backend.up.railway.app/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
         method = "PUT"; // Cambiamos el método a PUT para la actualización
       }
-
+  
+      // Asegurar que el porcentaje se guarde como decimal (dividiendo entre 100)
+      const datosAEnviar = {
+        ...formData,
+        porcentaje: formData.porcentaje ? formData.porcentaje / 100 : 0, // Si el porcentaje es vacío, se guarda como 0
+      };
+  
       // Hacemos la solicitud para agregar o actualizar el producto
       response = await fetch(url, {
         method: method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(datosAEnviar),
       });
-
+  
       const data = await response.json();
       if (data.success) {
         const successMessage = productoSeleccionado
           ? "Producto actualizado exitosamente"
           : "Producto agregado exitosamente";
         alert(successMessage);
-
+  
         // Limpiar formulario y regresar a la sección de productos
         setFormData({
           producto: "",
@@ -144,6 +150,7 @@ const Dashboard = () => {
       alert("Hubo un problema al procesar el producto");
     }
   };
+  
 
   return (
     <div className="dashboard-container">
@@ -312,7 +319,7 @@ const Dashboard = () => {
                     name="porcentaje"
                     value={formData.porcentaje}
                     onChange={handleInputChange}
-                  />
+                  />%
                   <button type="submit" className="btn-submit">
                     Guardar Producto
                   </button>

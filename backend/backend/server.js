@@ -8,8 +8,7 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: [
-    "http://localhost:3000",  // Para desarrollo local
+  origin: [ 
     "https://anta-system.up.railway.app",  // Para producción en Railway
   ],
   credentials: true,
