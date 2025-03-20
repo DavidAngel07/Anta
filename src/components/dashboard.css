@@ -12,50 +12,53 @@
   display: flex;
 }
 
-/* From Uiverse.io by mrpumps31232 */ 
-.loading-wave {
-  width: 300px;
-  height: 100px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-.loading-bar {
-  width: 20px;
-  height: 10px;
-  margin: 0 5px;
-  background-color: #3498db;
-  border-radius: 5px;
-  animation: loading-wave-animation 1s ease-in-out infinite;
-}
-
-.loading-bar:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.loading-bar:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.loading-bar:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-@keyframes loading-wave-animation {
+/* From Uiverse.io by satyamchaudharydev */ 
+.loader {
+  --clr: #3498db;
+  /* color of spining  */
+  width: 150px;
+  height: 150px;
+  position: relative;
+  margin-left: 150px;
+ }
+ 
+ .loader:before, .loader:after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 100%;
+  height: 100%;
+  border-radius: 100%;
+  border: 10px solid transparent;
+  border-top-color: var(--clr);
+ }
+ 
+ .loader:before {
+  z-index: 100;
+  animation: spin 1s infinite;
+ }
+ 
+ .loader:after {
+  border: 10px solid #ccc;
+ }
+ 
+ @keyframes spin {
   0% {
-    height: 10px;
+   -webkit-transform: rotate(0deg);
+   -ms-transform: rotate(0deg);
+   -o-transform: rotate(0deg);
+   transform: rotate(0deg);
   }
-
-  50% {
-    height: 50px;
-  }
-
+ 
   100% {
-    height: 10px;
+   -webkit-transform: rotate(360deg);
+   -ms-transform: rotate(360deg);
+   -o-transform: rotate(360deg);
+   transform: rotate(360deg);
   }
-}
-
+ }
+ 
 
 .bi{
   margin-right: 5px;
