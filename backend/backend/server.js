@@ -153,28 +153,28 @@ app.post("/login", (req, res) => {
 
 // ✅ Ruta para cerrar sesión
 app.post("/logout", (req, res) => {
-  const { correo } = req.body;
+  const { id } = req.body; // Ahora recibimos el ID del usuario
 
-  if (!correo) {
-    console.error("Error: No se recibió el correo en la solicitud.");
-    return res.status(400).json("Correo no proporcionado.");
+  if (!id) {
+    console.error("Error: No se recibió el ID en la solicitud.");
+    return res.status(400).json("ID no proporcionado.");
   }
 
-  console.log(`📩 Recibida solicitud de logout para: ${correo}`);
+  console.log(`📩 Recibida solicitud de logout para usuario ID: ${id}`);
 
-  const sql = "UPDATE usuarios SET online = 0 WHERE correo = ?";
-  db.query(sql, [correo], (err, result) => {
+  const sql = "UPDATE usuarios SET online = 0 WHERE id = ?";
+  db.query(sql, [id], (err, result) => {
     if (err) {
       console.error("❌ Error al actualizar el estado online:", err);
       return res.status(500).json("Error al actualizar el estado online.");
     }
 
     if (result.affectedRows === 0) {
-      console.warn(`⚠️ No se encontró usuario con el correo ${correo}.`);
+      console.warn(`⚠️ No se encontró usuario con el ID ${id}.`);
       return res.status(404).json("No se encontró el usuario.");
     }
 
-    console.log(`✅ Usuario ${correo} ha cerrado sesión exitosamente.`);
+    console.log(`✅ Usuario con ID ${id} ha cerrado sesión exitosamente.`);
     res.status(200).json("Sesión cerrada exitosamente.");
   });
 });

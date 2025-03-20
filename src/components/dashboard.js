@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import jwtDecode from "jwt-decode";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
 import Productos from "./productos";
@@ -47,32 +48,36 @@ const Dashboard = () => {
 
   const handleLogout = async () => {
     try {
-      // Obtener el correo del usuario (asegúrate de que esté disponible de alguna manera)
-      const correo = "usuario@correo.com"; // Debes obtener el correo de forma dinámica
-
-      // Hacer la solicitud al servidor para actualizar el estado de "online" en la base de datos
-      const response = await fetch("/logout", {
+      // Obtener el token almacenado
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No hay sesión activa");
+  
+      // Decodificar el token para obtener el ID del usuario
+      const decoded = jwtDecode(token);
+      const usuarioId = decoded.id; // Asegúrate de que el token contiene el ID del usuario
+  
+      // Hacer la solicitud al backend para cerrar sesión
+      const response = await fetch("https://anta-backend.up.railway.app/logout", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ correo }), // Enviar el correo al servidor
+        body: JSON.stringify({ id: usuarioId }), // Ahora enviamos el ID en lugar del correo
       });
-
+  
       if (!response.ok) {
         throw new Error("Error al cerrar sesión en el servidor");
       }
-
+  
       // Eliminar el token del localStorage
       localStorage.removeItem("token");
-
+  
       // Redirigir a la página de login
       window.location.href = "/login";
     } catch (error) {
       console.error("Error al cerrar sesión:", error);
     }
   };
-
   // Maneja el cambio de los campos del formulario
   const handleInputChange = (e) => {
     const { name, value } = e.target;
