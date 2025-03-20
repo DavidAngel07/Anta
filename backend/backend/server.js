@@ -38,42 +38,41 @@ db.connect((err) => {
 
 module.exports = db;
 
-// ✅ Ruta para registrar un usuario
 app.post("/register", (req, res) => {
   const { nombre, correo, contraseña } = req.body;
+  console.log("📩 Recibiendo solicitud de registro:", req.body); // Ver los datos recibidos
 
   // Verificar si el correo ya existe
-  db.query(
-    "SELECT * FROM usuarios WHERE correo = ?",
-    [correo],
-    (err, results) => {
-      if (err) {
-        return res.status(500).json("Error al verificar el correo.");
-      }
-
-      if (results.length > 0) {
-        return res.status(400).json("El correo ya está registrado.");
-      }
-
-      // Encriptar la contraseña
-      const saltRounds = 10;
-      bcrypt.hash(contraseña, saltRounds, (err, hash) => {
-        if (err) {
-          return res.status(500).json("Error al encriptar la contraseña.");
-        }
-
-        // Insertar el usuario en la base de datos
-        const sql =
-          "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
-        db.query(sql, [nombre, correo, hash], (err, result) => {
-          if (err) {
-            return res.status(500).json("Error al registrar el usuario.");
-          }
-          res.status(200).json("Usuario registrado exitosamente.");
-        });
-      });
+  db.query("SELECT * FROM usuarios WHERE correo = ?", [correo], (err, results) => {
+    if (err) {
+      console.error("❌ Error al verificar el correo:", err);  // 👀 Ver error en consola
+      return res.status(500).json("Error al verificar el correo.");
     }
-  );
+
+    if (results.length > 0) {
+      return res.status(400).json("El correo ya está registrado.");
+    }
+
+    // Encriptar la contraseña
+    const saltRounds = 10;
+    bcrypt.hash(contraseña, saltRounds, (err, hash) => {
+      if (err) {
+        console.error("❌ Error al encriptar la contraseña:", err);
+        return res.status(500).json("Error al encriptar la contraseña.");
+      }
+
+      // Insertar el usuario en la base de datos
+      const sql = "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
+      db.query(sql, [nombre, correo, hash], (err, result) => {
+        if (err) {
+          console.error("❌ Error al registrar usuario:", err);
+          return res.status(500).json("Error al registrar el usuario.");
+        }
+        console.log("✅ Usuario registrado con éxito:", result);
+        res.status(200).json("Usuario registrado exitosamente.");
+      });
+    });
+  });
 });
 
 // ✅ Ruta para iniciar sesión
