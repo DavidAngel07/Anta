@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
 import Productos from "./productos";
