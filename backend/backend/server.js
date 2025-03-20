@@ -18,66 +18,57 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// 🔗 Conexión a la base de datos
-const db = mysql.createConnection({
+// 🔗 Configuración del pool de conexiones
+const db = mysql.createPool({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
   port: process.env.MYSQL_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10, // Define cuántas conexiones simultáneas permite
+  queueLimit: 0,
 });
 
-// Conectar a la base de datos
-db.connect((err) => {
+// Probar conexión
+db.getConnection((err, connection) => {
   if (err) {
     console.error("❌ Error conectando a la base de datos:", err);
   } else {
     console.log("✅ Conexión exitosa a la base de datos");
+    connection.release(); // Libera la conexión después de probarla
   }
 });
 
+module.exports = db.promise(); // Exporta la conexión con soporte para Promesas
+
+
 module.exports = db;
 
-app.post("/register", (req, res) => {
+// ✅ Ruta para registrarse
+app.post("/register", async (req, res) => {
   const { nombre, correo, contraseña } = req.body;
-  console.log("📩 Recibiendo solicitud de registro:", req.body); // Ver los datos recibidos
+  console.log("📩 Recibiendo solicitud de registro:", req.body);
 
-  // Verificar si el correo ya existe
-  db.query(
-    "SELECT * FROM usuarios WHERE correo = ?",
-    [correo],
-    (err, results) => {
-      if (err) {
-        console.error("❌ Error al verificar el correo:", err); // 👀 Ver error en consola
-        return res.status(500).json("Error al verificar el correo.");
-      }
+  try {
+    const [results] = await db.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
 
-      if (results.length > 0) {
-        return res.status(400).json("El correo ya está registrado.");
-      }
-
-      // Encriptar la contraseña
-      const saltRounds = 10;
-      bcrypt.hash(contraseña, saltRounds, (err, hash) => {
-        if (err) {
-          console.error("❌ Error al encriptar la contraseña:", err);
-          return res.status(500).json("Error al encriptar la contraseña.");
-        }
-
-        // Insertar el usuario en la base de datos
-        const sql =
-          "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
-        db.query(sql, [nombre, correo, hash], (err, result) => {
-          if (err) {
-            console.error("❌ Error al registrar usuario:", err);
-            return res.status(500).json("Error al registrar el usuario.");
-          }
-          console.log("✅ Usuario registrado con éxito:", result);
-          res.status(200).json("Usuario registrado exitosamente.");
-        });
-      });
+    if (results.length > 0) {
+      return res.status(400).json("El correo ya está registrado.");
     }
-  );
+
+    const saltRounds = 10;
+    const hash = await bcrypt.hash(contraseña, saltRounds);
+
+    await db.query("INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)", [nombre, correo, hash]);
+
+    console.log("✅ Usuario registrado con éxito.");
+    res.status(200).json("Usuario registrado exitosamente.");
+
+  } catch (error) {
+    console.error("❌ Error en el registro:", error);
+    res.status(500).json("Error al registrar el usuario.");
+  }
 });
 
 // ✅ Ruta para iniciar sesión
