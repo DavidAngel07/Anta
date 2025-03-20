@@ -105,10 +105,15 @@ input:focus {
 }
 
 /* Mensaje de feedback */
-p {
+.mensaje {
   margin-top: 1rem;
-  color: #d9534f;
+  color: #ffffff;
   font-weight: bold;
+  padding: 10px;
+}
+
+.mensaje_container {
+  background-color: #008006;
 }
 
 a {

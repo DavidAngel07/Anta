@@ -59,7 +59,7 @@ const Register = () => {
           </button>
         </form>
         <a href="/login">Iniciar Sesión</a>
-        {mensaje && <p>{mensaje}</p>}
+        {mensaje && <div className="mensaje_container"><p className="mensaje">{mensaje}</p></div>}
       </div>
     </div>
   );
