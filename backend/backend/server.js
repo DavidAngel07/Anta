@@ -8,8 +8,8 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: [ 
-    "https://anta-system.up.railway.app",  // Para producción en Railway
+  origin: [
+    "https://anta-system.up.railway.app", // Para producción en Railway
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -20,11 +20,11 @@ app.use(cors(corsOptions));
 
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST,  
-  user: process.env.MYSQL_USER,  
-  password: process.env.MYSQL_PASSWORD,  
-  database: process.env.MYSQL_DATABASE,  
-  port: process.env.MYSQL_PORT || 3306,  
+  host: process.env.MYSQL_HOST,
+  user: process.env.MYSQL_USER,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  port: process.env.MYSQL_PORT || 3306,
 });
 
 // Conectar a la base de datos
@@ -43,36 +43,41 @@ app.post("/register", (req, res) => {
   console.log("📩 Recibiendo solicitud de registro:", req.body); // Ver los datos recibidos
 
   // Verificar si el correo ya existe
-  db.query("SELECT * FROM usuarios WHERE correo = ?", [correo], (err, results) => {
-    if (err) {
-      console.error("❌ Error al verificar el correo:", err);  // 👀 Ver error en consola
-      return res.status(500).json("Error al verificar el correo.");
-    }
-
-    if (results.length > 0) {
-      return res.status(400).json("El correo ya está registrado.");
-    }
-
-    // Encriptar la contraseña
-    const saltRounds = 10;
-    bcrypt.hash(contraseña, saltRounds, (err, hash) => {
+  db.query(
+    "SELECT * FROM usuarios WHERE correo = ?",
+    [correo],
+    (err, results) => {
       if (err) {
-        console.error("❌ Error al encriptar la contraseña:", err);
-        return res.status(500).json("Error al encriptar la contraseña.");
+        console.error("❌ Error al verificar el correo:", err); // 👀 Ver error en consola
+        return res.status(500).json("Error al verificar el correo.");
       }
 
-      // Insertar el usuario en la base de datos
-      const sql = "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
-      db.query(sql, [nombre, correo, hash], (err, result) => {
+      if (results.length > 0) {
+        return res.status(400).json("El correo ya está registrado.");
+      }
+
+      // Encriptar la contraseña
+      const saltRounds = 10;
+      bcrypt.hash(contraseña, saltRounds, (err, hash) => {
         if (err) {
-          console.error("❌ Error al registrar usuario:", err);
-          return res.status(500).json("Error al registrar el usuario.");
+          console.error("❌ Error al encriptar la contraseña:", err);
+          return res.status(500).json("Error al encriptar la contraseña.");
         }
-        console.log("✅ Usuario registrado con éxito:", result);
-        res.status(200).json("Usuario registrado exitosamente.");
+
+        // Insertar el usuario en la base de datos
+        const sql =
+          "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)";
+        db.query(sql, [nombre, correo, hash], (err, result) => {
+          if (err) {
+            console.error("❌ Error al registrar usuario:", err);
+            return res.status(500).json("Error al registrar el usuario.");
+          }
+          console.log("✅ Usuario registrado con éxito:", result);
+          res.status(200).json("Usuario registrado exitosamente.");
+        });
       });
-    });
-  });
+    }
+  );
 });
 
 // ✅ Ruta para iniciar sesión
@@ -150,31 +155,28 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   const { correo } = req.body;
 
-  // Cambiar el estado "online" a 0 cuando el usuario cierre sesión
-  db.query(
-    "UPDATE usuarios SET online = 0 WHERE correo = ?",
-    [correo],
-    (err, result) => {
-      if (err) {
-        console.error("Error al actualizar el estado online:", err);
-        return res.status(500).json("Error al actualizar el estado online.");
-      }
+  if (!correo) {
+    console.error("Error: No se recibió el correo en la solicitud.");
+    return res.status(400).json("Correo no proporcionado.");
+  }
 
-      // Verificar si la actualización fue exitosa
-      if (result.affectedRows === 0) {
-        console.error(
-          `No se pudo actualizar el estado online para el correo ${correo}.`
-        );
-        return res.status(500).json("No se pudo actualizar el estado online.");
-      }
+  console.log(`📩 Recibida solicitud de logout para: ${correo}`);
 
-      // Mostrar en consola el resultado de la sesión cerrada
-      console.log(`Usuario ${correo} ha cerrado sesión exitosamente.`);
-
-      // Devolver respuesta
-      res.status(200).json("Sesión cerrada exitosamente.");
+  const sql = "UPDATE usuarios SET online = 0 WHERE correo = ?";
+  db.query(sql, [correo], (err, result) => {
+    if (err) {
+      console.error("❌ Error al actualizar el estado online:", err);
+      return res.status(500).json("Error al actualizar el estado online.");
     }
-  );
+
+    if (result.affectedRows === 0) {
+      console.warn(`⚠️ No se encontró usuario con el correo ${correo}.`);
+      return res.status(404).json("No se encontró el usuario.");
+    }
+
+    console.log(`✅ Usuario ${correo} ha cerrado sesión exitosamente.`);
+    res.status(200).json("Sesión cerrada exitosamente.");
+  });
 });
 
 // ✅ Middleware para verificar si el usuario está online antes de acceder al Dashboard
@@ -389,12 +391,10 @@ app.post("/api/lotes_cueros", (req, res) => {
     (err, results) => {
       if (err) {
         console.error("Error al obtener el primer proceso:", err);
-        return res
-          .status(500)
-          .json({
-            success: false,
-            message: "Error al obtener el proceso inicial.",
-          });
+        return res.status(500).json({
+          success: false,
+          message: "Error al obtener el proceso inicial.",
+        });
       }
 
       if (results.length === 0) {

@@ -114,6 +114,7 @@ input:focus {
 
 .mensaje_container {
   background-color: #008006;
+  border-radius: 7px;
 }
 
 a {
