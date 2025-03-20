@@ -40,15 +40,15 @@ db.getConnection((err, connection) => {
   }
 });
 
-module.exports = db.promise();
+const dbPromise = db.promise();
+module.exports = dbPromise;
 
-// ✅ Ruta para registrarse
 app.post("/register", async (req, res) => {
   const { nombre, correo, contraseña } = req.body;
   console.log("📩 Recibiendo solicitud de registro:", req.body);
 
   try {
-    const [results] = await db.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
+    const [results] = await dbPromise.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
 
     if (results.length > 0) {
       return res.status(400).json("El correo ya está registrado.");
@@ -57,11 +57,10 @@ app.post("/register", async (req, res) => {
     const saltRounds = 10;
     const hash = await bcrypt.hash(contraseña, saltRounds);
 
-    await db.query("INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)", [nombre, correo, hash]);
+    await dbPromise.query("INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)", [nombre, correo, hash]);
 
     console.log("✅ Usuario registrado con éxito.");
     res.status(200).json("Usuario registrado exitosamente.");
-
   } catch (error) {
     console.error("❌ Error en el registro:", error);
     res.status(500).json("Error al registrar el usuario.");
