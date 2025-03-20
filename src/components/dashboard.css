@@ -13,13 +13,22 @@
 }
 
 /* From Uiverse.io by satyamchaudharydev */ 
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Ocupa toda la pantalla */
+  width: 100%;
+}
+
 .loader {
-  --clr: #3498db;
+  --clr: #0013bb;
   /* color of spining  */
-  width: 150px;
-  height: 150px;
+  width: 80px;
+  height: 80px;
   position: relative;
-  margin-left: 150px;
+  align-items: center;
+  justify-content: center;
  }
  
  .loader:before, .loader:after {
