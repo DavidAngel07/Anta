@@ -2,14 +2,14 @@ const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken"); // Agregamos JWT para manejo de sesión
-require("dotenv").config(); // Para leer las variables de entorno desde un archivo .env
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const app = express();
 app.use(express.json());
 
 const corsOptions = {
   origin: [
-    "https://anta-system.up.railway.app", // Para producción en Railway
+    "https://anta-system.up.railway.app",
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -26,7 +26,7 @@ const db = mysql.createPool({
   database: process.env.MYSQL_DATABASE,
   port: process.env.MYSQL_PORT || 3306,
   waitForConnections: true,
-  connectionLimit: 10, // Define cuántas conexiones simultáneas permite
+  connectionLimit: 10,
   queueLimit: 0,
 });
 
@@ -36,11 +36,11 @@ db.getConnection((err, connection) => {
     console.error("❌ Error conectando a la base de datos:", err);
   } else {
     console.log("✅ Conexión exitosa a la base de datos");
-    connection.release(); // Libera la conexión después de probarla
+    connection.release();
   }
 });
 
-module.exports = db.promise(); // Exporta la conexión con soporte para Promesas
+module.exports = db.promise();
 
 
 module.exports = db;
