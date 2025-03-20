@@ -42,9 +42,6 @@ db.getConnection((err, connection) => {
 
 module.exports = db.promise();
 
-
-module.exports = db;
-
 // ✅ Ruta para registrarse
 app.post("/register", async (req, res) => {
   const { nombre, correo, contraseña } = req.body;
