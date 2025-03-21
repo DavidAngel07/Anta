@@ -20,6 +20,11 @@ app.use(cors(corsOptions));
 
 // 🔗 Configuración del pool de conexiones
 const db = mysql.createPool({
+  console.log("MYSQLHOST:", process.env.MYSQLHOST);
+  console.log("MYSQLUSER:", process.env.MYSQLUSER);
+  console.log("MYSQLDATABASE:", process.env.MYSQLDATABASE);
+  console.log("MYSQLPORT:", process.env.MYSQLPORT);
+
   host: process.env.MYSQLHOST,
   user: process.env.MYSQLUSER,
   password: process.env.MYSQLPASSWORD,
