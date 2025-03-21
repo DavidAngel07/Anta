@@ -1,5 +1,5 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
