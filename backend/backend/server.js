@@ -7,9 +7,15 @@ require('dotenv').config(); // Para leer las variables de entorno desde un archi
 const app = express();
 
 const corsOptions = {
-  origin: ["https://anta-production.up.railway.app"], 
-  credentials: true
+  origin: [
+    "https://anta-system.up.railway.app",
+    "http://localhost:3000" // Agregamos el frontend en localhost
+  ],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
 };
+
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
