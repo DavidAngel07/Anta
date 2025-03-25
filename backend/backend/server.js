@@ -13,19 +13,19 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // 🔗 Conexión a la base de datos
 const db = mysql.createConnection({
-  host: process.env.MYSQL_HOST || 'crossover.proxy.rlwy.net',
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || 'PRyQrtojaQmbSELgrRirBkSFHMKGSQrq',
-  database: process.env.MYSQL_DATABASE || 'anta',
-  port: process.env.MYSQL_PORT || '24421',
+  host: process.env.MYSQLHOST || 'mysql.railway.internal',  
+  user: process.env.MYSQLUSER || 'root',  
+  password: process.env.MYSQLPASSWORD || '',  
+  database: process.env.MYSQLDATABASE || 'railway',  
+  port: process.env.MYSQLPORT || 3306,  
 });
 
 db.connect((err) => {
   if (err) {
-    console.error("❌Error conectando a la base de datos:", err);
+    console.error("❌ Error conectando a la base de datos:", err);
     return;
   }
-  console.log("✅Conectado a la base de datos MySQL en Railway");
+  console.log("✅ Conectado a la base de datos MySQL en Railway");
 });
 
 module.exports = db;
