@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
+import logo_empresa from "../img/AT-LOGO.png";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Simulador = () => {
+  const [numeroLote, setNumeroLote] = useState("");
   const [productos, setProductos] = useState([]);
   const [sulfuradas, setSulfuradas] = useState([{ id: 1, peso: 0, cueros: 0 }]);
   const [filas_sulfurada, setFilas_sulfurada] = useState({
@@ -19,8 +22,15 @@ const Simulador = () => {
 
   useEffect(() => {
     const fetchProductos = async () => {
+      if (!API_URL) {
+        console.error(
+          "La variable de entorno REACT_APP_API_URL no está definida."
+        );
+        return;
+      }
       try {
-        const response = await fetch("https://anta-backend.up.railway.app/productos");
+        const response = await fetch(`${API_URL}/productos`);
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
         setProductos(data);
       } catch (error) {
@@ -157,20 +167,39 @@ const Simulador = () => {
   };
 
   const generarPDF = () => {
-    const doc = new jsPDF();
+    const doc = new jsPDF({
+      orientation: "l",
+      unit: "mm",
+      format: [210, 140],
+    });
 
-    // Header background
-    doc.setFillColor(0, 0, 102);
+    const fechaHoy = new Date().toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    // Encabezado
+    doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, 210, 20, "F");
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
-    doc.text("Simulador de Sulfurada", 105, 12, { align: "center" });
+    if (logo_empresa) {
+      doc.addImage(logo_empresa, "PNG", 10, 5, 20, 20);
+    }
 
-    let startY = 40; // Posición inicial en Y para la tabla
+    doc.setTextColor(0, 0, 102);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text("TABLA DE COSTOS", 60, 17);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text(`Fecha: ${fechaHoy}   |   Lote: ${numeroLote || "N/A"}`, 190, 17, {
+      align: "right",
+    });
 
-    sulfuradas.forEach((sulfurada, index) => {
-      // Crear tabla con los datos
+    let startY = 40;
+
+    sulfuradas.forEach((sulfurada) => {
       const tableColumnas = [
         "Producto",
         "Cantidad (kg)",
@@ -178,43 +207,60 @@ const Simulador = () => {
         "Total (COP)",
       ];
 
-      // Acceder a las filas de la sulfurada específica
       const tableRows = filas_sulfurada[sulfurada.id].map((fila) => {
         const producto = productos.find(
           (prod) => prod.id === Number(fila.producto)
-        ); // Asegúrate de que estás buscando el producto por su ID como número
-        const nombreProducto = producto ? producto.producto : "Desconocido"; // Si no se encuentra, muestra "Desconocido"
-
+        );
+        const nombreProducto = producto ? producto.producto : "Desconocido";
         return [
-          nombreProducto, // Usamos el nombre en lugar del ID
+          nombreProducto,
           fila.cantidad,
           formatoMoneda(fila.precio),
           formatoMoneda(fila.total),
         ];
       });
 
+      // Calcular el total general y el total por cuero
+      const totalGeneral = calcularTotalGeneral(sulfurada.id);
+      const totalPorCuero = calcularTotalGeneralPorCuero(sulfurada.id);
+
+      // Añadir filas con el total general y el total por cuero
+      tableRows.push(["", "", "TOTAL:", formatoMoneda(totalGeneral)]);
+
+      tableRows.push(["","", "TOTAL POR CUERO:",formatoMoneda(totalPorCuero),]);
+
       doc.autoTable({
         startY,
         head: [tableColumnas],
         body: tableRows,
         styles: { fontSize: 10 },
-        headStyles: { fillColor: [0, 0, 0], textColor: 255 },
+        headStyles: { fillColor: [0, 0, 102], textColor: 255 },
         alternateRowStyles: { fillColor: [240, 240, 240] },
+        didParseCell: function (data) {
+          // Estilo para las celdas de totales
+          if (
+            data.row.index === tableRows.length - 1 || 
+            data.row.index === tableRows.length - 2
+          ) {
+            if (data.column.index >= 2) {
+              data.cell.styles.fillColor = [210, 210, 210]; // Fondo gris claro
+              data.cell.styles.textColor = [0, 0, 102]; // Texto azul oscuro
+              data.cell.styles.fontStyle = "bold"; // Texto en negrita
+            } else {
+              data.cell.styles.fillColor = [255, 255, 255]; // Fondo blanco
+            }
+          }
+        },
       });
 
-      startY = doc.lastAutoTable.finalY + 10; // Ajustar posición Y después de cada tabla
-
-      // Agregar total por cuero
-      const totalPorCuero = calcularTotalGeneralPorCuero(sulfurada.id);
-      doc.text(`Total por cuero: ${formatoMoneda(totalPorCuero)}`, 10, startY);
-      startY += 10; // Espacio después del total por cuero
+      startY = doc.lastAutoTable.finalY + 10;
     });
 
-    // Agregar logo
-    doc.addImage(logo, "PNG", 160, 260, 40, 15);
+    if (logo) {
+      doc.addImage(logo, "PNG", 170, 120, 20, 10);
+    }
 
-    // Guardar el PDF
-    doc.save(`Simulador_Sulfurada.pdf`);
+    doc.save(`costo.pdf`);
   };
 
   const renderSulfuradas = () => {
@@ -225,6 +271,13 @@ const Simulador = () => {
         </div>
         <div className="frm_sulfurada">
           <form>
+            <label style={{ color: "black" }}>Número de Lote</label>
+            <input
+              type="text"
+              value={numeroLote}
+              onChange={(e) => setNumeroLote(e.target.value)}
+              placeholder="Ingrese el número de lote"
+            />
             <label style={{ color: "black" }}>Peso</label>
             <input
               type="number"
@@ -331,9 +384,6 @@ const Simulador = () => {
 
   return (
     <div className="simulador">
-      <div className="lote_titulo">
-        <h2>SIMULADOR</h2>
-      </div>
       {renderSulfuradas()}
       <div className="btn-agregar-sulf-container">
         <button

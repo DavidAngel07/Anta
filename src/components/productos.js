@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Productos = ({ handleSectionChange }) => {
   // Recibe la función como prop
@@ -8,7 +9,7 @@ const Productos = ({ handleSectionChange }) => {
 
   // Llamar a la API cuando el componente se monte
   useEffect(() => {
-    fetch("https://anta-backend.up.railway.app/productos")
+    fetch(`${API_URL}/productos`)
       .then((response) => response.json())
       .then((data) => {
         setProductos(data);
@@ -22,7 +23,7 @@ const Productos = ({ handleSectionChange }) => {
 
   // Función para eliminar un producto
   const handleEliminar = (id) => {
-    fetch(`https://anta-backend.up.railway.app/productos/${id}`, {
+    fetch(`${API_URL}/productos/${id}`, {
       method: "DELETE",
     })
       .then((response) => {

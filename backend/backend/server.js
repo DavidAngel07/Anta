@@ -6,10 +6,12 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
+const API_URL = process.env.REACT_APP_API_URL;
 
 const corsOptions = {
   origin: [
     "https://anta-system.up.railway.app",
+    "http://localhost:3000" // Agregamos el frontend en localhost
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -18,17 +20,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+
 // 🔗 Configuración del pool de conexiones
-console.log("MYSQLHOST:", process.env.MYSQLHOST);
-console.log("MYSQLUSER:", process.env.MYSQLUSER);
-console.log("MYSQLDATABASE:", process.env.MYSQLDATABASE);
-console.log("MYSQLPORT:", process.env.MYSQLPORT);
 
 const db = mysql.createPool({
-  host: process.env.MYSQLHOST,
-  user: process.env.MYSQLUSER,
-  password: process.env.MYSQLPASSWORD,
-  database: process.env.MYSQLDATABASE,
+  host: process.env.MYSQLHOST || 'mysql.railway.internal',  
+  user: process.env.MYSQLUSER || 'root',  
+  password: process.env.MYSQLPASSWORD || '',  
+  database: process.env.MYSQLDATABASE || 'railway',  
   port: process.env.MYSQLPORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
@@ -49,6 +48,7 @@ db.getConnection((err, connection) => {
 const dbPromise = db.promise();
 module.exports = dbPromise;
 
+// ✅ Ruta para registrarse
 app.post("/register", async (req, res) => {
   const { nombre, correo, contraseña } = req.body;
   console.log("📩 Recibiendo solicitud de registro:", req.body);
@@ -75,7 +75,14 @@ app.post("/register", async (req, res) => {
 
 // ✅ Ruta para iniciar sesión
 app.post("/login", (req, res) => {
+  console.log("📩 Datos recibidos en /login:", req.body);
+
   const { correo, contraseña } = req.body;
+
+  if (!correo || !contraseña) {
+    console.log("❌ Faltan datos en la solicitud de login.");
+    return res.status(400).json("Faltan datos en la solicitud.");
+  }
 
   // Verificar si el correo existe en la base de datos
   db.query(
@@ -215,7 +222,7 @@ app.get("/dashboard", verificarSesion, (req, res) => {
 const PORT = 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en https://anta-backend.up.railway.app`);
+  console.log(`Servidor corriendo en ${API_URL}`);
 });
 
 // Ruta para obtener productos
@@ -457,3 +464,42 @@ app.get("/api/lotes_cueros/:id", (req, res) => {
     res.status(200).json(result[0]);
   });
 });
+
+// Ruta para obtener el inventario
+app.get("/inventario", async (req, res) => {
+  try {
+    const [inventario] = await db.query("SELECT * FROM inventario");
+    res.status(200).json(inventario); // Asegúrate de que esto sea un array
+  } catch (error) {
+    console.error("Error al obtener el inventario:", error);
+    res.status(500).json({ success: false, message: "Error al obtener el inventario." });
+  }
+});
+
+app.post("/inventario", async (req, res) => {
+  const { cueroTipo, cantidad, estado } = req.body;
+
+  const [registro] = await db.query(
+    "SELECT cantidad FROM inventario WHERE tipo = ? AND estado = ?",
+    [cueroTipo, estado]
+  );
+
+  let nuevaCantidad = cantidad;
+  if (registro.length > 0) {
+    nuevaCantidad += registro[0].cantidad;
+    await db.query(
+      "UPDATE inventario SET cantidad = ? WHERE tipo = ? AND estado = ?",
+      [nuevaCantidad, cueroTipo, estado]
+    );
+  } else {
+    await db.query(
+      "INSERT INTO inventario (tipo, cantidad, estado) VALUES (?, ?, ?)",
+      [cueroTipo, nuevaCantidad, estado]
+    );
+  }
+
+  const [inventarioActualizado] = await db.query("SELECT * FROM inventario");
+  res.json(inventarioActualizado);
+});
+
+

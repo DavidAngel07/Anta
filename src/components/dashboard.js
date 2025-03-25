@@ -7,6 +7,9 @@ import Productos from "./productos";
 import Procesos from "./procesos";
 import Perfil from "./perfil";
 import Simulador from "./simulador";
+import Inventario from "./inventario";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -111,12 +114,12 @@ useEffect(() => {
 
     try {
       let response;
-      let url = "https://anta-backend.up.railway.app/productos";
+      let url = `${API_URL}/productos`;
       let method = "POST"; // Predeterminado a POST, para agregar productos
 
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
-        url = `https://anta-backend.up.railway.app/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
+        url = `${API_URL}/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
         method = "PUT"; // Cambiamos el método a PUT para la actualización
       }
 
@@ -213,15 +216,15 @@ useEffect(() => {
                 onClick={() => handleSectionChange("simulador")}
                 className={activeSection === "simulador" ? "active" : ""}
               >
-                <i className="bi bi-calculator"></i> Simulador
+                <i className="bi bi-calculator"></i> Calculadora
               </a>
             </li>
             {/*<li>
               <a
-                href="#perfil"
-                onClick={() => handleSectionChange('perfil')}
-                className={activeSection === 'perfil' ? 'active' : ''}>
-                <i className="bi bi-calculator"></i> Perfil
+                href="#inventario"
+                onClick={() => handleSectionChange('inventario')}
+                className={activeSection === 'inventario' ? 'active' : ''}>
+                <i className="bi bi-calculator"></i> Inventario
               </a>
             </li>*/}
           </ul>
@@ -261,9 +264,9 @@ useEffect(() => {
             </section>
           )}
 
-          {activeSection === "perfil" && (
-            <section id="perfil">
-              <Perfil />
+          {activeSection === "inventario" && (
+            <section id="inventario">
+              <Inventario />
             </section>
           )}
 

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import logo from "../img/ANTA-SYSTEM.png";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
@@ -10,19 +11,26 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    console.log("API_URL:", API_URL); // Verifica si API_URL tiene un valor
+  
     try {
-      await axios.post("https://anta-backend.up.railway.app/register", {
+      await axios.post(`${API_URL}/register`, {
         nombre,
         correo,
         contraseña,
       });
-
+  
       setMensaje("Usuario registrado exitosamente");
     } catch (error) {
-      setMensaje(error.response.data);
+      if (error.response) {
+        setMensaje(error.response.data?.mensaje || "Error en el registro");
+      } else {
+        setMensaje("No se pudo conectar con el servidor");
+      }
     }
   };
+  
 
   return (
     <div className="container">
