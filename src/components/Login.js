@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import logo from "../img/ANTA-SYSTEM.png";
 import { useNavigate } from "react-router-dom";
-const URL_BACK = process.env.URL_BACK;
+import config from "../config";
 
 const Login = () => {
   const [correo, setCorreo] = useState("");
@@ -18,8 +18,8 @@ const Login = () => {
     setMensaje(""); // Limpiar mensaje anterior
   
     try {
-      console.log("Llamando a:", `https://anta-backend.up.railway.app/login`);
-      const response = await fetch(`https://anta-backend.up.railway.app/login`, {
+      console.log("Llamando a:", `${config.API_URL}login`);
+      const response = await fetch(`${config.API_URL}/login`, { 
         method: "POST",
         headers: {
           "Content-Type": "application/json",
