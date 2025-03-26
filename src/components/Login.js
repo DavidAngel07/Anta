@@ -3,14 +3,6 @@ import axios from "axios";
 import logo from "../img/ANTA-SYSTEM.png";
 import { useNavigate } from "react-router-dom";
 const API_URL = process.env.REACT_APP_API_URL || "https://anta-backend.up.railway.app";
-const response = await fetch(`${API_URL}/login`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ correo, contraseña }),
-  credentials: "include",
-});
 
 const Login = () => {
   const [correo, setCorreo] = useState("");
