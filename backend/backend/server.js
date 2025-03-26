@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3001; // Usar el puerto de la variable de entorno
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en htttps://anta-backend.up.railway.app`);
+  console.log(`Servidor corriendo en https://anta-backend.up.railway.app`);
 });
 
 // ✅ Ruta para registrarse

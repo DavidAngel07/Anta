@@ -29,7 +29,7 @@ const Simulador = () => {
         return;
       }
       try {
-        const response = await fetch(`htttps://anta-backend.up.railway.app/productos`);
+        const response = await fetch(`https://anta-backend.up.railway.app/productos`);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
         setProductos(data);

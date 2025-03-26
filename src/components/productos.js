@@ -9,7 +9,7 @@ const Productos = ({ handleSectionChange }) => {
 
   // Llamar a la API cuando el componente se monte
   useEffect(() => {
-    fetch(`htttps://anta-backend.up.railway.app/productos`)
+    fetch(`https://anta-backend.up.railway.app/productos`)
       .then((response) => response.json())
       .then((data) => {
         setProductos(data);
@@ -23,7 +23,7 @@ const Productos = ({ handleSectionChange }) => {
 
   // Función para eliminar un producto
   const handleEliminar = (id) => {
-    fetch(`htttps://anta-backend.up.railway.app/productos/${id}`, {
+    fetch(`https://anta-backend.up.railway.app/productos/${id}`, {
       method: "DELETE",
     })
       .then((response) => {
