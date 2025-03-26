@@ -12,8 +12,6 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    console.log("URL_BACK:", URL_BACK); // Verifica si URL_BACK tiene un valor
-  
     try {
       await axios.post(`${config.API_URL}/register`, {
         nombre,

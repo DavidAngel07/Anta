@@ -18,7 +18,7 @@ const Login = () => {
     setMensaje(""); // Limpiar mensaje anterior
   
     try {
-      console.log("Llamando a:", `${config.API_URL}login`);
+      console.log("Llamando a:", `${config.API_URL}/login`);
       const response = await fetch(`${config.API_URL}/login`, { 
         method: "POST",
         headers: {
