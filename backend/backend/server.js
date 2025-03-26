@@ -76,6 +76,7 @@ app.post("/register", async (req, res) => {
 // ✅ Ruta para iniciar sesión
 app.post("/login", (req, res) => {
   console.log("📩 Datos recibidos en /login:", req.body);
+  console.log(req.body); // <---- Agregar esta línea
 
   const { correo, contraseña } = req.body;
 
