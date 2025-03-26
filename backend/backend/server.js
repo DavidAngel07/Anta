@@ -6,7 +6,6 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
-const config = require("../../src/config");
 
 const corsOptions = {
   origin: [
@@ -58,7 +57,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3001; // Usar el puerto de la variable de entorno
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en ${config.API_URL}`);
+  console.log(`Servidor corriendo correctamente 🚀`);
 });
 
 // ✅ Ruta para registrarse

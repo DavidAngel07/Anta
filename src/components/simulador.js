@@ -22,9 +22,9 @@ const Simulador = () => {
 
   useEffect(() => {
     const fetchProductos = async () => {
-      if (!URL_BACK) {
+      if (!config.API_URL) {
         console.error(
-          "La variable de entorno URL_BACK no está definida."
+          "La variable de entorno config.API_URL no está definida."
         );
         return;
       }
