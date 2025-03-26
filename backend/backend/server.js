@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "https://anta-backend.up.railway.app";
 
 const corsOptions = {
   origin: [
