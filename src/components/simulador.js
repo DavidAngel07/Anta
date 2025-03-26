@@ -277,6 +277,7 @@ const Simulador = () => {
               value={numeroLote}
               onChange={(e) => setNumeroLote(e.target.value)}
               placeholder="Ingrese el número de lote"
+
             />
             <label style={{ color: "black" }}>Peso</label>
             <input
