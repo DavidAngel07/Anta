@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-const URL_BACK = process.env.URL_BACK;
+import config from "../config";
 
 const Perfil = () => {
   const [usuario, setUsuario] = useState(null);
@@ -14,7 +14,7 @@ const Perfil = () => {
     // Simulación de una llamada a la API para obtener la información del usuario
     const fetchUsuario = async () => {
       // Aquí deberías hacer la llamada a tu API
-      const response = await fetch(`https://anta-backend.up.railway.app/api/usuario/1`); // Cambia la URL según tu API
+      const response = await fetch(`${config.API_URL}/api/usuario/1`); // Cambia la URL según tu API
       const data = await response.json();
       setUsuario(data);
       setFormData(data); // Inicializa el formulario con los datos del usuario
@@ -31,7 +31,7 @@ const Perfil = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Aquí deberías hacer la llamada a tu API para guardar los cambios
-    const response = await fetch(`https://anta-backend.up.railway.app/api/usuario/1`, {
+    const response = await fetch(`${config.API_URL}/api/usuario/1`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

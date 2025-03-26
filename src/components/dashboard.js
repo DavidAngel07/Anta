@@ -8,8 +8,7 @@ import Procesos from "./procesos";
 import Perfil from "./perfil";
 import Simulador from "./simulador";
 import Inventario from "./inventario";
-
-const URL_BACK = process.env.URL_BACK;
+import config from "../config";
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -114,12 +113,12 @@ useEffect(() => {
 
     try {
       let response;
-      let url = `https://anta-backend.up.railway.app/productos`;
+      let url = `${config.API_URL}/productos`;
       let method = "POST"; // Predeterminado a POST, para agregar productos
 
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
-        url = `https://anta-backend.up.railway.app/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
+        url = `${config.API_URL}/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
         method = "PUT"; // Cambiamos el método a PUT para la actualización
       }
 

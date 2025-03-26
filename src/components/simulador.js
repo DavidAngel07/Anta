@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
 import logo_empresa from "../img/AT-LOGO.png";
-const URL_BACK = process.env.URL_BACK;
+import config from "../config";
 
 const Simulador = () => {
   const [numeroLote, setNumeroLote] = useState("");
@@ -29,7 +29,7 @@ const Simulador = () => {
         return;
       }
       try {
-        const response = await fetch(`https://anta-backend.up.railway.app/productos`);
+        const response = await fetch(`${config.API_URL}/productos`);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
         setProductos(data);

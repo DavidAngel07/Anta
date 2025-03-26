@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Lote from "../components/Lote";
-const URL_BACK = process.env.URL_BACK;
+import config from "../config";
 
 const Procesos = () => {
   const [lotes, setLotes] = useState([]);
@@ -20,7 +20,7 @@ const Procesos = () => {
   useEffect(() => {
     const obtenerLotes = async () => {
       try {
-        const response = await axios.get(`https://anta-backend.up.railway.app/api/lotes_cueros`);
+        const response = await axios.get(`${config.API_URL}/api/lotes_cueros`);
         setLotes(response.data);
       } catch (error) {
         console.error("Error al obtener los lotes:", error);
@@ -29,7 +29,7 @@ const Procesos = () => {
 
     const obtenerProcesos = async () => {
       try {
-        const response = await axios.get(`https://anta-backend.up.railway.app/api/procesos`);
+        const response = await axios.get(`${config.API_URL}/api/procesos`);
         setProcesos(response.data);
       } catch (error) {
         console.error("Error al obtener los procesos:", error);
@@ -45,7 +45,7 @@ const Procesos = () => {
       // Cargar los lotes cada vez que se vuelve a la sección de procesos
       const obtenerLotes = async () => {
         try {
-          const response = await axios.get(`https://anta-backend.up.railway.app/api/lotes_cueros`);
+          const response = await axios.get(`${config.API_URL}/api/lotes_cueros`);
           setLotes(response.data);
         } catch (error) {
           console.error("Error al obtener los lotes:", error);
@@ -62,7 +62,7 @@ const Procesos = () => {
   const manejarEnvio = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`https://anta-backend.up.railway.app/api/lotes_cueros`, {
+      const response = await axios.post(`${config.API_URL}/api/lotes_cueros`, {
         tipo_cuero: tipoCuero,
         cantidad,
         peso,
