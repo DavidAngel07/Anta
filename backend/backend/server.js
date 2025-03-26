@@ -11,7 +11,7 @@ const API_URL = process.env.REACT_APP_API_URL || "https://anta-backend.up.railwa
 const corsOptions = {
   origin: [
     "https://anta-system.up.railway.app",
-    "http://localhost:3000" // Agregamos el frontend en localhost
+    "http://localhost:3000"
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -39,6 +39,7 @@ const db = mysql.createPool({
 db.getConnection((err, connection) => {
   if (err) {
     console.error("❌ Error conectando a la base de datos:", err);
+    process.exit(1); // Salir si hay un error de conexión
   } else {
     console.log("✅ Conexión exitosa a la base de datos");
     connection.release();
@@ -47,6 +48,18 @@ db.getConnection((err, connection) => {
 
 const dbPromise = db.promise();
 module.exports = dbPromise;
+
+// Rutas
+app.get('/', (req, res) => {
+  res.send('Servidor funcionando correctamente 🚀');
+});
+
+// Iniciar el servidor
+const PORT = process.env.PORT || 3001; // Usar el puerto de la variable de entorno
+
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en ${process.env.API_URL || 'http://localhost:' + PORT}`);
+});
 
 // ✅ Ruta para registrarse
 app.post("/register", async (req, res) => {
@@ -217,17 +230,6 @@ const verificarSesion = (req, res, next) => {
 // ✅ Ruta protegida del Dashboard
 app.get("/dashboard", verificarSesion, (req, res) => {
   res.status(200).send("Bienvenido al Dashboard");
-});
-
-// 🚀 Iniciar el servidor
-const PORT = 3001;
-
-app.get('/', (req, res) => {
-  res.send('Servidor funcionando correctamente 🚀');
-});
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en ${process.env.API_URL || 'http://localhost:' + PORT}`);
 });
 
 // Ruta para obtener productos
