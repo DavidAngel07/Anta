@@ -9,7 +9,7 @@ import Perfil from "./perfil";
 import Simulador from "./simulador";
 import Inventario from "./inventario";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const URL_BACK = process.env.URL_BACK;
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -114,12 +114,12 @@ useEffect(() => {
 
     try {
       let response;
-      let url = `${API_URL}/productos`;
+      let url = `${URL_BACK}/productos`;
       let method = "POST"; // Predeterminado a POST, para agregar productos
 
       // Si estamos editando un producto, cambiamos el método y la URL
       if (productoSeleccionado) {
-        url = `${API_URL}/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
+        url = `${URL_BACK}/productos/${productoSeleccionado.id}`; // Usamos el ID del producto
         method = "PUT"; // Cambiamos el método a PUT para la actualización
       }
 

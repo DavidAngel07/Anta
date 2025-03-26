@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
 import logo_empresa from "../img/AT-LOGO.png";
-const API_URL = process.env.REACT_APP_API_URL;
+const URL_BACK = process.env.URL_BACK;
 
 const Simulador = () => {
   const [numeroLote, setNumeroLote] = useState("");
@@ -22,14 +22,14 @@ const Simulador = () => {
 
   useEffect(() => {
     const fetchProductos = async () => {
-      if (!API_URL) {
+      if (!URL_BACK) {
         console.error(
-          "La variable de entorno REACT_APP_API_URL no está definida."
+          "La variable de entorno REACT_APP_URL_BACK no está definida."
         );
         return;
       }
       try {
-        const response = await fetch(`${API_URL}/productos`);
+        const response = await fetch(`${URL_BACK}/productos`);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
         setProductos(data);

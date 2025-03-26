@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
-const API_URL = process.env.REACT_APP_API_URL || "https://anta-backend.up.railway.app";
+const URL_BACK = process.env.URL_BACK;
 
 const corsOptions = {
   origin: [
@@ -58,7 +58,7 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 3001; // Usar el puerto de la variable de entorno
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en ${process.env.API_URL || 'http://localhost:' + PORT}`);
+  console.log(`Servidor corriendo en ${process.env.URL_BACK || 'http://localhost:' + PORT}`);
 });
 
 // ✅ Ruta para registrarse

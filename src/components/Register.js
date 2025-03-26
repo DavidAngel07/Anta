@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import logo from "../img/ANTA-SYSTEM.png";
-const API_URL = process.env.REACT_APP_API_URL || "https://anta-backend.up.railway.app";
+const URL_BACK = process.env.URL_BACK || "https://anta-backend.up.railway.app";
 
 const Register = () => {
   const [nombre, setNombre] = useState("");
@@ -12,10 +12,10 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    console.log("API_URL:", API_URL); // Verifica si API_URL tiene un valor
+    console.log("URL_BACK:", URL_BACK); // Verifica si URL_BACK tiene un valor
   
     try {
-      await axios.post(`${API_URL}/register`, {
+      await axios.post(`${URL_BACK}/register`, {
         nombre,
         correo,
         contraseña,
