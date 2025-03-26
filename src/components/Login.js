@@ -18,8 +18,8 @@ const Login = () => {
     setMensaje(""); // Limpiar mensaje anterior
   
     try {
-      console.log("Llamando a:", `${URL_BACK}/login`);
-      const response = await fetch(`${URL_BACK}/login`, {
+      console.log("Llamando a:", `htttps://anta-backend.up.railway.app/login`);
+      const response = await fetch(`htttps://anta-backend.up.railway.app/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -15,7 +15,7 @@ const Register = () => {
     console.log("URL_BACK:", URL_BACK); // Verifica si URL_BACK tiene un valor
   
     try {
-      await axios.post(`${URL_BACK}/register`, {
+      await axios.post(`htttps://anta-backend.up.railway.app/register`, {
         nombre,
         correo,
         contraseña,

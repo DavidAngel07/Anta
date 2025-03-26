@@ -24,12 +24,12 @@ const Simulador = () => {
     const fetchProductos = async () => {
       if (!URL_BACK) {
         console.error(
-          "La variable de entorno REACT_APP_URL_BACK no está definida."
+          "La variable de entorno URL_BACK no está definida."
         );
         return;
       }
       try {
-        const response = await fetch(`${URL_BACK}/productos`);
+        const response = await fetch(`htttps://anta-backend.up.railway.app/productos`);
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         const data = await response.json();
         setProductos(data);
