@@ -25,7 +25,7 @@ app.use(cors(corsOptions));
 
 const db = mysql.createPool({
   host: process.env.MYSQLHOST || 'mysql.railway.internal',  
-  user: process.env.MYSQLUSER || 'root',  
+  user: process.env.MYSQLUSER || 'root', 
   password: process.env.MYSQLPASSWORD || '',  
   database: process.env.MYSQLDATABASE || 'railway',  
   port: process.env.MYSQLPORT || 3306,
@@ -222,8 +222,12 @@ app.get("/dashboard", verificarSesion, (req, res) => {
 // 🚀 Iniciar el servidor
 const PORT = 3001;
 
+app.get('/', (req, res) => {
+  res.send('Servidor funcionando correctamente 🚀');
+});
+
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en ${API_URL}`);
+  console.log(`Servidor corriendo en ${process.env.API_URL || 'http://localhost:' + PORT}`);
 });
 
 // Ruta para obtener productos
