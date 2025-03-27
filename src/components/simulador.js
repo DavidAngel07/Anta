@@ -227,7 +227,12 @@ const Simulador = () => {
       // Añadir filas con el total general y el total por cuero
       tableRows.push(["", "", "TOTAL:", formatoMoneda(totalGeneral)]);
 
-      tableRows.push(["","", "TOTAL POR CUERO:",formatoMoneda(totalPorCuero),]);
+      tableRows.push([
+        "",
+        "",
+        "TOTAL POR CUERO:",
+        formatoMoneda(totalPorCuero),
+      ]);
 
       doc.autoTable({
         startY,
@@ -239,7 +244,7 @@ const Simulador = () => {
         didParseCell: function (data) {
           // Estilo para las celdas de totales
           if (
-            data.row.index === tableRows.length - 1 || 
+            data.row.index === tableRows.length - 1 ||
             data.row.index === tableRows.length - 2
           ) {
             if (data.column.index >= 2) {
@@ -260,7 +265,7 @@ const Simulador = () => {
       doc.addImage(logo, "PNG", 170, 120, 20, 10);
     }
 
-    doc.save(`costo.pdf`);
+    doc.save(`costo_${numeroLote}.pdf`);
   };
 
   const renderSulfuradas = () => {
@@ -382,6 +387,7 @@ const Simulador = () => {
     ));
   };
 
+
   return (
     <div className="simulador">
       {renderSulfuradas()}
@@ -400,6 +406,5 @@ const Simulador = () => {
       </div>
     </div>
   );
-};
-
+}
 export default Simulador;
