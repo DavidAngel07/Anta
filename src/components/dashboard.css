@@ -241,11 +241,9 @@
   align-items: center;
   background-color: #ffffff;
   padding: 10px 20px;
-  color: #000;
-  position: fixed;
+  color: #fff;
+  position: sticky;
   top: 0;
-  width: 100%; /* Asegúrate de que ocupe todo el ancho */
-  z-index: 100;
 }
 
 .logo-nav {
@@ -898,6 +896,18 @@ color: #fff;
   }
   .frm_agregar_producto {
     padding: 30px;
+  }
+
+
+
+}
+
+@media (min-width: 470px) and (max-width: 470px) {
+  .top-nav{
+    position: fixed;
+    top: 0;
+    width: 90%;
+    z-index: 99;
   }
 }
 
