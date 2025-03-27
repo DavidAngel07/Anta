@@ -143,8 +143,18 @@
   section {
     margin-bottom: 40px;
   }
-  
-  section h3 {
+
+  #dashboard{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .img_dashboard{
+    width: 88%;
+  }
+
+  section h1 {
     color: #000d80;
   }
   

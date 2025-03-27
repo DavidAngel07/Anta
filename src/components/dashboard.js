@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
+import img_dashboard from "../img/dashboard.png";
 import Productos from "./productos";
 import Procesos from "./procesos";
 import Perfil from "./perfil";
@@ -233,7 +234,7 @@ useEffect(() => {
                 href="#inventario"
                 onClick={() => handleSectionChange('inventario')}
                 className={activeSection === 'inventario' ? 'active' : ''}>
-                <i className="bi bi-calculator"></i> Inventario
+                <i class="bi bi-card-checklist"></i> Inventario
               </a>
             </li>*/}
           </ul>
@@ -243,7 +244,7 @@ useEffect(() => {
         <div className="main-content">
           {activeSection === "dashboard" && (
             <section id="dashboard">
-              <h3>Dashboard</h3>
+              <img src={img_dashboard} alt="img_dashboard" className="img_dashboard" />
             </section>
           )}
 
