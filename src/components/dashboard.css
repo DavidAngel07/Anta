@@ -2,10 +2,11 @@
 
 .dashboard-container {
   display: flex;
-  min-height: 98vh;
-  min-width: 100vh;
+  min-height: 100vh; /* Ajusta exactamente al tamaño de la pantalla */
+  width: 100%; /* Usa 100% en lugar de min-width para evitar desbordamientos */
   background-color: #f4f4fc;
   flex-direction: column;
+  overflow: hidden; /* Evita el scroll innecesario */
 }
 
 .container-aside-contenido{
@@ -338,7 +339,7 @@ color: #fff;
 .frm_agregar_producto {
   max-width: 400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -399,15 +400,6 @@ color: #fff;
   font-style: italic;
 }
 
-/* Diseño para el formulario móvil */
-@media (max-width: 480px) {
-  .frm_agregar_producto {
-    padding: 15px;
-  }
-  .frm_agregar_producto input, .frm_agregar_producto .btn-submit {
-    font-size: 14px;
-  }
-}
 /* Estilo para el botón de submit */
 .btn-submit-editar {
   width: 100%;
@@ -856,3 +848,122 @@ color: #fff;
   border: none;
   padding: 10px 15px;
 }
+
+/* Botón para abrir/cerrar menú */
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: #000d80;
+  color: rgb(255, 255, 255);
+  border: none;
+  padding: 8px 8px;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 1000;
+  display: none;
+  border-radius: 50px;
+}
+
+@media (max-width: 810px) {
+  
+  .dashboard-container {
+    height: auto;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    transition: left 0.3s ease-in-out;
+    background-color: #ffffff;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+  }
+
+  .sidebar.show {
+    left: 0 !important;
+  }
+
+  .menu-toggle {
+    display: block;
+    z-index: 101;
+  }
+  .frm_agregar_producto {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 982px) {
+  .tabla thead {
+    display: none;
+  }
+
+  .tabla,
+  .tabla tbody,
+  .tabla tr,
+  .tabla td {
+    display: block;
+  }
+
+  .tabla tr {
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .tabla td {
+    border: none;
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+
+  .tabla td:before {
+    position: absolute;
+    left: 6px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    content: attr(data-label);
+    font-weight: bold;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Asignar data-label a cada celda */
+  .tabla td:nth-of-type(1):before {
+    content: "Producto";
+  }
+  .tabla td:nth-of-type(2):before {
+    content: "Proveedor";
+  }
+  .tabla td:nth-of-type(3):before {
+    content: "Cantidad";
+  }
+  .tabla td:nth-of-type(4):before {
+    content: "Precio";
+  }
+
+  /* Estilos para los botones en dispositivos móviles */
+  .productos td:last-child,
+  .productos td:nth-last-child(2) {
+    width: auto;
+    text-align: left;
+    padding-left: 50%;
+  }
+
+  .btn_eliminar,
+  .btn_editar {
+    display: block;
+    width: 100px;
+    margin-bottom: 5px;
+  }
+}
+

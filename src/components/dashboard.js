@@ -22,6 +22,7 @@ useEffect(() => {
 }, []);
 
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [formData, setFormData] = useState({
     producto: "",
     proveedor: "",
@@ -35,19 +36,18 @@ useEffect(() => {
 
   const handleSectionChange = (section, producto = null) => {
     setActiveSection(section);
+    setSidebarVisible(false); // Asegura que el sidebar se oculte
     if (section === "editar_producto" && producto) {
-      setProductoSeleccionado(producto); // Guardamos el producto seleccionado
+      setProductoSeleccionado(producto);
       setFormData({
-        // Actualizamos el formulario con los datos del producto
         producto: producto.producto,
         proveedor: producto.proveedor,
         cantidad: producto.cantidad,
         medida: producto.medida,
         precio: producto.precio,
-        porcentaje: producto.porcentaje || "", // Asegúrate de que el porcentaje esté presente
+        porcentaje: producto.porcentaje || "",
       });
     } else if (section === "agregar_producto") {
-      // Limpiar el formulario al agregar un nuevo producto
       setFormData({
         producto: "",
         proveedor: "",
@@ -163,8 +163,18 @@ useEffect(() => {
     }
   };
 
+  const toggleSidebar = () => {
+    console.log("Toggle sidebar ejecutado");
+    setSidebarVisible(!sidebarVisible);
+  };
+  
+
   return (
     <div className="dashboard-container">
+      {/* Botón para mostrar/ocultar el sidebar */}
+      <button className="menu-toggle" onClick={toggleSidebar}>
+        ☰
+      </button>
       {/* Barra de navegación superior */}
       <nav className="top-nav">
         <img src={logo} alt="Logo" className="logo-nav" />
@@ -180,7 +190,7 @@ useEffect(() => {
       </nav>
       <div className="container-aside-contenido">
         {/* Sidebar */}
-        <aside className="sidebar">
+        <aside className={`sidebar ${sidebarVisible ? "show" : ""}`}>
           <ul>
             {/*<li>
               <a
@@ -192,7 +202,7 @@ useEffect(() => {
               </a>
             </li>*/}
             <li>
-              <a
+            <a
                 href="#productos"
                 onClick={() => handleSectionChange("productos")}
                 className={activeSection === "productos" ? "active" : ""}
@@ -210,7 +220,7 @@ useEffect(() => {
               </a>
             </li>*/}
             <li>
-              <a
+            <a
                 href="#simulador"
                 onClick={() => handleSectionChange("simulador")}
                 className={activeSection === "simulador" ? "active" : ""}
