@@ -137,3 +137,40 @@ a:hover {
   width: 300px;  /* Tamaño del logo */
   margin-bottom: 50px;  /* Espacio debajo del logo */
 }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 5px;
+  }
+
+  .container-login {
+    width: 70%;
+    padding: 2rem;
+  }
+
+  .container-register{
+    width: 70%;
+    padding: 2rem;
+    margin-top: 65px;
+  }
+
+  .input-login {
+    font-size: 14px;
+    padding: 0.6rem;
+  }
+
+  .button {
+    font-size: 14px;
+    padding: 0.6rem;
+  }
+
+  .logo {
+    width: 150px; /* Aún más pequeño en pantallas muy pequeñas */
+  }
+}
+
+@media (max-height: 860px) and (min-width: 481px) {
+  .logo {
+    display: none;
+  }
+}
