@@ -241,9 +241,11 @@
   align-items: center;
   background-color: #ffffff;
   padding: 10px 20px;
-  color: #fff;
-  position: sticky;
+  color: #000;
+  position: fixed;
   top: 0;
+  width: 100%; /* Asegúrate de que ocupe todo el ancho */
+  z-index: 100;
 }
 
 .logo-nav {
