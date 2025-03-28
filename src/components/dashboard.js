@@ -14,13 +14,13 @@ import config from "../config";
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
 
-// Cargar el usuario desde el localStorage al iniciar
-useEffect(() => {
-  const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
-  if (usuarioGuardado) {
-    setUsuarioActual(usuarioGuardado);
-  }
-}, []);
+  // Cargar el usuario desde el localStorage al iniciar
+  useEffect(() => {
+    const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
+    if (usuarioGuardado) {
+      setUsuarioActual(usuarioGuardado);
+    }
+  }, []);
 
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -46,7 +46,7 @@ useEffect(() => {
         cantidad: producto.cantidad,
         medida: producto.medida,
         precio: producto.precio,
-        porcentaje: producto.porcentaje || "",
+        porcentaje: producto.porcentaje ? producto.porcentaje * 100 : "",
       });
     } else if (section === "agregar_producto") {
       setFormData({
@@ -168,7 +168,6 @@ useEffect(() => {
     console.log("Toggle sidebar ejecutado");
     setSidebarVisible(!sidebarVisible);
   };
-  
 
   return (
     <div className="dashboard-container">
@@ -203,7 +202,7 @@ useEffect(() => {
               </a>
             </li>*/}
             <li>
-            <a
+              <a
                 href="#productos"
                 onClick={() => handleSectionChange("productos")}
                 className={activeSection === "productos" ? "active" : ""}
@@ -221,7 +220,7 @@ useEffect(() => {
               </a>
             </li>*/}
             <li>
-            <a
+              <a
                 href="#simulador"
                 onClick={() => handleSectionChange("simulador")}
                 className={activeSection === "simulador" ? "active" : ""}
@@ -232,8 +231,9 @@ useEffect(() => {
             {/*<li>
               <a
                 href="#inventario"
-                onClick={() => handleSectionChange('inventario')}
-                className={activeSection === 'inventario' ? 'active' : ''}>
+                onClick={() => handleSectionChange("inventario")}
+                className={activeSection === "inventario" ? "active" : ""}
+              >
                 <i class="bi bi-card-checklist"></i> Inventario
               </a>
             </li>*/}
@@ -244,7 +244,11 @@ useEffect(() => {
         <div className="main-content">
           {activeSection === "dashboard" && (
             <section id="dashboard">
-              <img src={img_dashboard} alt="img_dashboard" className="img_dashboard" />
+              <img
+                src={img_dashboard}
+                alt="img_dashboard"
+                className="img_dashboard"
+              />
             </section>
           )}
 
@@ -405,6 +409,17 @@ useEffect(() => {
                     value={formData.precio}
                     onChange={handleInputChange}
                   />
+                  <input
+                    type="number"
+                    step="0.001"
+                    placeholder="Porcentaje"
+                    name="porcentaje"
+                    value={formData.porcentaje}
+                    onChange={(e) =>
+                      setFormData({ ...formData, porcentaje: e.target.value })
+                    }
+                  />
+                  %
                   <button type="submit" className="btn-submit-editar">
                     Guardar Producto
                   </button>
