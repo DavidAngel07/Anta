@@ -6,6 +6,7 @@ import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
 
 const Simulador = () => {
+  const [nombreProceso, setNombreProceso] = useState("");
   const [numeroLote, setNumeroLote] = useState("");
   const [productos, setProductos] = useState([]);
   const [sulfuradas, setSulfuradas] = useState([{ id: 1, peso: 0, cueros: 0 }]);
@@ -189,13 +190,27 @@ const Simulador = () => {
 
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("TABLA DE COSTOS", 60, 17);
+    doc.setFontSize(14);
+    doc.text("TABLA DE COSTOS", 63, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(`Fecha: ${fechaHoy}   |   Lote: ${numeroLote || "N/A"}`, 190, 17, {
+    doc.text(`PROCESO: ${nombreProceso || "N/A"}  |   LOTE: ${numeroLote || "N/A"}`, 190, 17, {
       align: "right",
     });
+    doc.text(`FECHA: ${fechaHoy}`, 190, 21, {
+      align: "right",
+    });
+    if (sulfuradas.length > 0) {
+      const primero = sulfuradas[0];
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.text(
+        `PESO: ${primero.peso} kg     /     CANTIDAD: ${primero.cueros} cueros`,
+        105,
+        35, 
+        { align: "center" }
+      );
+    }     
 
     let startY = 40;
 
@@ -282,6 +297,13 @@ const Simulador = () => {
               value={numeroLote}
               onChange={(e) => setNumeroLote(e.target.value)}
               placeholder="Ingrese el número de lote"
+            />
+            <label style={{ color: "black" }}>Proceso</label>
+            <input
+              type="text"
+              value={nombreProceso}
+              onChange={(e) => setNombreProceso(e.target.value)}
+              placeholder="Ingrese el nombre del proceso"
             />
             <label style={{ color: "black" }}>Peso</label>
             <input
