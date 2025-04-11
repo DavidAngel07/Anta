@@ -10,16 +10,16 @@ const Login = () => {
   const [mensaje, setMensaje] = useState("");
   const [cargando, setCargando] = useState(false);
   const navigate = useNavigate(); // Inicializa useNavigate
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("🟡 handleSubmit ejecutado"); // <--- ESTE
     setCargando(true);
     setMensaje(""); // Limpiar mensaje anterior
-  
+
     try {
       console.log("Llamando a:", `${config.API_URL}/login`);
-      const response = await fetch(`${config.API_URL}/login`, { 
+      const response = await fetch(`${config.API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,17 +27,19 @@ const Login = () => {
         body: JSON.stringify({ correo, contraseña }),
         credentials: "include", // Esto permite enviar cookies/sesiones si usas JWT
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Error en el inicio de sesión");
       }
-  
+
       const data = await response.json();
-  
+      console.log("Respuesta del backend:", data);
+
       // Guardamos el token en localStorage
       localStorage.setItem("token", data.token);
-  
+      console.log("Token guardado:", localStorage.getItem("token"));
+
       // Redirigimos al Dashboard
       navigate("/dashboard");
     } catch (error) {
@@ -46,7 +48,7 @@ const Login = () => {
     } finally {
       setCargando(false);
     }
-  };  
+  };
 
   return (
     <div className="container">

@@ -10,6 +10,8 @@ import Perfil from "./perfil";
 import Simulador from "./simulador";
 import Inventario from "./inventario";
 import config from "../config";
+import ListaLotes from "./listaLotes";
+import DetalleLote from "./detalleLote";
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -210,15 +212,6 @@ const Dashboard = () => {
                 <i className="bi bi-box-seam-fill"></i> Productos
               </a>
             </li>
-            {/*<li>
-              <a
-                href="#procesos"
-                onClick={() => handleSectionChange("procesos")}
-                className={activeSection === "procesos" ? "active" : ""}
-              >
-                <i className="bi bi-hdd-rack"></i> Procesos
-              </a>
-            </li>*/}
             <li>
               <a
                 href="#simulador"
@@ -226,6 +219,15 @@ const Dashboard = () => {
                 className={activeSection === "simulador" ? "active" : ""}
               >
                 <i className="bi bi-calculator"></i> Calculadora
+              </a>
+            </li>
+            <li>
+              <a
+                href="#listaLotes"
+                onClick={() => handleSectionChange("listaLotes")}
+                className={activeSection === "listaLotes" ? "active" : ""}
+              >
+                <i className="bi bi-hdd-rack"></i> Lotes
               </a>
             </li>
             {/*<li>
@@ -254,26 +256,32 @@ const Dashboard = () => {
 
           {activeSection === "productos" && (
             <section id="productos">
-              <a
-                href="#agregar_producto"
-                onClick={() => handleSectionChange("agregar_producto")}
-                className="btn_azul"
-              >
-                <i className="bi bi-plus-circle"></i> Agregar producto
-              </a>
+              <div className="header-container-seccion">
+                <a
+                  href="#agregar_producto"
+                  onClick={() => handleSectionChange("agregar_producto")}
+                  className="btn_azul"
+                >
+                  <i className="bi bi-plus-circle"></i> Agregar producto
+                </a>
+                <h1>Productos</h1>
+              </div>
               <Productos handleSectionChange={handleSectionChange} />{" "}
               {/* Pasamos handleSectionChange aquí */}
             </section>
           )}
 
-          {activeSection === "procesos" && (
-            <section id="procesos">
-              <Procesos />
+          {activeSection === "listaLotes" && (
+            <section id="listaLotes">
+              <ListaLotes />
             </section>
           )}
 
           {activeSection === "simulador" && (
             <section id="simulador">
+              <div className="header-container-seccion">
+                <h1>Calculadora</h1>
+              </div>
               <Simulador />
             </section>
           )}

@@ -9,11 +9,11 @@
   overflow: hidden; /* Evita el scroll innecesario */
 }
 
-.container-aside-contenido{
+.container-aside-contenido {
   display: flex;
 }
 
-/* From Uiverse.io by satyamchaudharydev */ 
+/* From Uiverse.io by satyamchaudharydev */
 .loader-container {
   display: flex;
   justify-content: center;
@@ -30,9 +30,10 @@
   position: relative;
   align-items: center;
   justify-content: center;
- }
- 
- .loader:before, .loader:after {
+}
+
+.loader:before,
+.loader:after {
   content: "";
   position: absolute;
   top: -10px;
@@ -42,182 +43,185 @@
   border-radius: 100%;
   border: 10px solid transparent;
   border-top-color: var(--clr);
- }
- 
- .loader:before {
+}
+
+.loader:before {
   z-index: 100;
   animation: spin 1s infinite;
- }
- 
- .loader:after {
-  border: 10px solid #ccc;
- }
- 
- @keyframes spin {
-  0% {
-   -webkit-transform: rotate(0deg);
-   -ms-transform: rotate(0deg);
-   -o-transform: rotate(0deg);
-   transform: rotate(0deg);
-  }
- 
-  100% {
-   -webkit-transform: rotate(360deg);
-   -ms-transform: rotate(360deg);
-   -o-transform: rotate(360deg);
-   transform: rotate(360deg);
-  }
- }
- 
+}
 
-.bi{
+.loader:after {
+  border: 10px solid #ccc;
+}
+
+@keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -webkit-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.bi {
   margin-right: 5px;
 }
-  
-  /* Sidebar (Aside) */
-  .sidebar {
-    width: 200px;
-    background-color: #ffffff;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .sidebar h3 {
-    margin-bottom: 20px;
-  }
-  
-  .sidebar ul {
-    width: 100%;
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .sidebar ul li {
-    width: 100%;
-    margin: 10px 0;
-    margin-top: 30px;
-  }
-  
-  .sidebar ul li a {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    width: 80%;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #000000;
-    background-color: #fcfcfc;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .sidebar ul li a i {
-    margin-right: 10px;
-    font-size: 20px;
-  }
-  
-  .sidebar ul li a:hover {
-    background-color: #ebebfa;
-  }
-  
-  .sidebar ul li a.active {
-    background-color: #bcc8ff;
-    color: #000d80;
-  }
-  
-  /* Contenido principal */
-  .main-content {
-    flex-grow: 1;
-    padding: 20px;
-    height: 85vh; /* Hace que el contenedor ocupe el 100% de la altura de la ventana */
-    overflow-y: auto; /* Añade el scroll vertical si el contenido excede la altura */
-  }  
-  
-  .main-content h2 {
-    margin-bottom: 20px;
-  }
-  
-  section {
-    margin-bottom: 40px;
-  }
 
-  #dashboard{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+/* Sidebar (Aside) */
+.sidebar {
+  width: 200px;
+  background-color: #ffffff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-  .img_dashboard{
-    width: 88%;
-  }
+.sidebar h3 {
+  margin-bottom: 20px;
+}
 
-  section h1 {
-    color: #000d80;
-  }
-  
-  /* Estilo de la lista de productos y fórmulas (opcional) */
-  ul {
-    list-style-type: none;
-    padding-left: 20px;
-  }
-  
-  ul li {
-    margin-bottom: 10px;
-  }
-  
-  .tb {
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    margin-top: 30px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
+.sidebar ul {
+  width: 100%;
+  list-style-type: none;
+  padding: 0;
+}
 
-  .tabla {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #ffffff;
-    border-radius: 12px;
-    overflow: hidden;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .tabla th, .tabla td {
-    padding: 15px;
-    text-align: center;
-    border-bottom: 1px solid #dddddd;
-    font-size: 16px;
-  }
-  
-  .tabla th {
-    background-color: #f4f4fc;
-    color: rgb(0, 0, 0);
-  }
-  
-  .tabla tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .tabla tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .tabla td {
-    color: #333;
-  }
-  
-  .tabla th:first-child, .tabla td:first-child {
-    border-left: none;
-  }
-  
-  .tabla th:last-child, .tabla td:last-child {
-    border-right: none;
-  }
+.sidebar ul li {
+  width: 100%;
+  margin: 10px 0;
+  margin-top: 30px;
+}
 
-  /* Ajustar ancho de las columnas de los botones */
+.sidebar ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 80%;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #000000;
+  background-color: #fcfcfc;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar ul li a i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.sidebar ul li a:hover {
+  background-color: #ebebfa;
+}
+
+.sidebar ul li a.active {
+  background-color: #bcc8ff;
+  color: #000d80;
+}
+
+/* Contenido principal */
+.main-content {
+  flex-grow: 1;
+  padding: 20px;
+  height: 85vh; /* Hace que el contenedor ocupe el 100% de la altura de la ventana */
+  overflow-y: auto; /* Añade el scroll vertical si el contenido excede la altura */
+}
+
+.main-content h2 {
+  margin-bottom: 20px;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+#dashboard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img_dashboard {
+  width: 88%;
+}
+
+section h1 {
+  color: #000d80;
+}
+
+/* Estilo de la lista de productos y fórmulas (opcional) */
+ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+ul li {
+  margin-bottom: 10px;
+}
+
+.tb {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  margin-top: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tabla {
+  box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  font-family: "Arial", sans-serif;
+}
+
+.tabla th,
+.tabla td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #dddddd;
+  font-size: 16px;
+}
+
+.tabla th {
+  background-color: #f4f4fc;
+  color: rgb(0, 0, 0);
+}
+
+.tabla tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.tabla tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabla td {
+  color: #333;
+}
+
+.tabla th:first-child,
+.tabla td:first-child {
+  border-left: none;
+}
+
+.tabla th:last-child,
+.tabla td:last-child {
+  border-right: none;
+}
+
+/* Ajustar ancho de las columnas de los botones */
 .productos th:last-child,
 .productos th:nth-last-child(2),
 .productos td:last-child,
@@ -225,7 +229,7 @@
   width: 80px; /* Ajusta el valor según lo necesites */
   text-align: center;
 }
-  
+
 .procesos th,
 .procesos td {
   width: 170px; /* Valor por defecto para las columnas que no estén especificadas */
@@ -241,8 +245,6 @@
 .procesos td:nth-child(7) {
   width: 30px;
 }
-
-
 
 /* Barra de navegación superior */
 .top-nav {
@@ -268,43 +270,61 @@
   align-items: center;
 }
 
-.btn-cerrar-sesion,  .btn_eliminar{
-background-color: #be1300;
-color: #fff;
+.btn-cerrar-sesion,
+.btn_eliminar {
+  background-color: #be1300;
+  color: #fff;
 }
 
-.btn_editar{
+.btn_editar {
   background-color: #ffd000;
   color: #000000;
-  }
+}
 
-  .btn_ver{
-    background-color: #65b3fc;
-    color: #000000;
-    }
+.btn_ver {
+  background-color: #0025c900;
+  color: #000000;
+}
 
-.btn-cerrar-sesion, .btn_eliminar, .btn_editar, .btn_ver{
+.btn_eliminar_mini {
+  background-color: #c9000000;
+  color: #000000;
+}
+
+.btn-cerrar-sesion,
+.btn_eliminar,
+.btn_editar,
+.btn_eliminar_mini,
+.btn_ver {
   display: inline-block;
+  border: none;
   padding: 10px 15px;
   border-radius: 45px;
   text-decoration: none;
   transition: background-color 0.3s ease;
 }
 
-.btn-cerrar-sesion:hover,  .btn_eliminar:hover{
+.btn-cerrar-sesion:hover,
+.btn_eliminar:hover {
   background-color: #800d00;
 }
 
-.btn_editar:hover{
+.btn_editar:hover {
   background-color: #e49400;
 }
 
-.btn_ver:hover{
-  background-color: #c0ebff;
+.btn_ver:hover {
+  background-color: #8fa9ff46;
 }
 
-.btn_azul, .volver {
+.btn_eliminar_mini:hover {
+  background-color: #ff8f8f46;
+}
+
+.btn_azul,
+.volver {
   display: inline-block;
+  border: none;
   margin-top: 20px;
   padding: 10px 15px;
   background-color: #0025c9;
@@ -314,35 +334,36 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.btn_azul:hover, .volver:hover {
+.btn_azul:hover,
+.volver:hover {
   background-color: #000d46;
 }
 
 /* Contenedor para alinear el h3 y el a */
 .header-agregar {
-  display: flex;  /* Utilizamos flexbox */
-  justify-content: space-between;  /* Esto alinea los elementos a los extremos */
-  align-items: center;  /* Alinea verticalmente los elementos */
-  margin-bottom: 20px;  /* Espacio entre el encabezado y el formulario */
+  display: flex; /* Utilizamos flexbox */
+  justify-content: space-between; /* Esto alinea los elementos a los extremos */
+  align-items: center; /* Alinea verticalmente los elementos */
+  margin-bottom: 20px; /* Espacio entre el encabezado y el formulario */
 }
 
 .header-agregar h3 {
-  margin: 0;  /* Elimina el margen por defecto */
-  text-align: center;  /* Centra el texto del h3 */
-  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+  margin: 0; /* Elimina el margen por defecto */
+  text-align: center; /* Centra el texto del h3 */
+  flex-grow: 1; /* Hace que h3 ocupe todo el espacio disponible */
 }
 
 .header-editar {
-  display: flex;  /* Utilizamos flexbox */
-  justify-content: space-between;  /* Esto alinea los elementos a los extremos */
-  align-items: center;  /* Alinea verticalmente los elementos */
-  margin-bottom: 20px;  /* Espacio entre el encabezado y el formulario */
+  display: flex; /* Utilizamos flexbox */
+  justify-content: space-between; /* Esto alinea los elementos a los extremos */
+  align-items: center; /* Alinea verticalmente los elementos */
+  margin-bottom: 20px; /* Espacio entre el encabezado y el formulario */
 }
 
 .header-editar h3 {
-  margin: 0;  /* Elimina el margen por defecto */
-  text-align: center;  /* Centra el texto del h3 */
-  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+  margin: 0; /* Elimina el margen por defecto */
+  text-align: center; /* Centra el texto del h3 */
+  flex-grow: 1; /* Hace que h3 ocupe todo el espacio disponible */
 }
 
 /* Contenedor principal del formulario */
@@ -356,7 +377,7 @@ color: #fff;
 }
 
 /* Estilos para los campos de texto */
-.frm_agregar_producto input{
+.frm_agregar_producto input {
   width: 100%;
   padding: 12px;
   margin: 8px 0;
@@ -367,7 +388,7 @@ color: #fff;
   transition: border-color 0.3s ease;
 }
 
-.frm_agregar_producto select{
+.frm_agregar_producto select {
   width: 106%;
   padding: 12px;
   margin: 8px 0;
@@ -380,7 +401,7 @@ color: #fff;
 
 /* Efecto de enfoque en los campos de texto */
 .frm_agregar_producto input:focus {
-  border-color: #4CAF50;
+  border-color: #4caf50;
   outline: none;
   background-color: #fff;
 }
@@ -428,7 +449,6 @@ color: #fff;
   background-color: #bd9a00;
 }
 
-
 /* Estilos opcionales para la tabla */
 .lote-container {
   padding: 20px;
@@ -439,12 +459,13 @@ color: #fff;
 }
 
 .lote-table {
+  box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.1);
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
   border-radius: 12px;
   overflow: hidden;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
 }
 
 .lote-table th {
@@ -461,9 +482,18 @@ color: #fff;
   font-size: 16px;
 }
 
+.lote-table .col-producto {
+  width: 35%;
+  text-align: center;
+}
+
+.lote-table .col-pequena {
+  width: 15%;
+}
+
 .lote-table .ultima-columna {
-  width: 50px; /* Ajusta el tamaño según lo necesites */
-  text-align: center; /* Centra el contenido en la columna */
+  width: 50px;
+  text-align: center;
 }
 
 .lote-table td i {
@@ -471,15 +501,11 @@ color: #fff;
 }
 
 .lote-table th {
-  background-color: #f2f2f2;
+  background-color: #f4f4fc;
 }
 
 .lote-table tr:nth-child(even) {
   background-color: #f9f9f9;
-}
-
-.lote-table td {
-  width: 25%; /* Asegura que todas las columnas tengan el mismo tamaño */
 }
 
 .lote-table td select,
@@ -490,23 +516,26 @@ color: #fff;
   border-radius: 4px;
 }
 
-.total-general{
+.total-general {
   text-align: right;
   margin-right: 150px;
 }
 
-.frm_des_div{
+.frm_des_div {
   margin-top: 50px;
 }
 
-.frm_des_div form, .frm_sulfurada form {
+.frm_des_div form,
+.frm_sulfurada .frm_inventario form {
   display: flex;
   gap: 10px;
   justify-content: space-between;
   width: 100%;
 }
 
-.frm_des_div .btn-submit, .frm_sulfurada .btn-submit {
+.frm_des_div .btn-submit,
+.frm_sulfurada .btn-submit,
+.frm_inventario .btn-submit {
   width: auto; /* El botón ocupa solo el espacio necesario */
   padding: 12px;
   background-color: #008604;
@@ -518,45 +547,63 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.frm_des_div .btn-submit:hover, .frm_sulfurada .btn-submit:hover {
+.frm_des_div .btn-submit:hover,
+.frm_sulfurada .btn-submit:hover,
+.frm_inventario .btn-submit:hover {
   background-color: #005804;
 }
 
-.frm_des_div, .frm_sulfurada {
+.frm_des_div,
+.frm_sulfurada,
+.frm_inventario {
   display: flex;
   flex-wrap: wrap; /* Asegura que los elementos no se desborden */
   gap: 10px; /* Espacio entre los elementos */
   align-items: center; /* Alinea los elementos verticalmente al centro */
 }
 
-.frm_des_div form, .frm_sulfurada form {
+.frm_des_div form,
+.frm_sulfurada form,
+.frm_inventario form {
   display: flex;
   flex-direction: row; /* Los elementos estarán en una fila */
   gap: 10px; /* Espacio entre los elementos dentro del formulario */
   width: 100%; /* Se asegura que ocupe todo el espacio disponible */
 }
 
-.frm_des_div .form-fields, .frm_sulfurada .form-fields {
+.frm_des_div .form-fields,
+.frm_sulfurada .form-fields {
   display: flex;
   gap: 10px; /* Espacio entre el input y el select */
   align-items: center;
 }
 
-.frm_des_div label, .frm_sulfurada label {
+.frm_des_div label,
+.frm_sulfurada label {
   margin-right: 10px; /* Espacio entre la etiqueta y el siguiente campo */
   color: black;
   display: inline-block; /* Evita que se rompan en línea */
 }
 
-.frm_des_div input, .frm_sulfurada input,
-.frm_des_div select, .frm_sulfurada select {
+.frm_des_div input,
+.frm_sulfurada input,
+.frm_des_div select,
+.frm_sulfurada select {
   padding: 5px;
   width: 150px; /* Ajusta el tamaño de los campos */
   border: 1px solid #ccc;
   border-radius: 5px;
 }
 
-.frm_des_div .btn-submit, .frm_sulfurada .btn-submit {
+.frm_inventario input {
+  padding: 5px;
+  width: 400px; /* Ajusta el tamaño de los campos */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.frm_des_div .btn-submit,
+.frm_sulfurada .btn-submit {
   width: 300px; /* El botón no ocupa todo el ancho */
   padding: 12px;
   background-color: #008604;
@@ -570,12 +617,13 @@ color: #fff;
 }
 
 /* Efecto hover para el botón */
-.frm_des_div .btn-submit:hover, .frm_sulfurada .btn-submit:hover {
+.frm_des_div .btn-submit:hover,
+.frm_sulfurada .btn-submit:hover {
   background-color: #005804;
 }
 
-.btn-descargar-pdf{
-  background-color:#dd0000;
+.btn-descargar-pdf {
+  background-color: #dd0000;
   border: none;
   color: #fff;
   padding: 0;
@@ -589,8 +637,24 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.btn-agregar-sulf{
-  background-color:#008604;
+.btn-descargar-pdf-pq {
+  width: 40px;
+  height: 40px;
+  background-color: #dd0000;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px; /* Ajusta el tamaño según lo necesites */
+  height: 40px; /* Ajusta el tamaño según lo necesites */
+  border-radius: 10px; /* Hacemos que sea un círculo */
+  transition: background-color 0.3s ease;
+}
+
+.btn-agregar-sulf {
+  background-color: #008604;
   border: none;
   color: #fff;
   padding: 0;
@@ -604,14 +668,15 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.btn-guardar{
-  background-color:#0037cf;
+.btn-guardar {
+  background-color: #0037cf;
   border: none;
   color: #fff;
   padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
+  margin-left: 10px;
   justify-content: center;
   width: 250px; /* Ajusta el tamaño según lo necesites */
   height: 40px; /* Ajusta el tamaño según lo necesites */
@@ -619,7 +684,14 @@ color: #fff;
   transition: background-color 0.3s ease;
 }
 
-.btn-agregar-sulf-container {
+.action-buttons {
+  display: flex;
+  gap: 8px; /* Espacio entre los botones */
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-calculadora {
   display: flex;
   justify-content: center; /* Centra el botón */
   margin-top: 20px; /* Espacio entre el contenido y el botón */
@@ -703,9 +775,9 @@ color: #fff;
 }
 
 .inventario_titulo h2 {
-  margin: 0;  /* Elimina el margen por defecto */
-  text-align: center;  /* Centra el texto del h3 */
-  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+  margin: 0; /* Elimina el margen por defecto */
+  text-align: center; /* Centra el texto del h3 */
+  flex-grow: 1; /* Hace que h3 ocupe todo el espacio disponible */
   color: #0014ca;
   font-size: 30px;
 }
@@ -720,14 +792,14 @@ color: #fff;
 }
 
 .lote_titulo h2 {
-  margin: 0;  /* Elimina el margen por defecto */
-  text-align: center;  /* Centra el texto del h3 */
-  flex-grow: 1;  /* Hace que h3 ocupe todo el espacio disponible */
+  margin: 0; /* Elimina el margen por defecto */
+  text-align: center; /* Centra el texto del h3 */
+  flex-grow: 1; /* Hace que h3 ocupe todo el espacio disponible */
   color: #0014ca;
   font-size: 30px;
 }
 
-.lote_subtitulo h1{
+.lote_subtitulo h1 {
   color: #000d80;
   padding: 15px;
   font-size: 20px;
@@ -744,8 +816,8 @@ color: #fff;
   transition: transform 0.3s ease;
 }
 
-.lote_subtitulo{
-  display: flex; 
+.lote_subtitulo {
+  display: flex;
   justify-content: space-between;
   align-items: center;
   background-color: #f4f4fc;
@@ -761,7 +833,7 @@ color: #fff;
   display: block;
 }
 
-.lote-content h4{
+.lote-content h4 {
   background-color: #000d46;
   color: #e6eaff;
   width: 150px;
@@ -824,7 +896,8 @@ color: #fff;
   padding: 20px;
 }
 
-.perfil-info, .perfil-editar {
+.perfil-info,
+.perfil-editar {
   width: 48%; /* Ajusta el ancho según sea necesario */
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -832,27 +905,32 @@ color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.perfil-info h2, .perfil-editar h2{
+.perfil-info h2,
+.perfil-editar h2 {
   margin-bottom: 20px;
 }
 
-.perfil-info form div, .perfil-editar div{
+.perfil-info form div,
+.perfil-editar div {
   margin-bottom: 15px;
 }
 
-.perfil-info label, .perfil-editar label{
+.perfil-info label,
+.perfil-editar label {
   display: block;
   margin-bottom: 5px;
 }
 
-.perfil-info input, .perfil-editar input{
+.perfil-info input,
+.perfil-editar input {
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.perfil-info button, .perfil-editar button{
+.perfil-info button,
+.perfil-editar button {
   background-color: #007bff;
   color: white;
   border: none;
@@ -875,8 +953,52 @@ color: #fff;
   border-radius: 50px;
 }
 
+.header-container-seccion {
+  display: flex;
+  justify-content: space-between; /* Asegura que haya espacio entre los elementos */
+  align-items: center; /* Alinea los elementos verticalmente al centro */
+}
+
+.header-container-seccion h1 {
+  text-align: center;
+  flex-grow: 1; /* Hace que el <h1> ocupe todo el espacio disponible */
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh; /* Altura completa de la ventana */
+  text-align: center;
+  color: #666;
+}
+
+.lote-info {
+  display: flex;
+  justify-content: center;
+}
+
+.info-card {
+  text-align: center;
+}
+
+.info-row {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 10px;
+  margin-bottom: 35px;
+}
+
+.btn-seccion {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+
 @media (max-width: 810px) {
-  
   .dashboard-container {
     height: auto;
     min-height: 100vh;
@@ -907,13 +1029,10 @@ color: #fff;
   .frm_agregar_producto {
     padding: 30px;
   }
-
-
-
 }
 
 @media (min-width: 470px) and (max-width: 470px) {
-  .top-nav{
+  .top-nav {
     position: fixed;
     top: 0;
     width: 90%;
@@ -988,4 +1107,3 @@ color: #fff;
     margin-bottom: 5px;
   }
 }
-

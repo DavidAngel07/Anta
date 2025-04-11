@@ -1,70 +1,66 @@
-# Getting Started with Create React App
+# ANTA SYSTEM
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+**ANTA SYSTEM** es un ERP (Enterprise Resource Planning) desarrollado con React.js, Node.js y MySQL. Está diseñado para empresas productoras, especialmente del sector manufacturero como curtiembres, textiles y alimentos. Su objetivo es brindar un control eficiente sobre los procesos de producción, gestión de insumos e inventarios.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🧩 Módulos actuales
 
-### `npm start`
+- ✅ Login y Registro de usuarios
+- ✅ CRUD de Insumos
+- ✅ Calculadora de Fórmulas de Producción (según peso)
+- 🚧 Inventario de Insumos
+- 🚧 Inventario de Productos Terminados
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## ⚙️ Tecnologías utilizadas
 
-### `npm test`
+- **Frontend**: React.js
+- **Backend**: Node.js + Express
+- **Base de datos**: MySQL
+- **Otros**: Axios, JWT, bcrypt, FontAwesome, React Router
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🚀 Instalación y ejecución local
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Requisitos previos
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node.js
+- MySQL
+- npm o yarn
+- XAMPP (si usas phpMyAdmin local)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Frontend
 
-### `npm run eject`
+npm install
+npm start
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Backend
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+cd backend/backend
+npm install
+node server.js
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 📌 Próximos módulos (planificación)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- 🔧 Gestión de Producción
+- 🧮 MRP (Planificación de Requerimientos de Materiales)
+- 📦 Inventario / Almacén
+- 🧾 Compras
+- 🚚 Ventas y Distribución
+- 🧑‍🤝‍🧑 Clientes y CRM
+- 📈 Finanzas / Contabilidad
+- 👷 Recursos Humanos / Nómina
+- 📊 Reportes y Dashboard
+- 🔒 Control de Accesos / Usuarios
 
-## Learn More
+## 📄 Licencia
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Este proyecto es de uso privado en desarrollo. Próximamente será empaquetado como solución SaaS para empresas del sector productivo.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 👨‍💻 Autor
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Desarrollado por Cristian David Ángel Osorio
+💼 Ingeniero de Sistemas | Emprendedor Independiente

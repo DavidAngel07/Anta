@@ -9,6 +9,8 @@ import Lote from "./components/Lote";
 import PrivateRoute from './components/PrivateRoute';
 import Perfil from './components/perfil';
 import Simulador from './components/simulador';
+import ListaLotes from "./components/listaLotes";
+import DetalleLote from "./components/detalleLote";
 
 function App() {
   return (
@@ -25,7 +27,7 @@ function App() {
           } />
           <Route path="/procesos" element={<Procesos />} />
           <Route path="/lote/:id" element={<Lote />} /> {/* Ruta dinámica */}
-          <Route path="/perfil" element={<Perfil />} />
+          <Route path="/listaLote" element={<ListaLotes />} />
           <Route path="/simulador" element={<Simulador />} />
         </Routes>
       </div>

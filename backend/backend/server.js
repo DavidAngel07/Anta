@@ -8,10 +8,7 @@ const app = express();
 app.use(express.json());
 
 const corsOptions = {
-  origin: [
-    "https://anta-system.up.railway.app",
-    "http://localhost:3000"
-  ],
+  origin: ["https://anta-system.up.railway.app", "http://localhost:3000"],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -19,14 +16,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
 // 🔗 Configuración del pool de conexiones
 
 const db = mysql.createPool({
-  host: process.env.MYSQLHOST || 'mysql.railway.internal',  
-  user: process.env.MYSQLUSER || 'root', 
-  password: process.env.MYSQLPASSWORD || '',  
-  database: process.env.MYSQLDATABASE || 'railway',  
+  host: process.env.MYSQLHOST || "mysql.railway.internal",
+  user: process.env.MYSQLUSER || "root",
+  password: process.env.MYSQLPASSWORD || "",
+  database: process.env.MYSQLDATABASE || "railway",
   port: process.env.MYSQLPORT || 3306,
   waitForConnections: true,
   connectionLimit: 10,
@@ -46,11 +42,10 @@ db.getConnection((err, connection) => {
 });
 
 const dbPromise = db.promise();
-module.exports = dbPromise;
 
 // Rutas
-app.get('/', (req, res) => {
-  res.send('Servidor funcionando correctamente 🚀');
+app.get("/", (req, res) => {
+  res.send("Servidor funcionando correctamente 🚀");
 });
 
 // Iniciar el servidor
@@ -66,7 +61,10 @@ app.post("/register", async (req, res) => {
   console.log("📩 Recibiendo solicitud de registro:", req.body);
 
   try {
-    const [results] = await dbPromise.query("SELECT * FROM usuarios WHERE correo = ?", [correo]);
+    const [results] = await dbPromise.query(
+      "SELECT * FROM usuarios WHERE correo = ?",
+      [correo]
+    );
 
     if (results.length > 0) {
       return res.status(400).json("El correo ya está registrado.");
@@ -75,7 +73,10 @@ app.post("/register", async (req, res) => {
     const saltRounds = 10;
     const hash = await bcrypt.hash(contraseña, saltRounds);
 
-    await dbPromise.query("INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)", [nombre, correo, hash]);
+    await dbPromise.query(
+      "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)",
+      [nombre, correo, hash]
+    );
 
     console.log("✅ Usuario registrado con éxito.");
     res.status(200).json("Usuario registrado exitosamente.");
@@ -88,7 +89,6 @@ app.post("/register", async (req, res) => {
 // ✅ Ruta para iniciar sesión
 app.post("/login", (req, res) => {
   console.log("📩 Datos recibidos en /login:", req.body);
-  console.log(req.body); // <---- Agregar esta línea
 
   const { correo, contraseña } = req.body;
 
@@ -362,150 +362,259 @@ app.get("/productos", (req, res) => {
   });
 });
 
-// Ruta para obtener los lotes
-app.get("/api/lotes_cueros", (req, res) => {
-  db.query("SELECT * FROM lotes_cueros", (err, results) => {
-    if (err) {
-      return res.status(500).send("Error al obtener los lotes.");
-    }
-    res.status(200).json(results); // Enviar los lotes como respuesta en formato JSON
-  });
-});
+// Ruta para guardar simulación en las tablas lotes y detalle_lote_productos
+app.post("/guardar-simulacion", async (req, res) => {
+  const { nombreProceso, numeroLote, simulacionData, fecha } = req.body;
 
-// Ruta para obtener los procesos
-app.get("/api/procesos", (req, res) => {
-  db.query("SELECT nombre_proceso FROM procesos", (err, results) => {
-    if (err) {
-      return res.status(500).send("Error al obtener los procesos.");
-    }
-    res.status(200).json(results); // Enviar los lotes como respuesta en formato JSON
-  });
-});
-
-// Ruta para agregar un nuevo lote
-app.post("/api/lotes_cueros", (req, res) => {
-  const { tipo_cuero, cantidad, peso } = req.body;
-
-  if (!tipo_cuero || !cantidad || !peso) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Todos los campos son obligatorios" });
-  }
-
-  // Obtener el primer proceso disponible con el nombre
-  db.query(
-    "SELECT nombre_proceso FROM procesos ORDER BY orden ASC LIMIT 1",
-    (err, results) => {
-      if (err) {
-        console.error("Error al obtener el primer proceso:", err);
-        return res.status(500).json({
-          success: false,
-          message: "Error al obtener el proceso inicial.",
-        });
-      }
-
-      if (results.length === 0) {
-        return res
-          .status(400)
-          .json({ success: false, message: "No hay procesos definidos." });
-      }
-
-      const procesoInicial = results[0].nombre_proceso; // Usar el nombre del proceso
-      console.log("Proceso inicial seleccionado:", procesoInicial); // Verificar que sea el nombre del proceso
-
-      // Insertar el lote con datos predeterminados
-      const query = `
-        INSERT INTO lotes_cueros (tipo_cuero, cantidad, fecha_creacion, peso, proceso_actual)
-        VALUES (?, ?, NOW(), ?, ?)
-    `;
-      console.log("Consulta SQL:", query, [
-        tipo_cuero,
-        cantidad,
-        peso,
-        procesoInicial,
-      ]); // Verificar la consulta
-
-      db.query(
-        query,
-        [tipo_cuero, cantidad, peso, procesoInicial],
-        (err, result) => {
-          if (err) {
-            console.error("Error al agregar el lote:", err);
-            return res
-              .status(500)
-              .json({ success: false, message: "Error al agregar el lote." });
-          }
-
-          // Obtener el lote recién creado con el nombre del proceso
-          const responseData = {
-            id: result.insertId,
-            tipo_cuero,
-            cantidad,
-            fecha_creacion: new Date(),
-            peso,
-            proceso_actual: procesoInicial, // Aquí se devuelve el nombre del proceso
-          };
-
-          // Responder con éxito incluyendo el nombre del proceso
-          return res.status(200).json({
-            success: true,
-            message: "Lote agregado correctamente",
-            lote: responseData,
-          });
-        }
-      );
-    }
-  );
-});
-
-app.get("/api/lotes_cueros/:id", (req, res) => {
-  const { id } = req.params;
-  db.query("SELECT * FROM lotes_cueros WHERE id = ?", [id], (err, result) => {
-    if (err) {
-      return res.status(500).send("Error al obtener el lote.");
-    }
-    if (result.length === 0) {
-      return res.status(404).send("Lote no encontrado.");
-    }
-    res.status(200).json(result[0]);
-  });
-});
-
-// Ruta para obtener el inventario
-app.get("/inventario", async (req, res) => {
-  try {
-    const [inventario] = await db.query("SELECT * FROM inventario");
-    res.status(200).json(inventario); // Asegúrate de que esto sea un array
-  } catch (error) {
-    console.error("Error al obtener el inventario:", error);
-    res.status(500).json({ success: false, message: "Error al obtener el inventario." });
-  }
-});
-
-app.post("/inventario", async (req, res) => {
-  const { cueroTipo, cantidad, estado } = req.body;
-
-  const [registro] = await db.query(
-    "SELECT cantidad FROM inventario WHERE tipo = ? AND estado = ?",
-    [cueroTipo, estado]
-  );
-
-  let nuevaCantidad = cantidad;
-  if (registro.length > 0) {
-    nuevaCantidad += registro[0].cantidad;
-    await db.query(
-      "UPDATE inventario SET cantidad = ? WHERE tipo = ? AND estado = ?",
-      [nuevaCantidad, cueroTipo, estado]
-    );
+  let fechaMysql;
+  if (fecha.includes("T")) {
+    // If the date includes time information
+    fechaMysql = new Date(fecha).toISOString().slice(0, 10);
   } else {
-    await db.query(
-      "INSERT INTO inventario (tipo, cantidad, estado) VALUES (?, ?, ?)",
-      [cueroTipo, nuevaCantidad, estado]
-    );
+    // If the date is just a YYYY-MM-DD string, use it directly
+    fechaMysql = fecha;
+  }
+  // Validar datos recibidos
+  if (
+    !numeroLote ||
+    !nombreProceso ||
+    !simulacionData ||
+    !fecha ||
+    simulacionData.length === 0
+  ) {
+    return res.status(400).json({ error: "Faltan datos requeridos." });
   }
 
-  const [inventarioActualizado] = await db.query("SELECT * FROM inventario");
-  res.json(inventarioActualizado);
+  try {
+    // Obtener una conexión del pool
+    const connection = await dbPromise.getConnection();
+
+    try {
+      // Obtener productos para referencias
+      const [productos] = await connection.query("SELECT * FROM productos");
+
+      // Iniciar transacción
+      await connection.beginTransaction();
+
+      // Calcular el peso y número de cueros totales
+      const pesoTotal = simulacionData.reduce(
+        (sum, s) => sum + parseFloat(s.peso || 0),
+        0
+      );
+      const cuerosTotal = simulacionData.reduce(
+        (sum, s) => sum + parseInt(s.cueros || 0),
+        0
+      );
+
+      // Insertar el lote principal
+      const [resultLote] = await connection.query(
+        "INSERT INTO lotes (numero_lote, proceso, peso, numero_de_cueros, fecha) VALUES (?, ?, ?, ?, ?)",
+        [numeroLote, nombreProceso, pesoTotal, cuerosTotal, fechaMysql]
+      );
+
+      const loteId = resultLote.insertId;
+
+      // Preparar los detalles de productos para inserción masiva
+      const detallesValues = [];
+
+      // Procesar cada fila de cada sulfurada
+      for (const sulfurada of simulacionData) {
+        for (const fila of sulfurada.filas || []) {
+          // Solo procesar filas con producto y cantidad válidos
+          if (fila.producto && fila.cantidad) {
+            const productoId = parseInt(fila.producto);
+            const productoInfo = productos.find((p) => p.id === productoId);
+
+            if (productoInfo) {
+              detallesValues.push([
+                loteId,
+                productoInfo.producto,
+                parseFloat(fila.cantidad) || 0,
+                parseFloat(productoInfo.precio) || 0,
+                parseFloat(fila.total) ||
+                  parseFloat(fila.cantidad) * parseFloat(productoInfo.precio) ||
+                  0,
+              ]);
+            }
+          }
+        }
+      }
+
+      // Insertar los detalles de productos si hay alguno
+      if (detallesValues.length > 0) {
+        await connection.query(
+          "INSERT INTO detalle_lote_productos (lote_id, producto_nombre, cantidad, precio_unitario, total) VALUES ?",
+          [detallesValues]
+        );
+      }
+
+      // Confirmar transacción
+      await connection.commit();
+
+      // Liberar la conexión
+      connection.release();
+
+      res.status(200).json({
+        success: true,
+        message: "Simulación guardada exitosamente.",
+        loteId: loteId,
+      });
+    } catch (error) {
+      // Revertir transacción si hay algún error
+      await connection.rollback();
+      // Liberar la conexión
+      connection.release();
+
+      console.error("Error en la transacción:", error);
+      res.status(500).json({
+        success: false,
+        error: "Error al guardar la simulación.",
+        details: error.message,
+      });
+    }
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener la lista de productos.",
+      details: error.message,
+    });
+  }
 });
 
+// Ruta para obtener todos los lotes
+app.get("/lotes", async (req, res) => {
+  try {
+    // Consulta principal para obtener los lotes
+    const [lotes] = await dbPromise.query(`
+      SELECT l.*, 
+             COUNT(d.id) as cantidad_productos,
+             SUM(d.total) as costo_total
+      FROM lotes l
+      LEFT JOIN detalle_lote_productos d ON l.id = d.lote_id
+      GROUP BY l.id
+      ORDER BY l.fecha DESC
+    `);
 
+    res.status(200).json({
+      success: true,
+      data: lotes,
+    });
+  } catch (error) {
+    console.error("Error al obtener lotes:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener los lotes.",
+      details: error.message,
+    });
+  }
+});
+
+// Ruta para obtener detalles de un lote específico
+app.get("/lotes/:id", async (req, res) => {
+  const loteId = req.params.id;
+
+  try {
+    // Obtener información del lote
+    const [lote] = await dbPromise.query("SELECT * FROM lotes WHERE id = ?", [
+      loteId,
+    ]);
+
+    if (lote.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Lote no encontrado",
+      });
+    }
+
+    // Obtener detalles de productos del lote
+    const [detalles] = await dbPromise.query(
+      "SELECT * FROM detalle_lote_productos WHERE lote_id = ?",
+      [loteId]
+    );
+
+    res.status(200).json({
+      success: true,
+      lote: lote[0],
+      detalles: detalles,
+    });
+  } catch (error) {
+    console.error("Error al obtener detalles del lote:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener los detalles del lote.",
+      details: error.message,
+    });
+  }
+});
+
+// Ruta para eliminar un lote y sus detalles asociados
+app.delete('/eliminar-lote/:loteId', async (req, res) => {
+  const loteId = req.params.loteId;
+  
+  // Validar que se recibió un ID válido
+  if (!loteId || isNaN(loteId)) {
+    return res.status(400).json({ error: 'ID de lote inválido.' });
+  }
+  
+  try {
+    // Obtener una conexión del pool
+    const connection = await dbPromise.getConnection();
+    
+    try {
+      // Iniciar transacción
+      await connection.beginTransaction();
+      
+      // Primero eliminar los detalles del lote (tabla detalle_lote_productos)
+      await connection.query(
+        'DELETE FROM detalle_lote_productos WHERE lote_id = ?',
+        [loteId]
+      );
+      
+      // Luego eliminar el lote
+      const [result] = await connection.query(
+        'DELETE FROM lotes WHERE id = ?',
+        [loteId]
+      );
+      
+      // Verificar si se eliminó algún registro
+      if (result.affectedRows === 0) {
+        await connection.rollback();
+        connection.release();
+        return res.status(404).json({ error: 'Lote no encontrado.' });
+      }
+      
+      // Confirmar transacción
+      await connection.commit();
+      
+      // Liberar la conexión
+      connection.release();
+      
+      res.status(200).json({ 
+        success: true,
+        message: 'Lote eliminado exitosamente.'
+      });
+      
+    } catch (error) {
+      // Revertir transacción si hay algún error
+      await connection.rollback();
+      // Liberar la conexión
+      connection.release();
+      
+      console.error('Error en la transacción:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al eliminar el lote.', 
+        details: error.message 
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error al conectar con la base de datos:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Error al conectar con la base de datos.', 
+      details: error.message 
+    });
+  }
+});

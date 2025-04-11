@@ -61,49 +61,61 @@ const Productos = ({ handleSectionChange }) => {
   }
 
   return (
-    <div className="tb">
-      <table className="tabla productos">
-        <thead>
-          <tr>
-            <th>Producto</th>
-            <th>Proveedor</th>
-            <th>Cantidad</th>
-            <th>Precio</th>
-            <th></th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {productos.map((producto) => (
-            <tr key={producto.id}>
-              <td>{producto.producto}</td>
-              <td>{producto.proveedor}</td>
-              <td>
-                {producto.cantidad} {producto.medida}
-              </td>
-              <td>{formatearPrecio(producto.precio)}</td>
-              <td>
-                <button
-                  className="btn_eliminar"
-                  onClick={() => handleEliminar(producto.id)}
-                >
-                  Eliminar
-                </button>
-              </td>
-              <td>
-                <button
-                  className="btn_editar"
-                  onClick={() =>
-                    handleSectionChange("editar_producto", producto)
-                  }
-                >
-                  Editar
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {productos.length === 0 ? (
+        <div className="empty-state">
+          <i
+            className="bi bi-inbox"
+            style={{ fontSize: "100px", color: "#0025c9" }}
+          ></i>
+          <p>No hay productos registrados</p>
+        </div>
+      ) : (
+        <div className="tb">
+          <table className="tabla productos">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Proveedor</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map((producto) => (
+                <tr key={producto.id}>
+                  <td>{producto.producto}</td>
+                  <td>{producto.proveedor}</td>
+                  <td>
+                    {producto.cantidad} {producto.medida}
+                  </td>
+                  <td>{formatearPrecio(producto.precio)}</td>
+                  <td>
+                    <button
+                      className="btn_eliminar"
+                      onClick={() => handleEliminar(producto.id)}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="btn_editar"
+                      onClick={() =>
+                        handleSectionChange("editar_producto", producto)
+                      }
+                    >
+                      Editar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

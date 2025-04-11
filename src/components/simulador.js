@@ -7,16 +7,17 @@ import config from "../config";
 
 const Simulador = () => {
   const [nombreProceso, setNombreProceso] = useState("");
+  const [fecha, setFecha] = useState("");
   const [numeroLote, setNumeroLote] = useState("");
   const [productos, setProductos] = useState([]);
   const [sulfuradas, setSulfuradas] = useState([{ id: 1, peso: 0, cueros: 0 }]);
   const [filas_sulfurada, setFilas_sulfurada] = useState({
     1: [
-      { id: 1, producto: "", cantidad: "", precio: "" },
-      { id: 2, producto: "", cantidad: "", precio: "" },
-      { id: 3, producto: "", cantidad: "", precio: "" },
-      { id: 4, producto: "", cantidad: "", precio: "" },
-      { id: 5, producto: "", cantidad: "", precio: "" },
+      { id: 1, producto: "", porcentaje: 0, cantidad: "", precio: "" },
+      { id: 2, producto: "", porcentaje: 0, cantidad: "", precio: "" },
+      { id: 3, producto: "", porcentaje: 0, cantidad: "", precio: "" },
+      { id: 4, producto: "", porcentaje: 0, cantidad: "", precio: "" },
+      { id: 5, producto: "", porcentaje: 0, cantidad: "", precio: "" },
     ],
   });
   const [isCalculado, setIsCalculado] = useState(false);
@@ -58,27 +59,103 @@ const Simulador = () => {
   };
 
   const handleProductoChange = (e, index, sulfuradaId) => {
-    const nuevoValor = e.target.value; // Este es el ID del producto
+    const productoId = e.target.value;
     const nuevasFilas = { ...filas_sulfurada };
-
-    nuevasFilas[sulfuradaId][index].producto = nuevoValor; // Guardar el ID del producto
-    nuevasFilas[sulfuradaId][index].cantidad = calcularCantidad(
-      nuevoValor,
-      sulfuradaId
+    const productoSeleccionado = productos.find(
+      (producto) => producto.id === parseInt(productoId)
     );
 
+    const porcentaje = productoSeleccionado?.porcentaje
+      ? productoSeleccionado.porcentaje * 100 // Mostramos el porcentaje como número entero
+      : 0;
+
+    nuevasFilas[sulfuradaId][index] = {
+      ...nuevasFilas[sulfuradaId][index],
+      producto: productoId,
+      porcentaje: porcentaje,
+      cantidad: calcularCantidadPorValor(
+        productoSeleccionado?.porcentaje || 0,
+        sulfuradaId
+      ),
+      cantidadModificada: false, // <-- muy importante
+    };
+
     setFilas_sulfurada(nuevasFilas);
+  };
+
+  const handlePorcentajeChange = (e, index, sulfuradaId) => {
+    const nuevoPorcentaje = parseFloat(e.target.value);
+    const nuevasFilas = { ...filas_sulfurada };
+
+    // Guardar nuevo porcentaje (como entero), pero calcular cantidad con porcentaje / 100
+    nuevasFilas[sulfuradaId][index].porcentaje = nuevoPorcentaje;
+    nuevasFilas[sulfuradaId][index].cantidad = calcularCantidadPorValor(
+      nuevoPorcentaje / 100,
+      sulfuradaId
+    );
+    nuevasFilas[sulfuradaId][index].cantidadModificada = false;
+
+    setFilas_sulfurada(nuevasFilas);
+  };
+
+  const handleCantidadChange = (e, index, sulfuradaId) => {
+    const nuevasFilas = { ...filas_sulfurada };
+    const nuevaCantidad = parseFloat(e.target.value);
+    const fila = nuevasFilas[sulfuradaId][index];
+
+    const productoSeleccionado = productos.find(
+      (producto) => producto.id === parseInt(fila.producto)
+    );
+
+    let nuevoTotal = "";
+    let precioUnidad = "";
+
+    if (productoSeleccionado && !isNaN(nuevaCantidad)) {
+      precioUnidad = productoSeleccionado.precio;
+      nuevoTotal = (precioUnidad * nuevaCantidad).toFixed(2);
+    }
+
+    nuevasFilas[sulfuradaId][index] = {
+      ...fila,
+      cantidad: e.target.value,
+      cantidadModificada: true,
+      precio: precioUnidad,
+      total: nuevoTotal,
+    };
+
+    setFilas_sulfurada(nuevasFilas);
+  };
+
+  const calcularCantidadPorValor = (porcentajeReal, sulfuradaId) => {
+    const sulfurada = sulfuradas.find((s) => s.id === sulfuradaId);
+    if (sulfurada) {
+      return parseFloat(sulfurada.peso * porcentajeReal).toFixed(2);
+    }
+    return "";
   };
 
   const handlePeso_sulfChange = (e, id) => {
     const value = Number(e.target.value);
     if (value >= 0) {
-      // Solo acepta valores mayores o iguales a 0
-      setSulfuradas(
-        sulfuradas.map((sulfurada) =>
+      setSulfuradas((prevSulfuradas) =>
+        prevSulfuradas.map((sulfurada) =>
           sulfurada.id === id ? { ...sulfurada, peso: value } : sulfurada
         )
       );
+
+      // Recalcular cantidades si no han sido modificadas manualmente
+      const nuevasFilas = { ...filas_sulfurada };
+      nuevasFilas[id] = nuevasFilas[id].map((fila) => {
+        if (!fila.cantidadModificada) {
+          const porcentaje = fila.porcentaje || 0;
+          return {
+            ...fila,
+            cantidad: calcularCantidadPorValor(porcentaje / 100, id),
+          };
+        }
+        return fila;
+      });
+      setFilas_sulfurada(nuevasFilas);
     }
   };
 
@@ -145,7 +222,9 @@ const Simulador = () => {
     const nuevaFila = {
       id: nuevasFilas[sulfuradaId].length + 1,
       producto: "",
+      porcentaje: 0,
       cantidad: "",
+      cantidadModificada: false,
       precio: "",
     };
 
@@ -165,6 +244,45 @@ const Simulador = () => {
       );
     }
     setFilas_sulfurada(nuevasFilas);
+  };
+
+  const guardarSimulacion = async () => {
+    try {
+      console.log("Fecha que se va a enviar:", fecha);
+
+      const simulacionData = sulfuradas.map((sulfurada) => ({
+        id: sulfurada.id, // Incluye el ID de la sulfurada si lo necesitas en el backend
+        peso: sulfurada.peso,
+        cueros: sulfurada.cueros,
+        filas: filas_sulfurada[sulfurada.id] || [],
+      }));
+
+      const response = await fetch(`${config.API_URL}/guardar-simulacion`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nombreProceso,
+          numeroLote,
+          simulacionData,
+          fecha,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al guardar la simulación.");
+      }
+
+      const data = await response.json();
+      alert("Tabla guardada exitosamente con ID de Lote: " + data.loteId);
+      console.log("Respuesta del servidor:", data);
+      // Puedes redirigir al usuario o limpiar el formulario aquí
+    } catch (error) {
+      console.error("Error al guardar la simulación:", error);
+      alert("Hubo un error al guardar la simulación: " + error.message);
+    }
   };
 
   const generarPDF = () => {
@@ -194,10 +312,15 @@ const Simulador = () => {
     doc.text("TABLA DE COSTOS", 63, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(`PROCESO: ${nombreProceso || "N/A"}  |   LOTE: ${numeroLote || "N/A"}`, 190, 17, {
-      align: "right",
-    });
-    doc.text(`FECHA: ${fechaHoy}`, 190, 21, {
+    doc.text(
+      `PROCESO: ${nombreProceso || "N/A"}  |   LOTE: ${numeroLote || "N/A"}`,
+      190,
+      17,
+      {
+        align: "right",
+      }
+    );
+    doc.text(`FECHA: ${fecha}`, 190, 21, {
       align: "right",
     });
     if (sulfuradas.length > 0) {
@@ -207,10 +330,10 @@ const Simulador = () => {
       doc.text(
         `PESO: ${primero.peso} kg     /     CANTIDAD: ${primero.cueros} cueros`,
         105,
-        35, 
+        35,
         { align: "center" }
       );
-    }     
+    }
 
     let startY = 40;
 
@@ -286,9 +409,6 @@ const Simulador = () => {
   const renderSulfuradas = () => {
     return sulfuradas.map((sulfurada, index) => (
       <div key={sulfurada.id} className="lote-container">
-        <div className="header-container">
-          <h1></h1>
-        </div>
         <div className="frm_sulfurada">
           <form>
             <label style={{ color: "black" }}>Número de Lote</label>
@@ -319,6 +439,12 @@ const Simulador = () => {
               onChange={(e) => handleCueroChange(e, sulfurada.id)}
               placeholder="Ingrese el numero de cueros"
             />
+            <label style={{ color: "black" }}>Fecha</label>
+            <input
+              type="date"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+            />
             <button
               type="button"
               className="btn-submit"
@@ -331,17 +457,18 @@ const Simulador = () => {
         <table className="lote-table">
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio</th>
-              <th>Total</th>
-              <th></th>
+              <th className="col-producto">Producto</th>
+              <th className="col-pequena">Porcentaje</th>
+              <th className="col-pequena">Cantidad</th>
+              <th className="col-pequena">Precio</th>
+              <th className="col-pequena">Total</th>
+              <th className="ultima-columna"></th>
             </tr>
           </thead>
           <tbody>
             {filas_sulfurada[sulfurada.id].map((fila, index) => (
               <tr key={fila.id}>
-                <td>
+                <td className="col-producto">
                   <select
                     value={fila.producto}
                     onChange={(e) =>
@@ -356,9 +483,56 @@ const Simulador = () => {
                     ))}
                   </select>
                 </td>
-                <td>{fila.cantidad} kl</td>
-                <td>{formatoMoneda(fila.precio)}</td>
-                <td>{formatoMoneda(fila.total)}</td>
+                <td className="col-pequena">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={fila.porcentaje || 0}
+                      onChange={(e) =>
+                        handlePorcentajeChange(e, index, sulfurada.id)
+                      }
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      style={{ width: "70px" }}
+                    />
+                    %
+                  </div>
+                </td>
+
+                <td className="col-pequena">
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={fila.cantidad}
+                      onChange={(e) =>
+                        handleCantidadChange(e, index, sulfurada.id)
+                      }
+                      className="input-cantidad"
+                      step="0.01"
+                      min="0"
+                      style={{ width: "70px" }}
+                    />{" "}
+                    kg
+                  </div>
+                </td>
+
+                <td className="col-pequena">{formatoMoneda(fila.precio)}</td>
+                <td className="col-pequena">{formatoMoneda(fila.total)}</td>
                 <td className="ultima-columna">
                   <button
                     className="btn-eliminar"
@@ -373,7 +547,21 @@ const Simulador = () => {
               </tr>
             ))}
             <tr>
-              <td colSpan="3">
+              <td>
+                {" "}
+                <button
+                  className="btn-agregar"
+                  onClick={() => handleAgregarFila(sulfurada.id)}
+                >
+                  <i
+                    className="bi bi-plus-circle"
+                    style={{ color: "green", fontSize: "24px" }}
+                  ></i>
+                </button>
+              </td>
+              <td></td>
+              <td></td>
+              <td>
                 <strong>Total:</strong>
               </td>
               <td>
@@ -384,7 +572,10 @@ const Simulador = () => {
               <td></td>
             </tr>
             <tr>
-              <td colSpan="3">
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>
                 <strong>Total por cuero:</strong>
               </td>
               <td>
@@ -396,24 +587,14 @@ const Simulador = () => {
             </tr>
           </tbody>
         </table>
-        <button
-          className="btn-agregar"
-          onClick={() => handleAgregarFila(sulfurada.id)}
-        >
-          <i
-            className="bi bi-plus-circle"
-            style={{ color: "green", fontSize: "24px" }}
-          ></i>
-        </button>
       </div>
     ));
   };
 
-
   return (
     <div className="simulador">
       {renderSulfuradas()}
-      <div className="btn-agregar-sulf-container">
+      <div className="btn-calculadora">
         <button
           className="btn-descargar-pdf"
           onClick={generarPDF}
@@ -425,8 +606,12 @@ const Simulador = () => {
           ></i>{" "}
           Generar PDF
         </button>
+        <button className="btn-guardar" onClick={guardarSimulacion}>
+          <i class="bi bi-save" style={{ color: "#fff", fontSize: "20px" }}></i>
+          Guardar
+        </button>
       </div>
     </div>
   );
-}
+};
 export default Simulador;
