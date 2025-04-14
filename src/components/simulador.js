@@ -297,10 +297,10 @@ const Simulador = () => {
 
   const generarPDF = () => {
     const doc = new jsPDF({
-      orientation: "l",
+      orientation: "p", // "p" para portrait, "l" para landscape
       unit: "mm",
-      format: [210, 140],
-    });
+      format: "letter"
+    });    
 
     const fechaHoy = new Date().toLocaleDateString("es-CO", {
       year: "numeric",
@@ -319,22 +319,22 @@ const Simulador = () => {
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 60, 17);
+    doc.text("TABLA DE COSTOS", 70, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.text(
       `PROCESO: ${nombreProceso || "N/A"}`,
 
-      190,
+      202,
       17,
       {
         align: "right",
       }
     );
-    doc.text(`LOTE: ${numeroLote || "N/A"}`, 190, 21, {
+    doc.text(`LOTE: ${numeroLote || "N/A"}`, 202, 21, {
       align: "right",
     });
-    doc.text(`FECHA: ${formatearFecha(fecha)}`, 190, 25, {
+    doc.text(`FECHA: ${formatearFecha(fecha)}`, 202, 25, {
       align: "right",
     });
     if (sulfuradas.length > 0) {
@@ -414,7 +414,7 @@ const Simulador = () => {
     });
 
     if (logo) {
-      doc.addImage(logo, "PNG", 10, 122, 20, 10);
+      doc.addImage(logo, "PNG", 10, 255, 30, 15);
     }
 
     doc.save(`costo_${numeroLote}.pdf`);

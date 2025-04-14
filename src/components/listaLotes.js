@@ -112,9 +112,9 @@ const ListaLotes = () => {
     }
 
     const doc = new jsPDF({
-      orientation: "l",
+      orientation: "p", // "p" para portrait, "l" para landscape
       unit: "mm",
-      format: [210, 140],
+      format: "letter",
     });
 
     const fechaHoy = new Date().toLocaleDateString("es-CO", {
@@ -134,17 +134,18 @@ const ListaLotes = () => {
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 60, 17);
+    doc.text("TABLA DE COSTOS", 70, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.text(
-      `PROCESO: ${selectedLote.proceso || "N/A"}`,
-      190,
-      17,
-      { align: "right" }
-    );
-    doc.text(`LOTE: ${selectedLote.numero_lote || "N/A"}`, 190, 21, {align: "right",});
-    doc.text(`FECHA: ${formatearFecha(selectedLote.fecha)}`, 190, 25, { align: "right" });
+    doc.text(`PROCESO: ${selectedLote.proceso || "N/A"}`, 202, 17, {
+      align: "right",
+    });
+    doc.text(`LOTE: ${selectedLote.numero_lote || "N/A"}`, 202, 21, {
+      align: "right",
+    });
+    doc.text(`FECHA: ${formatearFecha(selectedLote.fecha)}`, 202, 25, {
+      align: "right",
+    });
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
@@ -206,7 +207,7 @@ const ListaLotes = () => {
 
     // Logo al pie
     if (logo) {
-      doc.addImage(logo, "PNG", 10, 122, 20, 10);
+      doc.addImage(logo, "PNG", 10, 255, 30, 15);
     }
 
     doc.save(`costo_${selectedLote.numero_lote}.pdf`);
