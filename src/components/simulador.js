@@ -285,6 +285,16 @@ const Simulador = () => {
     }
   };
 
+  // Formatear fecha
+  const formatearFecha = (fechaString) => {
+    const fecha = new Date(fechaString);
+    return fecha.toLocaleDateString("es-CO", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   const generarPDF = () => {
     const doc = new jsPDF({
       orientation: "l",
@@ -309,18 +319,22 @@ const Simulador = () => {
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 63, 17);
+    doc.text("TABLA DE COSTOS", 60, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.text(
-      `PROCESO: ${nombreProceso || "N/A"}  |   LOTE: ${numeroLote || "N/A"}`,
+      `PROCESO: ${nombreProceso || "N/A"}`,
+
       190,
       17,
       {
         align: "right",
       }
     );
-    doc.text(`FECHA: ${fecha}`, 190, 21, {
+    doc.text(`LOTE: ${numeroLote || "N/A"}`, 190, 21, {
+      align: "right",
+    });
+    doc.text(`FECHA: ${formatearFecha(fecha)}`, 190, 25, {
       align: "right",
     });
     if (sulfuradas.length > 0) {
@@ -400,7 +414,7 @@ const Simulador = () => {
     });
 
     if (logo) {
-      doc.addImage(logo, "PNG", 170, 120, 20, 10);
+      doc.addImage(logo, "PNG", 10, 122, 20, 10);
     }
 
     doc.save(`costo_${numeroLote}.pdf`);

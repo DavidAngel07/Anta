@@ -134,18 +134,17 @@ const ListaLotes = () => {
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 63, 17);
+    doc.text("TABLA DE COSTOS", 60, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
     doc.text(
-      `PROCESO: ${selectedLote.proceso || "N/A"}  |   LOTE: ${
-        selectedLote.numero_lote || "N/A"
-      }`,
+      `PROCESO: ${selectedLote.proceso || "N/A"}`,
       190,
       17,
       { align: "right" }
     );
-    doc.text(`FECHA: ${fechaHoy}`, 190, 21, { align: "right" });
+    doc.text(`LOTE: ${selectedLote.numero_lote || "N/A"}`, 190, 21, {align: "right",});
+    doc.text(`FECHA: ${formatearFecha(selectedLote.fecha)}`, 190, 25, { align: "right" });
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(11);
@@ -207,7 +206,7 @@ const ListaLotes = () => {
 
     // Logo al pie
     if (logo) {
-      doc.addImage(logo, "PNG", 170, 120, 20, 10);
+      doc.addImage(logo, "PNG", 10, 122, 20, 10);
     }
 
     doc.save(`costo_${selectedLote.numero_lote}.pdf`);
@@ -229,31 +228,35 @@ const ListaLotes = () => {
 
   const eliminarLote = async (loteId) => {
     // Mostrar confirmación antes de eliminar
-    const confirmar = window.confirm("¿Estás seguro de que deseas eliminar este lote? Esta acción no se puede deshacer.");
-    
+    const confirmar = window.confirm(
+      "¿Estás seguro de que deseas eliminar este lote? Esta acción no se puede deshacer."
+    );
+
     if (!confirmar) {
       return; // Si el usuario cancela, no hacer nada
     }
-  
+
     try {
-      const response = await fetch(`${config.API_URL}/eliminar-lote/${loteId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${config.API_URL}/eliminar-lote/${loteId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-      });
-  
+      );
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Error al eliminar el lote.");
       }
-  
+
       const data = await response.json();
       alert("Lote eliminado exitosamente");
-      
+
       // Actualizar la lista de lotes después de eliminar
       cargarLotes();
-      
     } catch (error) {
       console.error("Error al eliminar el lote:", error);
       alert("Hubo un error al eliminar el lote: " + error.message);
@@ -323,104 +326,109 @@ const ListaLotes = () => {
     return (
       <div className="detalle-lote-container">
         <div className="header-container-seccion">
-        <button onClick={volverALista} className="btn_azul">
+          <button onClick={volverALista} className="btn_azul">
             <i className="bi bi-arrow-left"></i> Volver a la lista
           </button>
-          </div>
-        <div className="tb">
-
-
-        <div className="lote-info">
-          <div className="info-card">
-            <h3 style={{color: "#000d80"}}>Información General</h3>
-            <div  style={{display: "flex", marginRight: "55px"}}>
-            <div className="info-row" style={{display: "flex"}}>
-              <div className="info-item" style={{marginRight: "55px"}}>
-                <strong style={{color: "#000d80"}}>Proceso:</strong> {selectedLote.proceso}
-              </div>
-              <div className="info-item" style={{marginRight: "55px"}}>
-                <strong style={{color: "#000d80"}}>Número de Lote:</strong> {selectedLote.numero_lote}
-              </div>
-            </div>
-            <div className="info-row" style={{display: "flex"}}>
-              <div className="info-item" style={{marginRight: "55px"}}>
-                <strong style={{color: "#000d80"}}>Peso:</strong>{" "}
-                {selectedLote.peso} kg
-              </div>
-              <div className="info-item" style={{marginRight: "55px"}}>
-                <strong style={{color: "#000d80"}}>Número de Cueros:</strong>{" "}
-                {selectedLote.numero_de_cueros}
-              </div>
-            </div>
-            <div className="info-row">
-              <div className="info-item" style={{marginRight: "55px"}}>
-                <strong style={{color: "#000d80"}}>Fecha:</strong> {formatearFecha(selectedLote.fecha)}
-              </div>
-            </div>
-            </div>
-          </div>
         </div>
+        <div className="tb">
+          <div className="lote-info">
+            <div className="info-card">
+              <h3 style={{ color: "#000d80" }}>Información General</h3>
+              <div style={{ display: "flex", marginRight: "55px" }}>
+                <div className="info-row" style={{ display: "flex" }}>
+                  <div className="info-item" style={{ marginRight: "55px" }}>
+                    <strong style={{ color: "#000d80" }}>Proceso:</strong>{" "}
+                    {selectedLote.proceso}
+                  </div>
+                  <div className="info-item" style={{ marginRight: "55px" }}>
+                    <strong style={{ color: "#000d80" }}>
+                      Número de Lote:
+                    </strong>{" "}
+                    {selectedLote.numero_lote}
+                  </div>
+                </div>
+                <div className="info-row" style={{ display: "flex" }}>
+                  <div className="info-item" style={{ marginRight: "55px" }}>
+                    <strong style={{ color: "#000d80" }}>Peso:</strong>{" "}
+                    {selectedLote.peso} kg
+                  </div>
+                  <div className="info-item" style={{ marginRight: "55px" }}>
+                    <strong style={{ color: "#000d80" }}>
+                      Número de Cueros:
+                    </strong>{" "}
+                    {selectedLote.numero_de_cueros}
+                  </div>
+                </div>
+                <div className="info-row">
+                  <div className="info-item" style={{ marginRight: "55px" }}>
+                    <strong style={{ color: "#000d80" }}>Fecha:</strong>{" "}
+                    {formatearFecha(selectedLote.fecha)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <div className="productos-container">
-          <table className="tabla">
-            <thead>
-              <tr>
-                <th className="col-pequena">Producto</th>
-                <th className="col-pequena">Cantidad (kg)</th>
-                <th className="col-pequena">Precio Unitario</th>
-                <th className="col-pequena">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {detalles.map((detalle) => (
-                <tr key={detalle.id}>
-                  <td className="col-pequena">{detalle.producto_nombre}</td>
-                  <td className="col-pequena">
-                    {parseFloat(detalle.cantidad).toFixed(2)} kg
+          <div className="productos-container">
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th className="col-pequena">Producto</th>
+                  <th className="col-pequena">Cantidad (kg)</th>
+                  <th className="col-pequena">Precio Unitario</th>
+                  <th className="col-pequena">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detalles.map((detalle) => (
+                  <tr key={detalle.id}>
+                    <td className="col-pequena">{detalle.producto_nombre}</td>
+                    <td className="col-pequena">
+                      {parseFloat(detalle.cantidad).toFixed(2)} kg
+                    </td>
+                    <td className="col-pequena">
+                      {formatoMoneda(detalle.precio_unitario)}
+                    </td>
+                    <td className="col-pequena">
+                      {formatoMoneda(detalle.total)}
+                    </td>
+                  </tr>
+                ))}
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    <strong>Total:</strong>
                   </td>
-                  <td className="col-pequena">
-                    {formatoMoneda(detalle.precio_unitario)}
-                  </td>
-                  <td className="col-pequena">
-                    {formatoMoneda(detalle.total)}
+                  <td>
+                    <strong>{formatoMoneda(calcularTotal())}</strong>
                   </td>
                 </tr>
-              ))}
-              <tr>
-                <td></td>
-                <td></td>
-                <td>
-                  <strong>Total:</strong>
-                </td>
-                <td>
-                  <strong>{formatoMoneda(calcularTotal())}</strong>
-                </td>
-              </tr>
-              <tr>
-                <td></td>
-                <td></td>
-                <td>
-                  <strong>Total por cuero:</strong>
-                </td>
-                <td>
-                  <strong>{formatoMoneda(calcularTotalPorCuero())}</strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="btn-seccion">
-          <button
-            onClick={() => generarPDF(selectedLoteId)}
-            className="btn-descargar-pdf"
-          >
-            <i
-              className="bi bi-file-earmark-pdf"
-              style={{ color: "#fff", fontSize: "20px" }}
-            ></i>{" "}
-            Generar PDF
-          </button>
-        </div>
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>
+                    <strong>Total por cuero:</strong>
+                  </td>
+                  <td>
+                    <strong>{formatoMoneda(calcularTotalPorCuero())}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="btn-seccion">
+            <button
+              onClick={() => generarPDF(selectedLoteId)}
+              className="btn-descargar-pdf"
+            >
+              <i
+                className="bi bi-file-earmark-pdf"
+                style={{ color: "#fff", fontSize: "20px" }}
+              ></i>{" "}
+              Generar PDF
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -475,19 +483,19 @@ const ListaLotes = () => {
                         >
                           <i
                             className="bi bi-eye-fill"
-                            style={{ color: "#0025c9", fontSize: "25px"}}
+                            style={{ color: "#0025c9", fontSize: "25px" }}
                           ></i>
                         </button>
                         <button
-                        onClick={() => eliminarLote(lote.id)}
-                        className="btn_eliminar_mini"
-                        title="Eliminar lote"
-                      >
-                        <i
-                          className="bi bi-trash-fill"
-                          style={{ color: "#c90000", fontSize: "25px"}}
-                        ></i>
-                      </button>
+                          onClick={() => eliminarLote(lote.id)}
+                          className="btn_eliminar_mini"
+                          title="Eliminar lote"
+                        >
+                          <i
+                            className="bi bi-trash-fill"
+                            style={{ color: "#c90000", fontSize: "25px" }}
+                          ></i>
+                        </button>
                       </div>
                     </td>
                   </tr>
