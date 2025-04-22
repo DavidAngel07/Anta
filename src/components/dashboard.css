@@ -991,6 +991,10 @@ ul li {
   margin-bottom: 35px;
 }
 
+.info-item{
+  font-size: 17px;
+}
+
 .btn-seccion {
   display: flex;
   justify-content: center;
