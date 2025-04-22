@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
 import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
 
 const Costos = () => {
   const [costos, setCostos] = useState([]);
+  const [filtroLote, setFiltroLote] = useState(""); // Estado para filtrar por lote
+  const [filtroFecha, setFiltroFecha] = useState(""); // Estado para filtrar por fecha
+  const [buscandoLote, setBuscandoLote] = useState(false); // Estado para mostrar barra de búsqueda de lote
+  const [mostrandoFecha, setMostrandoFecha] = useState(false); // Estado para mostrar el calendario de fecha
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCostoId, setSelectedCostoId] = useState(null);
@@ -73,15 +76,35 @@ const Costos = () => {
   };
   
 
-  // Formatear fecha
-  const formatearFecha = (fechaString) => {
-    const fecha = new Date(fechaString);
-    return fecha.toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  // Función para formatear la fecha (ajusta a tu formato)
+  const formatearFecha = (fecha) => {
+    const date = new Date(fecha);
+    return date.toISOString().split("T")[0]; // Devuelve la fecha en formato YYYY-MM-DD
   };
+
+  const filtrarLotes = costos.filter((detalle) => {
+    return (
+      (filtroLote
+        ? detalle.numero_lote.toLowerCase().includes(filtroLote.toLowerCase())
+        : true) && // Compara sin distinción de mayúsculas/minúsculas
+      (filtroFecha ? formatearFecha(detalle.fecha) === filtroFecha : true) // Filtrar por fecha
+    );
+  });
+
+  const handleClickLote = () => {
+    setBuscandoLote(!buscandoLote);
+    if (buscandoLote) {
+      setFiltroLote(""); // Limpiar filtro de lote si se vuelve a hacer clic
+    }
+  };
+
+  const handleClickFecha = () => {
+    setMostrandoFecha(!mostrandoFecha);
+    if (mostrandoFecha) {
+      setFiltroFecha(""); // Limpiar filtro de fecha si se vuelve a hacer clic
+    }
+  };
+
 
   // Formatear moneda
   const formatoMoneda = (valor) => {
@@ -120,12 +143,6 @@ const Costos = () => {
       orientation: "p", // "p" para portrait, "l" para landscape
       unit: "mm",
       format: "letter",
-    });
-
-    const fechaHoy = new Date().toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
     });
 
     // Encabezado
@@ -257,9 +274,6 @@ const Costos = () => {
         const errorData = await response.json();
         throw new Error(errorData.error || "Error al eliminar el costo.");
       }
-
-      const data = await response.json();
-      alert("Costo eliminado exitosamente");
 
       // Actualizar la lista de costos después de eliminar
       cargarCostos();
@@ -474,17 +488,53 @@ const Costos = () => {
             <table className="tabla">
               <thead>
                 <tr>
-                  <th>Lote</th>
+                <th>
+                    <div className="filtro-container">
+                      <span
+                        onClick={handleClickLote}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Lote {buscandoLote ? "▲" : "▼"}
+                      </span>
+                      {buscandoLote && (
+                        <input
+                          type="text"
+                          className="filtro_lote"
+                          placeholder="Buscar lote"
+                          value={filtroLote}
+                          onChange={(e) => setFiltroLote(e.target.value)}
+                          autoFocus
+                        />
+                      )}
+                    </div>
+                  </th>
                   <th>Peso (kg)</th>
                   <th>Cueros</th>
                   <th>Color</th>
                   <th>Costo Total</th>
-                  <th>Fecha</th>
-                  <th>Acciones</th>
+                  <th>
+                    <div className="filtro-container">
+                      <span
+                        onClick={handleClickFecha}
+                        style={{ cursor: "pointer" }}
+                      >
+                        Fecha {mostrandoFecha ? "▲" : "▼"}
+                      </span>
+                      {mostrandoFecha && (
+                        <input
+                          type="date"
+                          className="filtro_fecha"
+                          value={filtroFecha}
+                          onChange={(e) => setFiltroFecha(e.target.value)}
+                        />
+                      )}
+                    </div>
+                  </th>
+                  <th>Ver detalles</th>
                 </tr>
               </thead>
               <tbody>
-                {costos.map((costo) => (
+              {filtrarLotes.map((costo) => (
                   <tr key={costo.id}>
                     <td>{costo.numero_lote}</td>
                     <td>{costo.peso}</td>

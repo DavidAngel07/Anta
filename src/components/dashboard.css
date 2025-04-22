@@ -1028,7 +1028,73 @@ ul li {
   color: #0018a1;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3); /* sombra solo hacia abajo */
 }
+/* Estilo para la barra de búsqueda */
+.filtro_lote {
+  padding: 8px 12px;
+  border: 2px solid #0400ff;
+  background-color: #F4F4FC;
+  border-radius: 20px;
+  font-size: 16px;
+  width: 100px;
+  transition: all 0.8s ease;
+}
 
+.filtro_lote:focus {
+  border-color: #0400ff;
+  outline: none;
+  background-color: #ffffff;
+}
+
+/* Estilo para el calendario */
+.filtro_fecha {
+  padding: 8px 12px;
+  border: 2px solid #0400ff;
+  background-color: #F4F4FC;
+  border-radius: 20px;
+  font-size: 16px;
+  width: 100px;
+  transition: all 0.3s ease;
+}
+
+.filtro_fecha:focus {
+  border-color: #0400ff;
+  outline: none;
+  background-color: #ffffff;
+}
+
+span {
+  transition: 0.3s;
+  text-shadow: 10px, 10px, 10px #000000;
+  display: block; /* Hace que el <span> se comporte como un bloque para centrarlo */
+  text-align: center; /* Centra el texto dentro del <span> */
+  width: 100%; /* Asegura que el <span> ocupe todo el ancho del contenedor */
+}
+
+/* Agregar sombra al pasar el mouse sobre los filtros */
+span:hover {
+  cursor: pointer;
+  color: #003366;
+  font-size: 20px;
+}
+
+/* Estilo para el contenedor del filtro */
+.filtro-container {
+  display: flex;
+  flex-direction: column; /* Apilar los elementos en columna */
+  align-items: center; /* Centra todo el contenido dentro del contenedor */
+  gap: 10px; /* Espacio entre los elementos */
+  margin: 10px 0;
+}
+
+th {
+  width: 150px; /* Define un ancho fijo para las celdas que contienen los filtros */
+  text-align: center; /* Centra el texto en la cabecera */
+}
+
+
+.filtro-container input {
+  margin-top: 5px;
+}
 
 
 
