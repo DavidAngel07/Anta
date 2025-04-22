@@ -17,7 +17,7 @@ const Costos = () => {
   const [selectedCosto, setSelectedCosto] = useState(null);
   const [detalles, setDetalles] = useState([]);
   const [detalleError, setDetalleError] = useState(null);
-  const [viewMode, setViewMode] = useState("lista"); // "lista" or "detalle"
+  const [viewMode, setViewMode] = useState("lista");
 
   // Define la función cargarCostos para cargar todos los costos
   const cargarCostos = async () => {
@@ -286,9 +286,8 @@ const Costos = () => {
   // Renderizado condicional para estados de carga y error
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Cargando costos...</p>
+      <div className="loader-container">
+        <div className="loader"></div>
       </div>
     );
   }

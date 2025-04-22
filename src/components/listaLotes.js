@@ -279,9 +279,8 @@ const ListaLotes = () => {
   // Renderizado condicional para estados de carga y error
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Cargando lotes...</p>
+      <div className="loader-container">
+        <div className="loader"></div>
       </div>
     );
   }
