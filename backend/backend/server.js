@@ -365,7 +365,7 @@ app.get("/productos", (req, res) => {
 // Ruta para guardar simulación en las tablas lotes, detalle_lote_productos y total_proceso
 app.post("/guardar-simulacion", async (req, res) => {
   const { nombreProceso, numeroLote, simulacionData, fecha } = req.body;
-  console.log("Cuerpo de la petición:", req.body); 
+  console.log("Cuerpo de la petición:", req.body);
 
   let fechaMysql;
   if (fecha.includes("T")) {
@@ -460,7 +460,10 @@ app.post("/guardar-simulacion", async (req, res) => {
 
       // Insertar los totales en la tabla total_proceso si hay datos
       if (totalesProcesoValues.length > 0) {
-        console.log("Valores a insertar en total_proceso:", totalesProcesoValues);
+        console.log(
+          "Valores a insertar en total_proceso:",
+          totalesProcesoValues
+        );
         await connection.query(
           "INSERT INTO total_proceso (lote_id, total, total_cuero) VALUES ?",
           [totalesProcesoValues]
@@ -570,72 +573,70 @@ app.get("/lotes/:id", async (req, res) => {
 });
 
 // Ruta para eliminar un lote y sus detalles asociados
-app.delete('/eliminar-lote/:loteId', async (req, res) => {
+app.delete("/eliminar-lote/:loteId", async (req, res) => {
   const loteId = req.params.loteId;
-  
+
   // Validar que se recibió un ID válido
   if (!loteId || isNaN(loteId)) {
-    return res.status(400).json({ error: 'ID de lote inválido.' });
+    return res.status(400).json({ error: "ID de lote inválido." });
   }
-  
+
   try {
     // Obtener una conexión del pool
     const connection = await dbPromise.getConnection();
-    
+
     try {
       // Iniciar transacción
       await connection.beginTransaction();
-      
+
       // Primero eliminar los detalles del lote (tabla detalle_lote_productos)
       await connection.query(
-        'DELETE FROM detalle_lote_productos WHERE lote_id = ?',
+        "DELETE FROM detalle_lote_productos WHERE lote_id = ?",
         [loteId]
       );
-      
+
       // Luego eliminar el lote
       const [result] = await connection.query(
-        'DELETE FROM lotes WHERE id = ?',
+        "DELETE FROM lotes WHERE id = ?",
         [loteId]
       );
-      
+
       // Verificar si se eliminó algún registro
       if (result.affectedRows === 0) {
         await connection.rollback();
         connection.release();
-        return res.status(404).json({ error: 'Lote no encontrado.' });
+        return res.status(404).json({ error: "Lote no encontrado." });
       }
-      
+
       // Confirmar transacción
       await connection.commit();
-      
+
       // Liberar la conexión
       connection.release();
-      
-      res.status(200).json({ 
+
+      res.status(200).json({
         success: true,
-        message: 'Lote eliminado exitosamente.'
+        message: "Lote eliminado exitosamente.",
       });
-      
     } catch (error) {
       // Revertir transacción si hay algún error
       await connection.rollback();
       // Liberar la conexión
       connection.release();
-      
-      console.error('Error en la transacción:', error);
-      res.status(500).json({ 
+
+      console.error("Error en la transacción:", error);
+      res.status(500).json({
         success: false,
-        error: 'Error al eliminar el lote.', 
-        details: error.message 
+        error: "Error al eliminar el lote.",
+        details: error.message,
       });
     }
-    
   } catch (error) {
-    console.error('Error al conectar con la base de datos:', error);
-    res.status(500).json({ 
+    console.error("Error al conectar con la base de datos:", error);
+    res.status(500).json({
       success: false,
-      error: 'Error al conectar con la base de datos.', 
-      details: error.message 
+      error: "Error al conectar con la base de datos.",
+      details: error.message,
     });
   }
 });
@@ -692,63 +693,57 @@ app.get("/procesos-por-lote/:numeroLote", async (req, res) => {
   }
 });
 
-app.get('/total-cuero/:id_lote', async (req, res) => {
+app.get("/total-cuero/:id_lote", async (req, res) => {
   const { id_lote } = req.params;
   console.log(`Buscando total_cuero para id_lote: ${id_lote}`);
-  
+
   try {
     const [rows] = await dbPromise.query(
-      'SELECT total_cuero FROM total_proceso WHERE lote_id = ?',
+      "SELECT total_cuero FROM total_proceso WHERE lote_id = ?",
       [id_lote]
     );
 
-    console.log('Resultado de la consulta:', rows);
+    console.log("Resultado de la consulta:", rows);
 
     if (rows.length === 0) {
       console.log(`No se encontró ningún registro para id_lote: ${id_lote}`);
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Lote no encontrado',
-        id_lote_buscado: id_lote 
+      return res.status(404).json({
+        success: false,
+        message: "Lote no encontrado",
+        id_lote_buscado: id_lote,
       });
     }
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       total_cuero: rows[0].total_cuero,
-      id_lote_encontrado: id_lote
+      id_lote_encontrado: id_lote,
     });
   } catch (error) {
-    console.error('Error al obtener total_cuero:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Error interno del servidor',
-      error: error.message
+    console.error("Error al obtener total_cuero:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+      error: error.message,
     });
   }
 });
 
 app.post("/guardar-costos", async (req, res) => {
-  const connection = await dbPromise.getConnection();  
+  const connection = await dbPromise.getConnection();
   try {
     // Comenzamos una transacción para asegurar integridad de datos
     await connection.beginTransaction();
-    
-    const {
-      numeroLote,
-      fecha,
-      peso,
-      cueros,
-      color,
-      servicios,
-      promedioDcm
-    } = req.body;
-    
+
+    const { numeroLote, fecha, peso, cueros, color, servicios, promedioDcm } =
+      req.body;
+
     // Validación básica
     if (!numeroLote || !fecha || !peso || !cueros) {
-      return res.status(400).json({ 
-        success: false, 
-        error: "Datos incompletos. Por favor complete todos los campos requeridos." 
+      return res.status(400).json({
+        success: false,
+        error:
+          "Datos incompletos. Por favor complete todos los campos requeridos.",
       });
     }
 
@@ -757,9 +752,9 @@ app.post("/guardar-costos", async (req, res) => {
       "INSERT INTO costos (numero_lote, peso, numero_cueros, fecha, color, prom_dcm) VALUES (?, ?, ?, ?, ?, ?)",
       [numeroLote, peso, cueros, fecha, color, promedioDcm]
     );
-    
+
     const costoId = costoResult.insertId;
-    
+
     // 2. Insertar los detalles de cada servicio
     if (Array.isArray(servicios) && servicios.length > 0) {
       for (const servicio of servicios) {
@@ -772,40 +767,43 @@ app.post("/guardar-costos", async (req, res) => {
               servicio.servicioId, // Puede ser un ID o nombre dependiendo del tipo de servicio
               servicio.cantidad,
               servicio.precio,
-              servicio.total
+              servicio.total,
             ]
           );
         }
       }
     }
-    
+
     // 3. Calcular y guardar los totales
-    const totalGeneral = servicios.reduce((sum, servicio) => sum + (servicio.total || 0), 0);
+    const totalGeneral = servicios.reduce(
+      (sum, servicio) => sum + (servicio.total || 0),
+      0
+    );
     const totalPorCuero = cueros > 0 ? totalGeneral / cueros : 0;
-    const totalPorDcm = promedioDcm && cueros > 0 ? totalPorCuero / parseFloat(promedioDcm) : 0;
-    
+    const totalPorDcm =
+      promedioDcm && cueros > 0 ? totalPorCuero / parseFloat(promedioDcm) : 0;
+
     await connection.execute(
       "INSERT INTO total_costo (costo_id, total, total_cuero, total_dcm) VALUES (?, ?, ?, ?)",
       [costoId, totalGeneral, totalPorCuero, totalPorDcm]
     );
-    
+
     // Confirmar la transacción
     await connection.commit();
-    
+
     res.status(201).json({
       success: true,
       message: "Costos guardados exitosamente",
-      loteId: costoId
+      loteId: costoId,
     });
-    
   } catch (error) {
     // Si hay un error, revertir la transacción
     await connection.rollback();
-    
+
     console.error("Error al guardar los costos:", error);
     res.status(500).json({
       success: false,
-      error: "Error al guardar los costos: " + error.message
+      error: "Error al guardar los costos: " + error.message,
     });
   } finally {
     // Siempre liberar la conexión
@@ -819,14 +817,14 @@ app.get("/costos", async (req, res) => {
     // Consulta principal para obtener los costos
     const [costos] = await dbPromise.query(`
       SELECT c.*, 
-             COUNT(dc.id) as cantidad_servicios,
-             tc.total as costo_total
-      FROM costos c
-      LEFT JOIN detalle_costos dc ON c.id = dc.costo_id
-      LEFT JOIN total_costo tc ON c.id = tc.costo_id
-      GROUP BY c.id
-      ORDER BY c.fecha DESC
-    `);
+       COUNT(dc.id) as cantidad_servicios,
+       MAX(tc.total) as costo_total
+FROM costos c
+LEFT JOIN detalle_costos dc ON c.id = dc.costo_id
+LEFT JOIN total_costo tc ON c.id = tc.costo_id
+GROUP BY c.id
+ORDER BY c.fecha DESC;
+ `);
 
     res.status(200).json({
       success: true,
@@ -888,78 +886,74 @@ app.get("/costos/:id", async (req, res) => {
 });
 
 // Ruta para eliminar un costo y sus detalles asociados
-app.delete('/eliminar-costo/:costoId', async (req, res) => {
+app.delete("/eliminar-costo/:costoId", async (req, res) => {
   const costoId = req.params.costoId;
-  
+
   // Validar que se recibió un ID válido
   if (!costoId || isNaN(costoId)) {
-    return res.status(400).json({ error: 'ID de costo inválido.' });
+    return res.status(400).json({ error: "ID de costo inválido." });
   }
-  
+
   try {
     // Obtener una conexión del pool
     const connection = await dbPromise.getConnection();
-    
+
     try {
       // Iniciar transacción
       await connection.beginTransaction();
-      
+
       // Primero eliminar el total del costo (tabla total_costo)
-      await connection.query(
-        'DELETE FROM total_costo WHERE costo_id = ?',
-        [costoId]
-      );
-      
+      await connection.query("DELETE FROM total_costo WHERE costo_id = ?", [
+        costoId,
+      ]);
+
       // Luego eliminar los detalles del costo (tabla detalle_costos)
-      await connection.query(
-        'DELETE FROM detalle_costos WHERE costo_id = ?',
-        [costoId]
-      );
-      
+      await connection.query("DELETE FROM detalle_costos WHERE costo_id = ?", [
+        costoId,
+      ]);
+
       // Finalmente eliminar el costo
       const [result] = await connection.query(
-        'DELETE FROM costos WHERE id = ?',
+        "DELETE FROM costos WHERE id = ?",
         [costoId]
       );
-      
+
       // Verificar si se eliminó algún registro
       if (result.affectedRows === 0) {
         await connection.rollback();
         connection.release();
-        return res.status(404).json({ error: 'Costo no encontrado.' });
+        return res.status(404).json({ error: "Costo no encontrado." });
       }
-      
+
       // Confirmar transacción
       await connection.commit();
-      
+
       // Liberar la conexión
       connection.release();
-      
-      res.status(200).json({ 
+
+      res.status(200).json({
         success: true,
-        message: 'Costo eliminado exitosamente.'
+        message: "Costo eliminado exitosamente.",
       });
-      
     } catch (error) {
       // Revertir transacción si hay algún error
       await connection.rollback();
       // Liberar la conexión
       connection.release();
-      
-      console.error('Error en la transacción:', error);
-      res.status(500).json({ 
+
+      console.error("Error en la transacción:", error);
+      res.status(500).json({
         success: false,
-        error: 'Error al eliminar el costo.', 
-        details: error.message 
+        error: "Error al eliminar el costo.",
+        details: error.message,
       });
     }
-    
   } catch (error) {
-    console.error('Error al conectar con la base de datos:', error);
-    res.status(500).json({ 
+    console.error("Error al conectar con la base de datos:", error);
+    res.status(500).json({
       success: false,
-      error: 'Error al conectar con la base de datos.', 
-      details: error.message 
+      error: "Error al conectar con la base de datos.",
+      details: error.message,
     });
   }
 });
