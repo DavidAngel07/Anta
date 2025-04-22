@@ -37,3 +37,6 @@ coverage/
 # Railway or deployment-specific
 .nixpacks.toml
 Procfile
+
+# Ignorar config.js
+src/config.js

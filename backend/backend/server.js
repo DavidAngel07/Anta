@@ -362,16 +362,15 @@ app.get("/productos", (req, res) => {
   });
 });
 
-// Ruta para guardar simulación en las tablas lotes y detalle_lote_productos
+// Ruta para guardar simulación en las tablas lotes, detalle_lote_productos y total_proceso
 app.post("/guardar-simulacion", async (req, res) => {
   const { nombreProceso, numeroLote, simulacionData, fecha } = req.body;
+  console.log("Cuerpo de la petición:", req.body); 
 
   let fechaMysql;
   if (fecha.includes("T")) {
-    // If the date includes time information
     fechaMysql = new Date(fecha).toISOString().slice(0, 10);
   } else {
-    // If the date is just a YYYY-MM-DD string, use it directly
     fechaMysql = fecha;
   }
   // Validar datos recibidos
@@ -396,7 +395,7 @@ app.post("/guardar-simulacion", async (req, res) => {
       // Iniciar transacción
       await connection.beginTransaction();
 
-      // Calcular el peso y número de cueros totales
+      // Calcular el peso y número de cueros totales del lote (se mantienen igual)
       const pesoTotal = simulacionData.reduce(
         (sum, s) => sum + parseFloat(s.peso || 0),
         0
@@ -417,8 +416,19 @@ app.post("/guardar-simulacion", async (req, res) => {
       // Preparar los detalles de productos para inserción masiva
       const detallesValues = [];
 
-      // Procesar cada fila de cada sulfurada
+      // Preparar los totales por sulfurada para inserción masiva en total_proceso
+      const totalesProcesoValues = [];
+
+      // Procesar cada sulfurada
       for (const sulfurada of simulacionData) {
+        console.log("Datos de sulfurada:", sulfurada);
+        totalesProcesoValues.push([
+          loteId,
+          sulfurada.total,
+          sulfurada.totalPorCuero,
+        ]);
+
+        // Procesar cada fila de cada sulfurada para detalle_lote_productos
         for (const fila of sulfurada.filas || []) {
           // Solo procesar filas con producto y cantidad válidos
           if (fila.producto && fila.cantidad) {
@@ -446,6 +456,17 @@ app.post("/guardar-simulacion", async (req, res) => {
           "INSERT INTO detalle_lote_productos (lote_id, producto_nombre, cantidad, precio_unitario, total) VALUES ?",
           [detallesValues]
         );
+      }
+
+      // Insertar los totales en la tabla total_proceso si hay datos
+      if (totalesProcesoValues.length > 0) {
+        console.log("Valores a insertar en total_proceso:", totalesProcesoValues);
+        await connection.query(
+          "INSERT INTO total_proceso (lote_id, total, total_cuero) VALUES ?",
+          [totalesProcesoValues]
+        );
+      } else {
+        console.log("No hay totales para insertar en total_proceso.");
       }
 
       // Confirmar transacción
@@ -605,6 +626,330 @@ app.delete('/eliminar-lote/:loteId', async (req, res) => {
       res.status(500).json({ 
         success: false,
         error: 'Error al eliminar el lote.', 
+        details: error.message 
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error al conectar con la base de datos:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Error al conectar con la base de datos.', 
+      details: error.message 
+    });
+  }
+});
+
+app.get("/procesos-por-lote/:numeroLote", async (req, res) => {
+  const numeroLote = req.params.numeroLote;
+
+  if (!numeroLote) {
+    return res.status(400).json({
+      success: false,
+      error: "Número de lote inválido.",
+    });
+  }
+
+  try {
+    // Primero obtenemos el ID del lote
+    const [loteResult] = await dbPromise.query(
+      "SELECT id FROM lotes WHERE numero_lote = ?",
+      [numeroLote]
+    );
+
+    if (loteResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Lote no encontrado.",
+      });
+    }
+
+    const loteId = loteResult[0].id;
+
+    // Modificamos esta consulta para incluir el id como id_lote
+    const [procesos] = await dbPromise.query(
+      `SELECT l.proceso, l.id as id_lote
+       FROM lotes l
+       WHERE l.numero_lote = ?`,
+      [numeroLote]
+    );
+
+    if (procesos.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "No se encontraron procesos para este lote.",
+      });
+    }
+
+    res.status(200).json(procesos);
+  } catch (error) {
+    console.error("Error al obtener procesos:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener procesos para el lote.",
+      details: error.message,
+    });
+  }
+});
+
+app.get('/total-cuero/:id_lote', async (req, res) => {
+  const { id_lote } = req.params;
+  console.log(`Buscando total_cuero para id_lote: ${id_lote}`);
+  
+  try {
+    const [rows] = await dbPromise.query(
+      'SELECT total_cuero FROM total_proceso WHERE lote_id = ?',
+      [id_lote]
+    );
+
+    console.log('Resultado de la consulta:', rows);
+
+    if (rows.length === 0) {
+      console.log(`No se encontró ningún registro para id_lote: ${id_lote}`);
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Lote no encontrado',
+        id_lote_buscado: id_lote 
+      });
+    }
+
+    return res.json({ 
+      success: true, 
+      total_cuero: rows[0].total_cuero,
+      id_lote_encontrado: id_lote
+    });
+  } catch (error) {
+    console.error('Error al obtener total_cuero:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Error interno del servidor',
+      error: error.message
+    });
+  }
+});
+
+app.post("/guardar-costos", async (req, res) => {
+  const connection = await dbPromise.getConnection();  
+  try {
+    // Comenzamos una transacción para asegurar integridad de datos
+    await connection.beginTransaction();
+    
+    const {
+      numeroLote,
+      fecha,
+      peso,
+      cueros,
+      color,
+      servicios,
+      promedioDcm
+    } = req.body;
+    
+    // Validación básica
+    if (!numeroLote || !fecha || !peso || !cueros) {
+      return res.status(400).json({ 
+        success: false, 
+        error: "Datos incompletos. Por favor complete todos los campos requeridos." 
+      });
+    }
+
+    // 1. Insertar en la tabla costos
+    const [costoResult] = await connection.execute(
+      "INSERT INTO costos (numero_lote, peso, numero_cueros, fecha, color, prom_dcm) VALUES (?, ?, ?, ?, ?, ?)",
+      [numeroLote, peso, cueros, fecha, color, promedioDcm]
+    );
+    
+    const costoId = costoResult.insertId;
+    
+    // 2. Insertar los detalles de cada servicio
+    if (Array.isArray(servicios) && servicios.length > 0) {
+      for (const servicio of servicios) {
+        // Solo guardar servicios que tienen datos
+        if (servicio.servicioId && servicio.cantidad && servicio.precio) {
+          await connection.execute(
+            "INSERT INTO detalle_costos (costo_id, servicio, cantidad, precio, total) VALUES (?, ?, ?, ?, ?)",
+            [
+              costoId,
+              servicio.servicioId, // Puede ser un ID o nombre dependiendo del tipo de servicio
+              servicio.cantidad,
+              servicio.precio,
+              servicio.total
+            ]
+          );
+        }
+      }
+    }
+    
+    // 3. Calcular y guardar los totales
+    const totalGeneral = servicios.reduce((sum, servicio) => sum + (servicio.total || 0), 0);
+    const totalPorCuero = cueros > 0 ? totalGeneral / cueros : 0;
+    const totalPorDcm = promedioDcm && cueros > 0 ? totalPorCuero / parseFloat(promedioDcm) : 0;
+    
+    await connection.execute(
+      "INSERT INTO total_costo (costo_id, total, total_cuero, total_dcm) VALUES (?, ?, ?, ?)",
+      [costoId, totalGeneral, totalPorCuero, totalPorDcm]
+    );
+    
+    // Confirmar la transacción
+    await connection.commit();
+    
+    res.status(201).json({
+      success: true,
+      message: "Costos guardados exitosamente",
+      loteId: costoId
+    });
+    
+  } catch (error) {
+    // Si hay un error, revertir la transacción
+    await connection.rollback();
+    
+    console.error("Error al guardar los costos:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al guardar los costos: " + error.message
+    });
+  } finally {
+    // Siempre liberar la conexión
+    connection.release();
+  }
+});
+
+// Ruta para obtener todos los costos
+app.get("/costos", async (req, res) => {
+  try {
+    // Consulta principal para obtener los costos
+    const [costos] = await dbPromise.query(`
+      SELECT c.*, 
+             COUNT(dc.id) as cantidad_servicios,
+             tc.total as costo_total
+      FROM costos c
+      LEFT JOIN detalle_costos dc ON c.id = dc.costo_id
+      LEFT JOIN total_costo tc ON c.id = tc.costo_id
+      GROUP BY c.id
+      ORDER BY c.fecha DESC
+    `);
+
+    res.status(200).json({
+      success: true,
+      data: costos,
+    });
+  } catch (error) {
+    console.error("Error al obtener costos:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener los costos.",
+      details: error.message,
+    });
+  }
+});
+
+// Ruta para obtener detalles de un costo específico
+app.get("/costos/:id", async (req, res) => {
+  const costoId = req.params.id;
+
+  try {
+    // Obtener información del costo
+    const [costo] = await dbPromise.query("SELECT * FROM costos WHERE id = ?", [
+      costoId,
+    ]);
+
+    if (costo.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: "Costo no encontrado",
+      });
+    }
+
+    // Obtener detalles de servicios del costo
+    const [detalles] = await dbPromise.query(
+      "SELECT * FROM detalle_costos WHERE costo_id = ?",
+      [costoId]
+    );
+
+    // Obtener el total del costo
+    const [totalCosto] = await dbPromise.query(
+      "SELECT * FROM total_costo WHERE costo_id = ?",
+      [costoId]
+    );
+
+    res.status(200).json({
+      success: true,
+      costo: costo[0],
+      detalles: detalles,
+      total: totalCosto.length > 0 ? totalCosto[0] : null,
+    });
+  } catch (error) {
+    console.error("Error al obtener detalles del costo:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error al obtener los detalles del costo.",
+      details: error.message,
+    });
+  }
+});
+
+// Ruta para eliminar un costo y sus detalles asociados
+app.delete('/eliminar-costo/:costoId', async (req, res) => {
+  const costoId = req.params.costoId;
+  
+  // Validar que se recibió un ID válido
+  if (!costoId || isNaN(costoId)) {
+    return res.status(400).json({ error: 'ID de costo inválido.' });
+  }
+  
+  try {
+    // Obtener una conexión del pool
+    const connection = await dbPromise.getConnection();
+    
+    try {
+      // Iniciar transacción
+      await connection.beginTransaction();
+      
+      // Primero eliminar el total del costo (tabla total_costo)
+      await connection.query(
+        'DELETE FROM total_costo WHERE costo_id = ?',
+        [costoId]
+      );
+      
+      // Luego eliminar los detalles del costo (tabla detalle_costos)
+      await connection.query(
+        'DELETE FROM detalle_costos WHERE costo_id = ?',
+        [costoId]
+      );
+      
+      // Finalmente eliminar el costo
+      const [result] = await connection.query(
+        'DELETE FROM costos WHERE id = ?',
+        [costoId]
+      );
+      
+      // Verificar si se eliminó algún registro
+      if (result.affectedRows === 0) {
+        await connection.rollback();
+        connection.release();
+        return res.status(404).json({ error: 'Costo no encontrado.' });
+      }
+      
+      // Confirmar transacción
+      await connection.commit();
+      
+      // Liberar la conexión
+      connection.release();
+      
+      res.status(200).json({ 
+        success: true,
+        message: 'Costo eliminado exitosamente.'
+      });
+      
+    } catch (error) {
+      // Revertir transacción si hay algún error
+      await connection.rollback();
+      // Liberar la conexión
+      connection.release();
+      
+      console.error('Error en la transacción:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Error al eliminar el costo.', 
         details: error.message 
       });
     }

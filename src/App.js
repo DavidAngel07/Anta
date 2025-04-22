@@ -11,6 +11,7 @@ import Perfil from './components/perfil';
 import Simulador from './components/simulador';
 import ListaLotes from "./components/listaLotes";
 import DetalleLote from "./components/detalleLote";
+import Costos from "./components/costos";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/lote/:id" element={<Lote />} /> {/* Ruta dinámica */}
           <Route path="/listaLote" element={<ListaLotes />} />
           <Route path="/simulador" element={<Simulador />} />
+          <Route path="/costos" element={<Costos />} />
         </Routes>
       </div>
     </Router>

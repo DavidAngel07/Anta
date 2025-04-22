@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
 import img_dashboard from "../img/dashboard.png";
 import Productos from "./productos";
-import Procesos from "./procesos";
-import Perfil from "./perfil";
 import Simulador from "./simulador";
 import Inventario from "./inventario";
 import config from "../config";
 import ListaLotes from "./listaLotes";
-import DetalleLote from "./detalleLote";
+import Costos from "./costos";
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
@@ -230,15 +227,15 @@ const Dashboard = () => {
                 <i className="bi bi-hdd-rack"></i> Lotes
               </a>
             </li>
-            {/*<li>
+            <li>
               <a
-                href="#inventario"
-                onClick={() => handleSectionChange("inventario")}
-                className={activeSection === "inventario" ? "active" : ""}
+                href="#costos"
+                onClick={() => handleSectionChange("costos")}
+                className={activeSection === "costos" ? "active" : ""}
               >
-                <i class="bi bi-card-checklist"></i> Inventario
+                <i class="bi bi-cash-coin"></i> Costos
               </a>
-            </li>*/}
+            </li>
           </ul>
         </aside>
 
@@ -279,9 +276,6 @@ const Dashboard = () => {
 
           {activeSection === "simulador" && (
             <section id="simulador">
-              <div className="header-container-seccion">
-                <h1>Calculadora</h1>
-              </div>
               <Simulador />
             </section>
           )}
@@ -289,6 +283,12 @@ const Dashboard = () => {
           {activeSection === "inventario" && (
             <section id="inventario">
               <Inventario />
+            </section>
+          )}
+
+          {activeSection === "costos" && (
+            <section id="costos">
+              <Costos />
             </section>
           )}
 
