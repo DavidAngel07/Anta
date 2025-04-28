@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
+import 'jspdf-autotable';
 import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
+import Swal from "sweetalert2";
 
 const CalculadoraProcesos = () => {
   const [nombreProceso, setNombreProceso] = useState("");
@@ -75,21 +76,6 @@ const CalculadoraProcesos = () => {
       
       setFilas_sulfurada(nuevasFilas);
     }
-  };
-
-  const calcularCantidad = (productoId, sulfuradaId) => {
-    const productoSeleccionado = productos.find(
-      (producto) => producto.id === parseInt(productoId)
-    );
-    const sulfurada = sulfuradas.find((s) => s.id === sulfuradaId);
-
-    if (productoSeleccionado && sulfurada) {
-      let porcentaje = productoSeleccionado.porcentaje || 0;
-      let cantidad = sulfurada.peso * porcentaje;
-      return parseFloat(cantidad).toFixed(2);
-    }
-
-    return "";
   };
 
   const handleProductoChange = (e, index, sulfuradaId) => {
@@ -243,27 +229,6 @@ const CalculadoraProcesos = () => {
     }
   };
 
-  // Esta función ya no es necesaria para el cálculo automático, pero se mantiene por compatibilidad
-  const calcularPrecioSulf = (sulfuradaId) => {
-    const nuevasFilas = filas_sulfurada[sulfuradaId].map((fila) => {
-      const productoSeleccionado = productos.find(
-        (producto) => producto.id === parseInt(fila.producto)
-      );
-      if (productoSeleccionado && fila.cantidad > 0) {
-        const precioPorUnidad = productoSeleccionado.precio;
-        const total = fila.cantidad * precioPorUnidad;
-        return {
-          ...fila,
-          precio: precioPorUnidad.toFixed(2),
-          total: total.toFixed(2),
-        };
-      }
-      return fila;
-    });
-
-    setFilas_sulfurada((prev) => ({ ...prev, [sulfuradaId]: nuevasFilas }));
-    setIsCalculado(true);
-  };
 
   const calcularTotalGeneral = (sulfuradaId) => {
     const filas = filas_sulfurada[sulfuradaId] || [];
@@ -330,12 +295,12 @@ const CalculadoraProcesos = () => {
         const totalPorCuero = calcularTotalGeneralPorCuero(sulfurada.id);
   
         return {
-          id: sulfurada.id, // Incluye el ID de la sulfurada si lo necesitas en el backend
+          id: sulfurada.id,
           peso: sulfurada.peso,
           cueros: sulfurada.cueros,
           filas: filas_sulfurada[sulfurada.id] || [],
-          total: totalGeneral, // Agrega el total general
-          totalPorCuero: totalPorCuero, // Agrega el total por cuero
+          total: totalGeneral,
+          totalPorCuero: totalPorCuero,
         };
       });
   
@@ -352,24 +317,58 @@ const CalculadoraProcesos = () => {
         }),
       });
   
+      const data = await response.json(); // ✅ LEE el cuerpo solo una vez
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al guardar la simulación.");
+        // ⚠️ Ya tenemos el cuerpo leído, así que usamos `data.error` directamente
+        if (data.error === "Faltan datos requeridos.") {
+          Swal.fire({
+            icon: "warning",
+            title: "Campos incompletos",
+            text: "Por favor, complete todos los campos requeridos.",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#f59e0b", // Rojo
+            color: "#0e0e0e", // Texto oscuro para fondo rojo
+          });
+        } else {
+          throw new Error(data.error || "Error al guardar la simulación.");
+        }
+        return;
       }
   
-      const data = await response.json();
-      alert("Tabla guardada exitosamente con ID de Lote: " + data.loteId);
-      console.log("Respuesta del servidor:", data);
-      // Puedes redirigir al usuario o limpiar el formulario aquí
+      // Si todo va bien
+      Swal.fire({
+        icon: "success",
+        title: "¡Éxito!",
+        html: `Tabla guardada con número de Lote <strong> N° ${numeroLote}</strong>.<br/>Ahora puedes visualizarla en el módulo <strong>Lotes</strong>.`,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#10b981", // Verde
+        background: "#f0fdf4", // Fondo verde claro
+        color: "#0e0e0e",
+      });
     } catch (error) {
-      console.error("Error al guardar la simulación:", error);
-      alert("Hubo un error al guardar la simulación: " + error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error inesperado",
+        html: error.message.replace(/\n/g, "<br/>"),
+        confirmButtonText: "OK",
+        confirmButtonColor: "#0025c9", // Azul
+        background: "#fffff", // fondo suave
+        color: "#0e0e0e",
+      });
     }
   };
-
+ 
   // Formatear fecha
   const formatearFecha = (fechaString) => {
-    const fecha = new Date(fechaString);
+    if (!fechaString) return "N/A";
+    
+    // Obtener los componentes de la fecha directamente del string
+    const [year, month, day] = fechaString.split('-').map(num => parseInt(num, 10));
+    
+    // Crear la fecha con los componentes específicos (restando 1 al mes porque en JS los meses van de 0-11)
+    const fecha = new Date(year, month - 1, day);
+    
     return fecha.toLocaleDateString("es-CO", {
       year: "numeric",
       month: "long",
@@ -384,12 +383,6 @@ const CalculadoraProcesos = () => {
       format: "letter"
     });    
 
-    const fechaHoy = new Date().toLocaleDateString("es-CO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-
     // Encabezado
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, 210, 20, "F");
@@ -398,39 +391,40 @@ const CalculadoraProcesos = () => {
       doc.addImage(logo_empresa, "PNG", 10, 5, 20, 20);
     }
 
+    const text = nombreProceso || "N/A";
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxTextWidth = 140;
+    const textLines = doc.splitTextToSize(text, maxTextWidth);
+    const lineHeight = 10;
+    const totalTextHeight = textLines.length * lineHeight;
+    const textY = totalTextHeight < 20 ? 17 : 17 + (totalTextHeight - 20) / 2;
+
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 70, 17);
+    doc.text(textLines, pageWidth / 2, textY, { align: "center" });
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(
-      `PROCESO: ${nombreProceso || "N/A"}`,
-      202,
-      17,
-      {
-        align: "right",
-      }
-    );
-    doc.text(`LOTE: ${numeroLote || "N/A"}`, 202, 21, {
-      align: "right",
+    doc.setFontSize(10);
+    doc.text(`LOTE:               ${numeroLote || "N/A"}`, 14, 34, {
+      align: "left",
     });
-    doc.text(`FECHA: ${formatearFecha(fecha)}`, 202, 25, {
-      align: "right",
+    doc.text(`FECHA:            ${formatearFecha(fecha)}`, 14, 38, {
+      align: "left",
     });
+    
     if (sulfuradas.length > 0) {
       const primero = sulfuradas[0];
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(11);
-      doc.text(
-        `PESO: ${primero.peso} kg     /     CANTIDAD: ${primero.cueros} cueros`,
-        105,
-        35,
-        { align: "center" }
-      );
+      doc.setTextColor(0, 0, 102);
+      doc.setFontSize(10);
+      doc.text(`PESO:              ${primero.peso || "N/A"}`, 14, 42,  {
+        align: "left",
+      });
+      doc.text(`CANTIDAD:      ${primero.cueros || "N/A"}`, 14, 46,  {
+        align: "left",
+      });
     }
 
-    let startY = 40;
+    let startY = 52;
 
     sulfuradas.forEach((sulfurada) => {
       const tableColumnas = [

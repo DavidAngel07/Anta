@@ -2,19 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import logo from "../img/ANTA-2.png";
+import 'jspdf-autotable';
 import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
+import Swal from 'sweetalert2';
+
 
 const CalculadoraCostos = () => {
-  const [nombreProceso, setNombreProceso] = useState("");
   const [fecha, setFecha] = useState("");
   const [numeroLote, setNumeroLote] = useState("");
   const [peso, setPeso] = useState(0);
   const [cueros, setCueros] = useState(0);
   const [color, setColor] = useState("");
-  const [servicios, setServicios] = useState([]);
+  const [servicios] = useState([]);
   const [promedioDcm, setPromedioDcm] = useState("");
   const [filas, setFilas] = useState([
     { id: 1, servicio: "", cantidad: 0, precio: 0, total: 0 },
@@ -28,7 +29,6 @@ const CalculadoraCostos = () => {
     { id: 4, servicio: "", cantidad: 0, precio: 0, total: 0 },
     { id: 5, servicio: "", cantidad: 0, precio: 0, total: 0 },
   ]);
-  const [isCalculado, setIsCalculado] = useState(false);
   const [lotes, setLotes] = useState([]);
   const [procesosPorLote, setProcesosPorLote] = useState([]);
 
@@ -267,7 +267,14 @@ const CalculadoraCostos = () => {
   };
 
   const formatearFecha = (fechaString) => {
-    const fecha = new Date(fechaString);
+    if (!fechaString) return "N/A";
+    
+    // Obtener los componentes de la fecha directamente del string
+    const [year, month, day] = fechaString.split('-').map(num => parseInt(num, 10));
+    
+    // Crear la fecha con los componentes específicos (restando 1 al mes porque en JS los meses van de 0-11)
+    const fecha = new Date(year, month - 1, day);
+    
     return fecha.toLocaleDateString("es-CO", {
       year: "numeric",
       month: "long",
@@ -318,27 +325,27 @@ const CalculadoraCostos = () => {
     doc.setFontSize(14);
     doc.text("TABLA DE COSTOS DE SERVICIOS", 70, 17);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(`LOTE: ${numeroLote || "N/A"}`, 202, 17, {
-      align: "right",
+    doc.setFontSize(10);
+    doc.text(`LOTE:               ${numeroLote || "N/A"}`, 14, 34, {
+      align: "left",
     });
-    doc.text(`FECHA: ${formatearFecha(fecha)}`, 202, 21, {
-      align: "right",
+    doc.text(`FECHA:            ${formatearFecha(fecha)}`, 14, 38, {
+      align: "left",
     });
-    doc.text(`COLOR: ${color || "N/A"}`, 202, 25, {
-      align: "right",
+    doc.text(`COLOR:            ${color || "N/A"}`, 14, 42, {
+      align: "left",
     });
-    doc.text(`PROM.DCM: ${promedioDcm || "N/A"}`, 202, 29, {
-      align: "right",
+    doc.text(`PROM.DCM:    ${promedioDcm || "N/A"}`, 14, 46, {
+      align: "left",
+    });
+    doc.text(`PESO:              ${peso} kg`, 14, 50, {
+      align: "left",
+    });
+    doc.text(`CANTIDAD:      ${cueros} cueros`, 14, 54, {
+      align: "left",
     });
 
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    doc.text(`PESO: ${peso} kg     /     CANTIDAD: ${cueros} cueros`, 105, 35, {
-      align: "center",
-    });
-
-    let startY = 40;
+    let startY = 58;
 
     const tableColumnas = [
       "Servicio",
@@ -416,14 +423,18 @@ const CalculadoraCostos = () => {
       doc.addImage(logo, "PNG", 10, 255, 30, 15);
     }
 
-    doc.save(`costos_servicios_${numeroLote}.pdf`);
+    doc.save(`costos_total_${numeroLote}.pdf`);
   };
 
   const guardarCostos = async () => {
     try {
       // Validación básica
       if (!numeroLote || !fecha || !cueros || !peso) {
-        alert("Por favor complete todos los campos requeridos (Número de lote, fecha, cueros y peso)");
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Campos incompletos',
+          text: 'Por favor complete todos los campos requeridos (Número de lote, fecha, cueros y peso)',
+        });
         return;
       }
   
@@ -440,7 +451,7 @@ const CalculadoraCostos = () => {
         ...filasAdicionales
           .filter(fila => fila.servicio && fila.cantidad > 0 && fila.precio > 0)
           .map(fila => ({
-            servicioId: fila.servicio, // Aquí será el nombre del servicio
+            servicioId: fila.servicio,
             cantidad: fila.cantidad,
             precio: fila.precio,
             total: fila.total
@@ -449,7 +460,14 @@ const CalculadoraCostos = () => {
   
       // Verificar que hay servicios para guardar
       if (todasLasFilas.length === 0) {
-        alert("No hay servicios para guardar. Agregue al menos un servicio con cantidad y precio.");
+        await Swal.fire({
+          icon: "warning",
+            title: "Campos incompletos",
+            text: "Por favor, complete todos los campos requeridos.",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#f59e0b", // Rojo
+            color: "#0e0e0e", // Texto oscuro para fondo rojo
+        });
         return;
       }
   
@@ -477,13 +495,30 @@ const CalculadoraCostos = () => {
         throw new Error(data.error || "Error al guardar los costos.");
       }
   
-      alert("Costos guardados exitosamente con ID: " + data.loteId);
-      
-      // Opcional: resetear el formulario o redirigir
-      // resetForm(); o history.push('/costos');
+      await Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        html: "Costos guardados exitosamente con el lote <strong>  N° " + numeroLote + "</strong>",
+
+        confirmButtonText: "OK",
+        confirmButtonColor: "#10b981", // Verde
+        background: "#f0fdf4", // Fondo verde claro
+        color: "#0e0e0e",
+      });
+  
+      // resetForm(); o redirigir a otra página
+  
     } catch (error) {
       console.error("Error al guardar los costos:", error);
-      alert("Hubo un error al guardar los costos: " + error.message);
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "Hubo un error al guardar los costos: " + error.message,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#0025c9", // Azul
+        background: "#fffff", // fondo suave
+        color: "#0e0e0e",
+      });
     }
   };
 
