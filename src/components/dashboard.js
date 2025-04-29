@@ -3,7 +3,6 @@ import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
 import Productos from "./productos";
 import Simulador from "./simulador";
-import Inventario from "./Inventario";
 import config from "../config";
 import ListaLotes from "./listaLotes";
 import Costos from "./costos";
@@ -392,7 +391,7 @@ const Dashboard = () => {
 
           {activeSection === "inventario" && (
             <section id="inventario">
-              <Inventario />
+              
             </section>
           )}
 
