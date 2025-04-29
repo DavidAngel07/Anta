@@ -8,7 +8,6 @@ import PrivateRoute from './components/PrivateRoute';
 import Simulador from './components/simulador';
 import ListaLotes from "./components/listaLotes";
 import Costos from "./components/costos";
-import Inventario from "./components/Inventario";
 
 function App() {
   return (
@@ -18,7 +17,6 @@ function App() {
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/Inventario" element={<Inventario />} />
           <Route path="/dashboard" element={
             <PrivateRoute>
               <Dashboard />
