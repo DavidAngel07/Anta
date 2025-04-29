@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import logo from "../img/ANTA-SYSTEM.png";
 import { useNavigate } from "react-router-dom";
 import config from "../config";
@@ -38,6 +37,8 @@ const Login = () => {
 
       // Guardamos el token en localStorage
       localStorage.setItem("token", data.token);
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+
       console.log("Token guardado:", localStorage.getItem("token"));
 
       // Redirigimos al Dashboard
@@ -77,7 +78,6 @@ const Login = () => {
             {cargando ? "Cargando..." : "Iniciar Sesión"}
           </button>
         </form>
-        <a href="/register">Registrate</a>
         {mensaje && <p>{mensaje}</p>}
       </div>
     </div>

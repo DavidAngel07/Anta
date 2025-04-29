@@ -154,9 +154,15 @@ app.post("/login", (req, res) => {
               expiresIn: "1h",
             });
 
-            res
-              .status(200)
-              .json({ message: "Inicio de sesión exitoso.", token });
+            res.status(200).json({
+              message: "Inicio de sesión exitoso.",
+              token,
+              usuario: {
+                id: results[0].id,
+                nombre: results[0].nombre,
+                correo: results[0].correo,
+              },
+            });
           }
         );
       });
@@ -243,39 +249,65 @@ app.get("/productos", (req, res) => {
 
 // Ruta para agregar un nuevo producto
 app.post("/productos", (req, res) => {
-  const { producto, proveedor, cantidad, medida, precio, porcentaje } =
-    req.body;
+  const {
+    codigo, // <- nuevo campo del formulario
+    producto,
+    proveedor,
+    cantidad,
+    medida,
+    precio,
+    porcentaje,
+  } = req.body;
 
-  // Validar los datos
   if (
     !producto ||
     !proveedor ||
     !cantidad ||
     !medida ||
     !precio ||
-    porcentaje === undefined
+    porcentaje === undefined ||
+    !codigo
   ) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Todos los campos son obligatorios" });
+    return res.status(400).json({
+      success: false,
+      message: "Todos los campos son obligatorios",
+    });
   }
 
-  // Consulta SQL para insertar el producto
-  const query =
+  // Insertar el producto
+  const queryProducto =
     "INSERT INTO productos (producto, proveedor, cantidad, medida, precio, porcentaje) VALUES (?, ?, ?, ?, ?, ?)";
   db.query(
-    query,
+    queryProducto,
     [producto, proveedor, cantidad, medida, precio, porcentaje],
     (err, result) => {
       if (err) {
         console.error("Error al agregar el producto:", err);
-        return res
-          .status(500)
-          .json({ success: false, message: "Error al agregar el producto" });
+        return res.status(500).json({
+          success: false,
+          message: "Error al agregar el producto",
+        });
       }
-      res
-        .status(200)
-        .json({ success: true, message: "Producto agregado correctamente" });
+
+      const idProducto = result.insertId; // ID del nuevo producto
+
+      // Insertar en la tabla insumos
+      const queryInsumo =
+        "INSERT INTO insumos (codigo, id_producto, stock) VALUES (?, ?, ?)";
+      db.query(queryInsumo, [codigo, idProducto, 0], (err2, result2) => {
+        if (err2) {
+          console.error("Error al agregar el insumo:", err2);
+          return res.status(500).json({
+            success: false,
+            message: "Error al agregar el insumo",
+          });
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "Producto e insumo agregados correctamente",
+        });
+      });
     }
   );
 });
@@ -309,29 +341,24 @@ app.delete("/productos/:id", (req, res) => {
 // Ruta para actualizar un producto
 app.put("/productos/:id", (req, res) => {
   const { id } = req.params; // Obtenemos el id del producto desde la URL
-  const { producto, proveedor, cantidad, medida, precio, porcentaje } =
-    req.body; // Obtenemos los datos actualizados del cuerpo de la solicitud
+  const { producto, proveedor, cantidad, medida, precio, porcentaje, codigo } =
+    req.body; // Añadimos el campo codigo
 
   // Validar que todos los campos sean proporcionados
-  if (
-    !producto ||
-    !proveedor ||
-    !cantidad ||
-    !medida ||
-    !precio === undefined
-  ) {
+  if (!producto || !proveedor || !cantidad || !medida || precio === undefined) {
     return res
       .status(400)
       .json({ success: false, message: "Todos los campos son obligatorios" });
   }
 
   // Consulta SQL para actualizar el producto
-  const query =
+  const queryProducto =
     "UPDATE productos SET producto = ?, proveedor = ?, cantidad = ?, medida = ?, precio = ?, porcentaje = ? WHERE id = ?";
+
   db.query(
-    query,
+    queryProducto,
     [producto, proveedor, cantidad, medida, precio, porcentaje, id],
-    (err, result) => {
+    (err, resultProducto) => {
       if (err) {
         console.error("Error al actualizar el producto:", err);
         return res
@@ -339,15 +366,73 @@ app.put("/productos/:id", (req, res) => {
           .json({ success: false, message: "Error al actualizar el producto" });
       }
 
-      if (result.affectedRows === 0) {
+      if (resultProducto.affectedRows === 0) {
         return res
           .status(404)
           .json({ success: false, message: "Producto no encontrado" });
       }
 
-      res
-        .status(200)
-        .json({ success: true, message: "Producto actualizado correctamente" });
+      // Si se proporcionó un código, actualizamos la tabla insumos
+      if (codigo !== undefined) {
+        // Primero verificamos si ya existe un registro en insumos para este producto
+        const queryCheckInsumo = "SELECT * FROM insumos WHERE id_producto = ?";
+        db.query(queryCheckInsumo, [id], (err, insumoResults) => {
+          if (err) {
+            console.error("Error al verificar el insumo:", err);
+            return res.status(200).json({
+              success: true,
+              message:
+                "Producto actualizado, pero hubo un problema al verificar el insumo",
+            });
+          }
+
+          if (insumoResults.length > 0) {
+            // Si ya existe, actualizamos el código
+            const queryUpdateInsumo =
+              "UPDATE insumos SET codigo = ? WHERE id_producto = ?";
+            db.query(queryUpdateInsumo, [codigo, id], (err, resultInsumo) => {
+              if (err) {
+                console.error("Error al actualizar el código del insumo:", err);
+                return res.status(200).json({
+                  success: true,
+                  message:
+                    "Producto actualizado, pero hubo un problema al actualizar el código",
+                });
+              }
+
+              res.status(200).json({
+                success: true,
+                message: "Producto e insumo actualizados correctamente",
+              });
+            });
+          } else {
+            // Si no existe, insertamos un nuevo registro en insumos
+            const queryInsertInsumo =
+              "INSERT INTO insumos (id_producto, codigo) VALUES (?, ?)";
+            db.query(queryInsertInsumo, [id, codigo], (err, resultInsumo) => {
+              if (err) {
+                console.error("Error al insertar el código del insumo:", err);
+                return res.status(200).json({
+                  success: true,
+                  message:
+                    "Producto actualizado, pero hubo un problema al insertar el código",
+                });
+              }
+
+              res.status(200).json({
+                success: true,
+                message: "Producto e insumo actualizados correctamente",
+              });
+            });
+          }
+        });
+      } else {
+        // Si no se proporcionó un código, simplemente respondemos que el producto fue actualizado
+        res.status(200).json({
+          success: true,
+          message: "Producto actualizado correctamente",
+        });
+      }
     }
   );
 });
@@ -373,6 +458,7 @@ app.post("/guardar-simulacion", async (req, res) => {
   } else {
     fechaMysql = fecha;
   }
+
   // Validar datos recibidos
   if (
     !numeroLote ||
@@ -389,13 +475,17 @@ app.post("/guardar-simulacion", async (req, res) => {
     const connection = await dbPromise.getConnection();
 
     try {
-      // Obtener productos para referencias
-      const [productos] = await connection.query("SELECT * FROM productos");
+      // Obtener productos para referencias con JOIN a insumos para verificar la relación
+      const [productos] = await connection.query(`
+        SELECT p.*, i.id AS insumo_id, i.stock 
+        FROM productos p
+        LEFT JOIN insumos i ON p.id = i.id_producto
+      `);
 
       // Iniciar transacción
       await connection.beginTransaction();
 
-      // Calcular el peso y número de cueros totales del lote (se mantienen igual)
+      // Calcular el peso y número de cueros totales del lote
       const pesoTotal = simulacionData.reduce(
         (sum, s) => sum + parseFloat(s.peso || 0),
         0
@@ -404,6 +494,28 @@ app.post("/guardar-simulacion", async (req, res) => {
         (sum, s) => sum + parseInt(s.cueros || 0),
         0
       );
+
+      // Verificar si el lote ya existe
+      const [loteExistente] = await connection.query(
+        "SELECT id FROM lotes WHERE numero_lote = ?",
+        [numeroLote]
+      );
+
+      if (loteExistente.length === 0) {
+        // Insertar en proceso_lotes si no existe
+        await connection.query(
+          "INSERT INTO proceso_lotes (numero_lote, proceso) VALUES (?, 'Llegada')",
+          [numeroLote]
+        );
+      } else {
+        // Si el lote ya existe, finalizar sin hacer nada
+        connection.release();
+        return res.status(200).json({
+          success: false,
+          message:
+            "El número de lote ya existe. No se ha realizado ninguna acción.",
+        });
+      }
 
       // Insertar el lote principal
       const [resultLote] = await connection.query(
@@ -419,6 +531,9 @@ app.post("/guardar-simulacion", async (req, res) => {
       // Preparar los totales por sulfurada para inserción masiva en total_proceso
       const totalesProcesoValues = [];
 
+      // Mapa para acumular las cantidades por producto
+      const productosACantidad = new Map();
+
       // Procesar cada sulfurada
       for (const sulfurada of simulacionData) {
         console.log("Datos de sulfurada:", sulfurada);
@@ -431,20 +546,35 @@ app.post("/guardar-simulacion", async (req, res) => {
         // Procesar cada fila de cada sulfurada para detalle_lote_productos
         for (const fila of sulfurada.filas || []) {
           // Solo procesar filas con producto y cantidad válidos
-          if (fila.producto && fila.cantidad) {
+          if (fila.producto && fila.cantidad && parseFloat(fila.cantidad) > 0) {
             const productoId = parseInt(fila.producto);
+            const cantidad = parseFloat(fila.cantidad);
             const productoInfo = productos.find((p) => p.id === productoId);
 
             if (productoInfo) {
               detallesValues.push([
                 loteId,
                 productoInfo.producto,
-                parseFloat(fila.cantidad) || 0,
+                cantidad,
                 parseFloat(productoInfo.precio) || 0,
                 parseFloat(fila.total) ||
-                  parseFloat(fila.cantidad) * parseFloat(productoInfo.precio) ||
+                  cantidad * parseFloat(productoInfo.precio) ||
                   0,
               ]);
+
+              // Acumular cantidades para actualizar stock
+              if (productosACantidad.has(productoId)) {
+                productosACantidad.set(
+                  productoId,
+                  productosACantidad.get(productoId) + cantidad
+                );
+              } else {
+                productosACantidad.set(productoId, cantidad);
+              }
+
+              console.log(
+                `Agregando producto ID ${productoId} con cantidad ${cantidad} al mapa`
+              );
             }
           }
         }
@@ -456,6 +586,69 @@ app.post("/guardar-simulacion", async (req, res) => {
           "INSERT INTO detalle_lote_productos (lote_id, producto_nombre, cantidad, precio_unitario, total) VALUES ?",
           [detallesValues]
         );
+      }
+
+      // Actualizar el stock en la tabla insumos y registrar las salidas
+      console.log(
+        "Productos a actualizar stock:",
+        Array.from(productosACantidad.entries())
+      );
+
+      for (const [productoId, cantidad] of productosACantidad.entries()) {
+        if (cantidad > 0) {
+          console.log(
+            `Verificando stock para producto ID ${productoId}, cantidad requerida: ${cantidad}`
+          );
+
+          const productoInfo = productos.find((p) => p.id === productoId);
+          if (!productoInfo) {
+            console.warn(
+              `Producto ID ${productoId} no encontrado en la lista de productos`
+            );
+            continue;
+          }
+
+          const [stockActual] = await connection.query(
+            "SELECT stock FROM insumos WHERE id_producto = ?",
+            [productoId]
+          );
+
+          if (stockActual.length > 0) {
+            const stockDisponible = stockActual[0].stock;
+            console.log(
+              `Stock actual para producto "${productoInfo.producto}": ${stockDisponible}`
+            );
+
+            if (stockDisponible < cantidad) {
+              await connection.rollback();
+              connection.release();
+              return res.status(400).json({
+                success: false,
+                error: `Cantidad insuficiente para el producto "${productoInfo.producto}".\nStock disponible: ${stockDisponible} kg`,
+              });
+            }
+
+            // Si hay suficiente stock, actualizamos el stock
+            await connection.query(
+              "UPDATE insumos SET stock = stock - ? WHERE id_producto = ?",
+              [cantidad, productoId]
+            );
+
+            // Registrar movimiento de salida en movimientos_insumos
+            await connection.query(
+              "INSERT INTO movimientos_insumos (id_producto, tipo_movimiento, cantidad, fecha) VALUES (?, 'salida', ?, ?)",
+              [productoId, cantidad, fechaMysql]
+            );
+
+            console.log(
+              `Movimiento de salida registrado para producto "${productoInfo.producto}", cantidad: ${cantidad}`
+            );
+          } else {
+            console.warn(
+              `No se encontró stock registrado para el producto "${productoInfo.producto}"`
+            );
+          }
+        }
       }
 
       // Insertar los totales en la tabla total_proceso si hay datos
@@ -480,7 +673,7 @@ app.post("/guardar-simulacion", async (req, res) => {
 
       res.status(200).json({
         success: true,
-        message: "Simulación guardada exitosamente.",
+        message: "Simulación guardada exitosamente y stock actualizado.",
         loteId: loteId,
       });
     } catch (error) {
@@ -956,4 +1149,203 @@ app.delete("/eliminar-costo/:costoId", async (req, res) => {
       details: error.message,
     });
   }
+});
+
+app.get("/api/insumos", (req, res) => {
+  const sql = `
+    SELECT 
+      insumos.codigo,
+      productos.producto,
+      productos.proveedor,
+      productos.precio,
+      insumos.stock
+    FROM insumos
+    JOIN productos ON insumos.id_producto = productos.id
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error al consultar insumos:", err);
+      return res.status(500).json({ error: "Error en la base de datos" });
+    }
+    res.json(results);
+  });
+});
+
+// Ruta para actualizar stock de un insumo existente y registrar el movimiento
+app.post("/api/insumos/stock", (req, res) => {
+  const { codigo, cantidad } = req.body;
+
+  if (!codigo || !cantidad) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Campos requeridos" });
+  }
+
+  // Paso 1: Obtener el id del producto desde la tabla insumos
+  const obtenerIdProductoQuery = `
+    SELECT id_producto FROM insumos WHERE codigo = ?
+  `;
+
+  db.query(obtenerIdProductoQuery, [codigo], (err, rows) => {
+    if (err) {
+      console.error("Error al obtener el ID del producto:", err);
+      return res.status(500).json({ success: false, message: "Error interno" });
+    }
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Código no encontrado en insumos" });
+    }
+
+    const idProducto = rows[0].id_producto;
+
+    // Paso 2: Actualizar el stock del producto
+    const actualizarStockQuery = `
+      UPDATE insumos 
+      SET stock = stock + ? 
+      WHERE codigo = ?
+    `;
+
+    db.query(actualizarStockQuery, [cantidad, codigo], (err, result) => {
+      if (err) {
+        console.error("Error al actualizar el stock:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Error al actualizar el stock" });
+      }
+
+      // Paso 3: Registrar el movimiento en la tabla movimientos_insumos
+      const registrarMovimientoQuery = `
+        INSERT INTO movimientos_insumos (id_producto, tipo_movimiento, cantidad) 
+        VALUES (?, 'entrada', ?)
+      `;
+
+      db.query(
+        registrarMovimientoQuery,
+        [idProducto, cantidad],
+        (err, resultMov) => {
+          if (err) {
+            console.error("Error al registrar el movimiento:", err);
+            return res.status(500).json({
+              success: false,
+              message:
+                "Stock actualizado, pero no se pudo registrar el movimiento",
+            });
+          }
+
+          return res.status(200).json({
+            success: true,
+            message: "Stock actualizado y movimiento registrado correctamente",
+          });
+        }
+      );
+    });
+  });
+});
+
+// Endpoint para obtener los movimientos de insumos
+app.get("/api/movimientos", (req, res) => {
+  // Consulta SQL para traer los movimientos de insumos
+  const query = `
+  SELECT mi.*, p.producto, mi.tipo_movimiento
+FROM movimientos_insumos mi
+JOIN productos p ON mi.id_producto = p.id
+ORDER BY mi.fecha DESC;
+
+`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error("Error al obtener los movimientos:", err);
+      return res
+        .status(500)
+        .json({ message: "Error al obtener los movimientos" });
+    }
+
+    // Enviar los resultados al frontend
+    res.json(result);
+  });
+});
+
+// Consultar lotes en proceso
+app.get("/api/proceso-lotes", (req, res) => {
+  console.log("Recibida petición a /api/proceso-lotes");
+
+  // Asegúrate de que esta ruta devuelva JSON aunque ocurra un error
+  db.query("SELECT * FROM proceso_lotes", (err, results) => {
+    if (err) {
+      console.error("Error en consulta SQL:", err);
+      return res.status(500).json({
+        error: err.message,
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+      });
+    }
+
+    console.log(`Resultados encontrados: ${results ? results.length : 0}`);
+    res.json(results || []);
+  });
+});
+
+// Actualizar proceso de un lote
+app.post("/api/actualizar-proceso", (req, res) => {
+  const { numero_lote, nuevo_proceso } = req.body;
+
+  if (!numero_lote || !nuevo_proceso) {
+    return res
+      .status(400)
+      .json({ error: "Se requieren numero_lote y nuevo_proceso" });
+  }
+
+  console.log(`Actualizando lote ${numero_lote} a proceso ${nuevo_proceso}`);
+
+  const query = "UPDATE proceso_lotes SET proceso = ? WHERE numero_lote = ?";
+  db.query(query, [nuevo_proceso, numero_lote], (err, result) => {
+    if (err) {
+      console.error("Error en actualización:", err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: `No se encontró el lote ${numero_lote}` });
+    }
+
+    res.json({
+      message: "Proceso actualizado correctamente",
+      lote: numero_lote,
+      proceso: nuevo_proceso,
+      affectedRows: result.affectedRows,
+    });
+  });
+});
+
+// Ruta para verificar los productos con stock bajo
+app.get("/api/insumos/stock-bajo", (req, res) => {
+  const consultaStockBajo = `
+    SELECT p.producto AS producto, i.stock
+    FROM insumos i
+    INNER JOIN productos p ON i.id_producto = p.id
+    WHERE i.stock <= 25
+  `;
+
+  db.query(consultaStockBajo, (err, rows) => {
+    console.log(rows); // Verificar que los productos sean retornados correctamente
+    if (err) {
+      console.error("Error al obtener los productos con stock bajo:", err);
+      return res
+        .status(500)
+        .json({ success: false, message: "Error al consultar stock" });
+    }
+
+    if (rows.length === 0) {
+      return res
+        .status(200)
+        .json({ success: true, message: "No hay productos con stock bajo" });
+    }
+
+    return res.status(200).json({ success: true, productos: rows });
+  });
 });

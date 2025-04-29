@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import logo from "../img/ANTA-2.png";
 import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
+import Swal from 'sweetalert2';
 
 const Costos = () => {
   const [costos, setCostos] = useState([]);
@@ -232,7 +233,7 @@ const Costos = () => {
       doc.addImage(logo, "PNG", 10, 255, 30, 15);
     }
 
-    doc.save(`costo_${selectedCosto.numero_lote}.pdf`);
+    doc.save(`costo_total_${selectedCosto.numero_lote}.pdf`);
   };
 
   // Ver detalles del costo
@@ -250,38 +251,63 @@ const Costos = () => {
   };
 
   const eliminarCosto = async (costoId) => {
-    // Mostrar confirmación antes de eliminar
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas eliminar este costo? Esta acción no se puede deshacer."
-    );
-
-    if (!confirmar) {
-      return; // Si el usuario cancela, no hacer nada
-    }
-
+    // Confirmación con Swal
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "¿Deseas eliminar este costo? Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#0025c9',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      color: "#0e0e0e",
+      iconColor: '#d33',
+      background: "#fffff",
+    });
+  
+    if (!isConfirmed) return;
+  
     try {
-      const response = await fetch(
-        `${config.API_URL}/eliminar-costo/${costoId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await fetch(`${config.API_URL}/eliminar-costo/${costoId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al eliminar el costo.");
+        throw new Error(data.error || "Error al eliminar el costo.");
       }
-
-      // Actualizar la lista de costos después de eliminar
-      cargarCostos();
+  
+      // Alerta de éxito
+      Swal.fire({
+        icon: "success",
+        title: "Costo eliminado",
+        text: "El costo ha sido eliminado exitosamente.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#10b981", // Verde
+        background: "#f0fdf4",
+        color: "#0e0e0e",
+      });
+  
+      cargarCostos(); // Actualizar la lista
     } catch (error) {
       console.error("Error al eliminar el costo:", error);
-      alert("Hubo un error al eliminar el costo: " + error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error al eliminar",
+        html: error.message.replace(/\n/g, "<br/>"),
+        confirmButtonText: "OK",
+        confirmButtonColor: "#0025c9",
+        background: "#fff1f2", // Fondo suave de error
+        color: "#0e0e0e",
+      });
     }
   };
+  
 
   // Renderizado condicional para estados de carga y error
   if (loading) {
@@ -472,7 +498,7 @@ const Costos = () => {
     return (
       <>
         <div className="header-container-seccion">
-          <h1>Costos Guardados</h1>
+          <h1 className="inventario-title">Costos Guardados</h1>
         </div>
         {costos.length === 0 ? (
           <div className="empty-state">
@@ -484,7 +510,7 @@ const Costos = () => {
           </div>
         ) : (
           <div className="tb">
-            <table className="tabla">
+            <table className="tabla tabla-costos">
               <thead>
                 <tr>
                 <th>

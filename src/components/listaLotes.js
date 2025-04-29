@@ -3,6 +3,7 @@ import jsPDF from "jspdf";
 import logo from "../img/ANTA-2.png";
 import logo_empresa from "../img/AT-LOGO.png";
 import config from "../config";
+import Swal from "sweetalert2";
 
 const ListaLotes = () => {
   const [lotes, setLotes] = useState([]);
@@ -71,17 +72,23 @@ const ListaLotes = () => {
   };
 
   // Función para formatear la fecha (ajusta a tu formato)
-  const formatearFecha = (fecha) => {
+  const formatearFechaParaMostrar = (fecha) => {
     const date = new Date(fecha);
-    return date.toISOString().split("T")[0]; // Devuelve la fecha en formato YYYY-MM-DD
+    const opciones = { day: "numeric", month: "long", year: "numeric" };
+    return date.toLocaleDateString("es-ES", opciones);
   };
+
+  const formatearFechaParaFiltro = (fecha) => {
+    const date = new Date(fecha);
+    return date.toISOString().split("T")[0]; // "YYYY-MM-DD"
+  };  
 
   const filtrarLotes = lotes.filter((lote) => {
     return (
       (filtroLote
         ? lote.numero_lote.toLowerCase().includes(filtroLote.toLowerCase())
         : true) && // Compara sin distinción de mayúsculas/minúsculas
-      (filtroFecha ? formatearFecha(lote.fecha) === filtroFecha : true) // Filtrar por fecha
+        (!filtroFecha || formatearFechaParaFiltro(lote.fecha) === filtroFecha) // Filtrar por fecha
     );
   });
 
@@ -133,7 +140,7 @@ const ListaLotes = () => {
     }
 
     const doc = new jsPDF({
-      orientation: "p", // "p" para portrait, "l" para landscape
+      orientation: "p",
       unit: "mm",
       format: "letter",
     });
@@ -146,33 +153,44 @@ const ListaLotes = () => {
       doc.addImage(logo_empresa, "PNG", 10, 5, 20, 20);
     }
 
+    const text = selectedLote.proceso || "N/A";
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxTextWidth = 140;
+    const textLines = doc.splitTextToSize(text, maxTextWidth);
+    const lineHeight = 10;
+    const totalTextHeight = textLines.length * lineHeight;
+    const textY = totalTextHeight < 20 ? 17 : 17 + (totalTextHeight - 20) / 2;
+
     doc.setTextColor(0, 0, 102);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS", 70, 17);
+    doc.text(textLines, pageWidth / 2, textY, { align: "center" });
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(`PROCESO: ${selectedLote.proceso || "N/A"}`, 202, 17, {
-      align: "right",
+    doc.setFontSize(10);
+    doc.text(`LOTE:               ${selectedLote.numero_lote || "N/A"}`, 14, 34, {
+      align: "left",
     });
-    doc.text(`LOTE: ${selectedLote.numero_lote || "N/A"}`, 202, 21, {
-      align: "right",
-    });
-    doc.text(`FECHA: ${formatearFecha(selectedLote.fecha)}`, 202, 25, {
-      align: "right",
+    doc.text(`FECHA:            ${formatearFechaParaMostrar(selectedLote.fecha)}`, 14, 38, {
+      align: "left",
     });
 
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 102);
+    doc.setFontSize(10);
     doc.text(
-      `PESO: ${selectedLote.peso} kg     /     CANTIDAD: ${selectedLote.numero_de_cueros} cueros`,
-      105,
-      35,
-      { align: "center" }
+      `PESO:              ${selectedLote.peso} kg`,
+      14,
+      42,
+      { align: "left" }
+    );
+    doc.text(
+      `CANTIDAD:      ${selectedLote.numero_de_cueros} cueros`,
+      14,
+      46,
+      { align: "left" }
     );
 
     // Tabla de productos
-    let startY = 40;
+    let startY = 52;
 
     const tableColumnas = [
       "Producto",
@@ -210,11 +228,11 @@ const ListaLotes = () => {
           data.row.index === tableRows.length - 2
         ) {
           if (data.column.index >= 2) {
-            data.cell.styles.fillColor = [210, 210, 210]; // Fondo gris claro
-            data.cell.styles.textColor = [0, 0, 102]; // Texto azul oscuro
+            data.cell.styles.fillColor = [210, 210, 210];
+            data.cell.styles.textColor = [0, 0, 102];
             data.cell.styles.fontStyle = "bold";
           } else {
-            data.cell.styles.fillColor = [255, 255, 255]; // Fondo blanco
+            data.cell.styles.fillColor = [255, 255, 255];
           }
         }
       },
@@ -243,38 +261,63 @@ const ListaLotes = () => {
   };
 
   const eliminarLote = async (loteId) => {
-    // Mostrar confirmación antes de eliminar
-    const confirmar = window.confirm(
-      "¿Estás seguro de que deseas eliminar este lote? Esta acción no se puede deshacer."
-    );
+    // Mostrar alerta de confirmación
+    const { isConfirmed } = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "¿Deseas eliminar este lote? Esta acción no se puede deshacer.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#0025c9',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      color: "#0e0e0e",
+      iconColor: '#d33',
+      background: "#fffff",
 
-    if (!confirmar) {
-      return; // Si el usuario cancela, no hacer nada
-    }
-
+    });
+  
+    if (!isConfirmed) return; // Si el usuario cancela, no hacer nada
+  
     try {
-      const response = await fetch(
-        `${config.API_URL}/eliminar-lote/${loteId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
+      const response = await fetch(`${config.API_URL}/eliminar-lote/${loteId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      const data = await response.json();
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al eliminar el lote.");
+        throw new Error(data.error || "Error al eliminar el lote.");
       }
-
-      // Actualizar la lista de lotes después de eliminar
+  
+      // Mostrar alerta de éxito
+      Swal.fire({
+        icon: "success",
+        title: "¡Lote eliminado!",
+        text: "El lote ha sido eliminado correctamente.",
+        confirmButtonColor: "#10b981", // Verde
+        background: "#f0fdf4",
+        color: "#0e0e0e",
+      });
+  
+      // Recargar la lista
       cargarLotes();
     } catch (error) {
       console.error("Error al eliminar el lote:", error);
-      alert("Hubo un error al eliminar el lote: " + error.message);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un error al eliminar el lote: " + error.message,
+        confirmButtonColor: "#dc3545",
+        background: "#f8d7da",
+        color: "#721c24",
+      });
     }
   };
+  
 
   // Renderizado condicional para estados de carga y error
   if (loading) {
@@ -374,7 +417,7 @@ const ListaLotes = () => {
                 <div className="info-row">
                   <div className="info-item" style={{ marginRight: "55px" }}>
                     <strong style={{ color: "#000d80" }}>Fecha:</strong>{" "}
-                    {formatearFecha(selectedLote.fecha)}
+                    {formatearFechaParaMostrar(selectedLote.fecha)}
                   </div>
                 </div>
               </div>
@@ -451,7 +494,7 @@ const ListaLotes = () => {
     return (
       <>
         <div className="header-container-seccion">
-          <h1>Lotes Guardados</h1>
+          <h1 className="inventario-title">Lotes Guardados</h1>
         </div>
 
         {lotes.length === 0 ? (
@@ -464,7 +507,7 @@ const ListaLotes = () => {
           </div>
         ) : (
           <div className="tb">
-            <table className="tabla">
+            <table className="tabla tabla-lotes">
               <thead>
                 <tr>
                   <th>
@@ -523,7 +566,7 @@ const ListaLotes = () => {
                     <td>{lote.numero_de_cueros}</td>
                     <td>{lote.cantidad_productos}</td>
                     <td>{formatoMoneda(lote.costo_total || 0)}</td>
-                    <td>{formatearFecha(lote.fecha)}</td>
+                    <td>{formatearFechaParaMostrar(lote.fecha)}</td>
                     <td>
                       <div className="action-buttons">
                         <button

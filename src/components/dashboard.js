@@ -1,17 +1,21 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./dashboard.css";
 import logo from "../img/ANTA-2.png";
-import img_dashboard from "../img/dashboard.png";
 import Productos from "./productos";
 import Simulador from "./simulador";
-import Inventario from "./inventario";
+import Inventario from "./Inventario";
 import config from "../config";
 import ListaLotes from "./listaLotes";
 import Costos from "./costos";
+import BarChartProceso from "./BarChartProceso";
+import Swal from "sweetalert2";
+import { Bell } from "lucide-react"; // ícono de campana
+import axios from "axios";
 
 const Dashboard = () => {
   const [usuarioActual, setUsuarioActual] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
 
   // Cargar el usuario desde el localStorage al iniciar
   useEffect(() => {
@@ -20,6 +24,9 @@ const Dashboard = () => {
       setUsuarioActual(usuarioGuardado);
     }
   }, []);
+
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const nombreUsuario = usuario?.nombre || "Usuario";
 
   const [activeSection, setActiveSection] = useState("dashboard");
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -100,6 +107,7 @@ const Dashboard = () => {
 
     // Validar que todos los campos estén llenos
     if (
+      !formData.codigo ||
       !formData.producto ||
       !formData.proveedor ||
       !formData.cantidad ||
@@ -107,7 +115,13 @@ const Dashboard = () => {
       !formData.precio ||
       (!productoSeleccionado && !formData.porcentaje)
     ) {
-      alert("Por favor, complete todos los campos");
+      Swal.fire({
+        icon: "error",
+        title: "Campos incompletos",
+        text: "Por favor, complete todos los campos",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#0025c9",
+      });
       return;
     }
 
@@ -142,7 +156,15 @@ const Dashboard = () => {
         const successMessage = productoSeleccionado
           ? "Producto actualizado exitosamente"
           : "Producto agregado exitosamente";
-        alert(successMessage);
+        Swal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: successMessage,
+          confirmButtonText: "OK",
+          confirmButtonColor: "#10b981",
+          background: "#f0fdf4", // fondo suave
+          color: "#0e0e0e", // texto
+        });
 
         // Limpiar formulario y regresar a la sección de productos
         setFormData({
@@ -155,18 +177,64 @@ const Dashboard = () => {
         });
         setActiveSection("productos");
       } else {
-        alert("Error al procesar el producto");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al procesar el producto",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#dc3545",
+        });
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Hubo un problema al procesar el producto");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al procesar el producto",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#dc3545",
+      });
     }
   };
+  const mainContentRef = useRef(null);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const mainContent = document.querySelector(".main-content");
+      if (mainContent) {
+        mainContent.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 100); // prueba incluso 200 ms si sigue moviéndose
+  }, []);
 
   const toggleSidebar = () => {
     console.log("Toggle sidebar ejecutado");
     setSidebarVisible(!sidebarVisible);
   };
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  // Función para consultar los productos con stock bajo
+  const checkLowStock = async () => {
+    try {
+      const response = await axios.get(
+        `${config.API_URL}/api/insumos/stock-bajo`
+      );
+      if (response.data.success && response.data.productos.length > 0) {
+        setLowStockProducts(response.data.productos); // Guardar los productos con stock bajo
+        console.log(response.data.productos); // Para depurar y verificar los datos
+      }
+    } catch (error) {
+      console.error("Error al verificar stock bajo:", error);
+    }
+  };
+
+  // Usar useEffect para hacer la consulta al cargar el componente
+  useEffect(() => {
+    checkLowStock();
+  }, []);
 
   return (
     <div className="dashboard-container">
@@ -177,12 +245,38 @@ const Dashboard = () => {
       {/* Barra de navegación superior */}
       <nav className="top-nav">
         <img src={logo} alt="Logo" className="logo-nav" />
+
         <div className="nav-right">
-          <a
-            href="/login"
-            className="btn-cerrar-sesion"
-            onClick={() => handleLogout()}
-          >
+          {/* Campana de notificaciones */}
+          <button onClick={toggleNotifications} className="notification-button">
+            <Bell size={24} />
+            {/* Solo mostrar el indicador si hay notificaciones */}
+            {lowStockProducts.length > 0 && (
+              <span className="notification-indicator" />
+            )}
+          </button>
+
+          {/* Panel de notificaciones */}
+          {showNotifications && (
+            <div className="notification-panel">
+              <h3 className="text">Notificaciones</h3>
+              <ul>
+                {/* Mostrar la alerta si hay productos con stock bajo */}
+                {lowStockProducts.length > 0 ? (
+                  lowStockProducts.map((producto, index) => (
+                    <li key={index}>
+                      ⚠️ Queda poca cantidad de {producto.producto}
+                    </li>
+                  ))
+                ) : (
+                  <li style={{ textAlign: "center" }}>No hay notificaciones</li>
+                )}
+              </ul>
+            </div>
+          )}
+
+          {/* Botón de cerrar sesión */}
+          <a href="/login" className="btn-cerrar-sesion" onClick={handleLogout}>
             Cerrar Sesión
           </a>
         </div>
@@ -191,7 +285,7 @@ const Dashboard = () => {
         {/* Sidebar */}
         <aside className={`sidebar ${sidebarVisible ? "show" : ""}`}>
           <ul>
-            {/*<li>
+            <li>
               <a
                 href="#dashboard"
                 onClick={() => handleSectionChange("dashboard")}
@@ -199,14 +293,15 @@ const Dashboard = () => {
               >
                 <i className="bi bi-bounding-box"></i> Dashboard
               </a>
-            </li>*/}
+            </li>
+
             <li>
               <a
-                href="#productos"
-                onClick={() => handleSectionChange("productos")}
-                className={activeSection === "productos" ? "active" : ""}
+                href="#inventario"
+                onClick={() => handleSectionChange("inventario")}
+                className={activeSection === "inventario" ? "active" : ""}
               >
-                <i className="bi bi-box-seam-fill"></i> Productos
+                <i class="bi bi-card-checklist"></i> Inventario
               </a>
             </li>
             <li>
@@ -236,18 +331,33 @@ const Dashboard = () => {
                 <i class="bi bi-cash-coin"></i> Costos
               </a>
             </li>
+            <li>
+              <a
+                href="#productos"
+                onClick={() => handleSectionChange("productos")}
+                className={activeSection === "productos" ? "active" : ""}
+              >
+                <i class="bi bi-box-seam"></i> Productos
+              </a>
+            </li>
           </ul>
         </aside>
 
         {/* Contenido principal */}
-        <div className="main-content">
+        <div className="main-content" ref={mainContentRef}>
           {activeSection === "dashboard" && (
-            <section id="dashboard">
-              <img
-                src={img_dashboard}
-                alt="img_dashboard"
-                className="img_dashboard"
-              />
+            <section
+            id="dashboard"
+            style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+          >
+          
+              <div style={{ marginBottom: "1rem", textAlign: "center" }}>
+                <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
+                  Hola, {nombreUsuario} 👋
+                </h1>
+              </div>
+
+                    <BarChartProceso />
             </section>
           )}
 
@@ -261,7 +371,7 @@ const Dashboard = () => {
                 >
                   <i className="bi bi-plus-circle"></i> Agregar producto
                 </a>
-                <h1>Productos</h1>
+                <h1 className="inventario-title">Productos</h1>
               </div>
               <Productos handleSectionChange={handleSectionChange} />{" "}
               {/* Pasamos handleSectionChange aquí */}
@@ -306,6 +416,13 @@ const Dashboard = () => {
               </div>
               <div className="container_agregar_producto">
                 <form className="frm_agregar_producto" onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Codigo"
+                    name="codigo"
+                    value={formData.codigo}
+                    onChange={handleInputChange}
+                  />
                   <input
                     type="text"
                     placeholder="Producto"
@@ -377,6 +494,13 @@ const Dashboard = () => {
               </div>
               <div className="container_editar_producto">
                 <form className="frm_agregar_producto" onSubmit={handleSubmit}>
+                  <input
+                    type="text"
+                    placeholder="Codigo"
+                    name="codigo"
+                    value={formData.codigo}
+                    onChange={handleInputChange}
+                  />
                   <input
                     type="text"
                     placeholder="Producto"

@@ -4,13 +4,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Login from './components/Login';
 import Register from './components/Register'; 
 import Dashboard from './components/dashboard';
-import Procesos from "./components/procesos";
-import Lote from "./components/Lote";
 import PrivateRoute from './components/PrivateRoute';
-import Perfil from './components/perfil';
 import Simulador from './components/simulador';
 import ListaLotes from "./components/listaLotes";
-import DetalleLote from "./components/detalleLote";
 import Costos from "./components/costos";
 
 function App() {
@@ -26,8 +22,6 @@ function App() {
               <Dashboard />
             </PrivateRoute>
           } />
-          <Route path="/procesos" element={<Procesos />} />
-          <Route path="/lote/:id" element={<Lote />} /> {/* Ruta dinámica */}
           <Route path="/listaLote" element={<ListaLotes />} />
           <Route path="/simulador" element={<Simulador />} />
           <Route path="/costos" element={<Costos />} />

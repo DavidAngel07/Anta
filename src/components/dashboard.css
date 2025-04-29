@@ -1,5 +1,10 @@
 /* Contenedor principal */
-
+.text{
+  color: #000769;
+  font-size: 18px;
+  text-align: center;
+  margin: 5px;
+}
 .dashboard-container {
   display: flex;
   min-height: 100vh; /* Ajusta exactamente al tamaño de la pantalla */
@@ -133,7 +138,8 @@
   flex-grow: 1;
   padding: 20px;
   height: 85vh; /* Hace que el contenedor ocupe el 100% de la altura de la ventana */
-  overflow-y: auto; /* Añade el scroll vertical si el contenido excede la altura */
+  overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
 .main-content h2 {
@@ -339,6 +345,10 @@ ul li {
   background-color: #000d46;
 }
 
+.volver:hover {
+  background-color: #000d46;
+}
+
 /* Contenedor para alinear el h3 y el a */
 .header-agregar {
   display: flex; /* Utilizamos flexbox */
@@ -456,6 +466,9 @@ ul li {
   border-radius: 12px;
   margin-top: 30px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-wrap: wrap; /* Permite que los formularios bajen uno debajo del otro si no hay espacio */
+  justify-content: center; /* Centra los formularios horizontalmente */
 }
 
 .lote-table {
@@ -487,8 +500,13 @@ ul li {
   text-align: center;
 }
 
+.lote-table .col-producto-pq {
+  width: 31%;
+  text-align: center;
+}
+
 .lote-table .col-pequena {
-  width: 15%;
+  width: 13%;
 }
 
 .lote-table .ultima-columna {
@@ -525,8 +543,7 @@ ul li {
   margin-top: 50px;
 }
 
-.frm_des_div form,
-.frm_sulfurada .frm_inventario form {
+.frm_sulfurada form, .frm_inventario form{
   display: flex;
   gap: 10px;
   justify-content: space-between;
@@ -588,7 +605,8 @@ ul li {
 .frm_des_div input,
 .frm_sulfurada input,
 .frm_des_div select,
-.frm_sulfurada select {
+.frm_sulfurada select,
+.frm_inventario select {
   padding: 5px;
   width: 150px; /* Ajusta el tamaño de los campos */
   border: 1px solid #ccc;
@@ -653,7 +671,7 @@ ul li {
   transition: background-color 0.3s ease;
 }
 
-.btn-agregar-sulf {
+.btn-agregar-inventario {
   background-color: #008604;
   border: none;
   color: #fff;
@@ -662,7 +680,7 @@ ul li {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 250px; /* Ajusta el tamaño según lo necesites */
+  width: 180px; /* Ajusta el tamaño según lo necesites */
   height: 40px; /* Ajusta el tamaño según lo necesites */
   border-radius: 25px; /* Hacemos que sea un círculo */
   transition: background-color 0.3s ease;
@@ -697,7 +715,7 @@ ul li {
   margin-top: 20px; /* Espacio entre el contenido y el botón */
 }
 
-.btn-agregar-sulf:hover {
+.btn-agregar-inventario:hover {
   background-color: rgb(0, 68, 0);
 }
 
@@ -1013,9 +1031,9 @@ ul li {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0);
+  background-color: #ebebfa;
+  box-shadow: 0 0px 3px rgba(0, 0, 0, 0.2); /* sombra solo hacia abajo */
   color: #000000;
-  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -1032,6 +1050,111 @@ ul li {
   color: #0018a1;
   box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3); /* sombra solo hacia abajo */
 }
+
+.inventario-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.inventario-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0026bf;
+  margin-bottom: 1rem;
+}
+
+.inventario-subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+}
+
+.cards-container-calculator,
+.cards-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .cards-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .cards-container-calculator {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 3rem;
+  border: #000000 20px;
+  box-shadow: 15px 15px 10px #bebebe,
+  -15px -15px 30px #f3f3f3;
+  cursor: pointer;
+  transition: box-shadow 1s ease, transform 0.5s ease, background-color 0.8s ease;
+}
+.card-inventario{
+  height: 16rem;
+}
+.card-calculator{
+  height: 20rem;
+}
+
+.card:hover {
+  background: #bcc8ff;
+  box-shadow: none;
+  transform: translateY(10px);
+}
+
+
+
+.card-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #0026bf;
+  margin-bottom: 2rem;
+}
+
+.card-text {
+  text-align: center;
+  font-size: 15px;
+  color: #4a4a4a;
+  transition: font-size 0.1s ease;
+}
+
+.card:hover .card-text{
+  font-weight: bold;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #0026bf;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  align-self: flex-start;
+}
+
+.btn-volver:hover {
+  background-color: #001b8f;
+}
+
 /* Estilo para la barra de búsqueda */
 .filtro_lote {
   padding: 8px 12px;
@@ -1100,11 +1223,430 @@ th {
   margin-top: 5px;
 }
 
+.frm_inventario {
+  display: flex;
+  justify-content: center;   /* <-- centra el formulario */
+  align-items: center;       /* opcional: alinea verticalmente si es necesario */
+  flex-direction: column; 
+  gap: 100px;
+  margin: 20px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 900px; /* Limita el ancho para mejor presentación */
+  margin: 0 auto; /* Centrado */
+}
 
+.frm_inventario form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* <-- Centra el botón debajo de los inputs */
+  gap: 10px;
+}
+
+.fila-inputs {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.frm_inventario input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 120px;
+}
+
+.frm_inventario select{
+  width: 300px;
+}
+
+.movimientos-insumos {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.movimientos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.movimientos-header h3 {
+  text-align: center;
+  flex: 1;
+}
+
+.lote-table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+/* EnProceso.css */
+
+/* Estilos generales */
+.proceso-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.proceso-heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.proceso-subheading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2850a7;
+}
+
+.proceso-subheading-2{
+  text-align: center;
+}
+
+.proceso-section {
+  margin-bottom: 1.5rem;
+}
+
+.proceso-panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #f9fafb;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos para la leyenda de procesos */
+.proceso-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.proceso-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e5e7eb;
+  margin: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.proceso-badge.activo {
+  border: 2px solid #0d00c5;
+  font-weight: bold;
+  color: #0d00c5;
+}
+
+/* Estilos para la cuadrícula de tarjetas */
+.proceso-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.proceso-card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.proceso-card:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.proceso-card-title {
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.proceso-card-code {
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  color: #4b5563;
+}
+
+.proceso-card-status {
+  margin-bottom: 0.5rem;
+}
+
+.proceso-card-label {
+  font-weight: 500;
+  font-weight: bold;
+}
+
+.proceso-card-value {
+  text-transform: capitalize;
+}
+
+.proceso-card-actions {
+  margin-top: 1rem;
+}
+
+.proceso-select-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  color: #000000;
+}
+
+.proceso-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  background-color: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.proceso-select:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.proceso-card-note {
+  font-size: 0.75rem;
+  color: #4b5563;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* Estilos para el panel de estadísticas */
+.proceso-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.proceso-stat-item {
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.proceso-stat-label {
+  text-transform: capitalize;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  margin-top: 0;
+}
+
+.proceso-stat-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Estilos para el contenedor de carga */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+}
+
+.loading-container p {
+  font-size: 1.25rem;
+  color: #4b5563;
+}
+
+/* Colores específicos por proceso */
+.proceso-llegada {
+  background-color: #e0f7fa; /* celeste claro */
+  border-left: 5px solid #00acc1;
+}
+
+.proceso-sulfurada {
+  background-color: #f1f8e9; /* verde muy claro */
+  border-left: 5px solid #8bc34a;
+}
+
+.proceso-descarnada-y-dividida {
+  background-color: #fff3e0; /* naranja claro */
+  border-left: 5px solid #fb8c00;
+}
+
+.proceso-piquelada {
+  background-color: #fce4ec; /* rosado claro */
+  border-left: 5px solid #d81b60;
+}
+
+.proceso-teñida {
+  background-color: #ede7f6; /* morado claro */
+  border-left: 5px solid #673ab7;
+}
+
+.proceso-en-almacén {
+  background-color: #e0f2f1; /* verde agua */
+  border-left: 5px solid #26a69a;
+}
+
+.seguimiento-lotes-title {
+  text-align: center;
+}
+
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.logo-nav {
+  height: 2.5rem; /* h-10 */
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* space-x-4 */
+  position: relative;
+}
+
+.notification-button {
+  position: relative;
+  color: #4b5563; /* text-gray-700 */
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.notification-button:hover {
+  color: #000000; /* hover:text-black */
+}
+
+.notification-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 0.5rem; /* h-2 */
+  width: 0.5rem;  /* w-2 */
+  background-color: #ef4444; /* bg-red-500 */
+  border-radius: 9999px;
+  animation: pulse 2s infinite;
+}
+
+.notification-panel {
+  position: absolute;
+  top: 3rem; /* top-12 */
+  right: 5rem; /* right-20 */
+  width: 16rem; /* w-64 */
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  z-index: 10;
+}
+
+.notification-panel h3 {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.notification-panel ul {
+  font-size: 0.875rem;
+  color: #374151;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-panel li {
+  margin-bottom: 0.25rem;
+  background-color: #e6e8ff;
+  padding: 8px;
+  border-radius: 10px;
+}
+
+/* BarChartProceso.css */
+
+.bar-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 630px; /* 👈 Controla el alto */
+  max-width: 1000px; /* 👈 Controla el ancho máximo */
+  background: white;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-sizing: border-box;
+  margin: 0 auto; /* 👈 Centrar */
+}
+
+
+
+.bar-chart-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0014a8; /* Azul fuerte */
+  margin-bottom: 1rem;
+}
+
+.custom-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 2rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+.legend-color {
+  width: 8px;
+  height: 24px;
+  border-radius: 4px;
+}
+
+
+
+/* Animación de pulso */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.6;
+  }
+}
 
 @media (max-width: 810px) {
   .dashboard-container {
-    height: auto;
+    height: 100%;
     min-height: 100vh;
     position: relative;
     z-index: 1;
@@ -1150,6 +1692,7 @@ th {
   }
 
   .tabla,
+  .tabla,
   .tabla tbody,
   .tabla tr,
   .tabla td {
@@ -1194,6 +1737,47 @@ th {
   }
   .tabla td:nth-of-type(4):before {
     content: "Precio";
+  }
+
+  .tabla-lotes td:nth-of-type(1):before {
+    content: "Lote";
+  }
+  .tabla-lotes td:nth-of-type(2):before {
+    content: "Proceso";
+  }
+  .tabla-lotes td:nth-of-type(3):before {
+    content: "Peso (Kg)";
+  }
+  .tabla-lotes td:nth-of-type(4):before {
+    content: "Cueros";
+  }
+  .tabla-lotes td:nth-of-type(5):before {
+    content: "Productos";
+  }
+  .tabla-lotes td:nth-of-type(6):before {
+    content: "Costo Total";
+  }
+  .tabla-lotes td:nth-of-type(7):before {
+    content: "Fecha";
+  }
+
+  .tabla-costos td:nth-of-type(1):before {
+    content: "Lote";
+  }
+  .tabla-costos td:nth-of-type(2):before {
+    content: "Peso (Kg)";
+  }
+  .tabla-costos td:nth-of-type(3):before {
+    content: "Cueros";
+  }
+  .tabla-costos td:nth-of-type(4):before {
+    content: "Color";
+  }
+  .tabla-costos td:nth-of-type(5):before {
+    content: "Costo Total";
+  }
+  .tabla-costos td:nth-of-type(6):before {
+    content: "Fecha";
   }
 
   /* Estilos para los botones en dispositivos móviles */

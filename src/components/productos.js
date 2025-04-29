@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import config from "../config";
+import Swal from 'sweetalert2';
 
 const Productos = ({ handleSectionChange }) => {
   // Recibe la función como prop
@@ -23,20 +24,56 @@ const Productos = ({ handleSectionChange }) => {
 
   // Función para eliminar un producto
   const handleEliminar = (id) => {
-    fetch(`${config.API_URL}/productos/${id}`, {
-      method: "DELETE",
-    })
-      .then((response) => {
-        if (response.ok) {
-          // Filtramos el producto eliminado del estado
-          setProductos(productos.filter((producto) => producto.id !== id));
-        } else {
-          setError("Error al eliminar el producto");
-        }
-      })
-      .catch(() => {
-        setError("Error al eliminar el producto");
-      });
+    // Alerta de confirmación antes de eliminar el producto
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el producto permanentemente.',
+      icon: 'warning',
+      background: "#fffff", // fondo suave
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#0025c9',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      color: "#0e0e0e",
+      iconColor: '#d33'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Si el usuario confirma la eliminación, se hace la solicitud DELETE
+        fetch(`${config.API_URL}/productos/${id}`, {
+          method: 'DELETE',
+        })
+          .then((response) => {
+            if (response.ok) {
+              // Filtramos el producto eliminado del estado
+              setProductos(productos.filter((producto) => producto.id !== id));
+              Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'Producto eliminado correctamente',
+                confirmButtonColor: '#0025c9'
+              });
+            } else {
+              setError("Error al eliminar el producto");
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar el producto',
+                confirmButtonColor: '#0025c9'
+              });
+            }
+          })
+          .catch(() => {
+            setError("Error al eliminar el producto");
+            Swal.fire({
+              icon: 'error',
+              title: 'Error al eliminar',
+              text: 'Ocurrió un error inesperado',
+              confirmButtonColor: '#0025c9'
+            });
+          });
+      }
+    });
   };
 
   // Función para formatear el precio en pesos colombianos
