@@ -5,7 +5,9 @@ import React from "react";
 const Cueros = () => {
   return (
     <div className="simulador-container">
-      <h1>EN PROCESO</h1>
+      <div className="loader-container">
+      <h1>MODULO EN PROCESO</h1>
+      </div>
     </div>
   );
 };

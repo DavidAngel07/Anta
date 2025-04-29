@@ -258,13 +258,19 @@ const Dashboard = () => {
 
           {/* Panel de notificaciones */}
           {showNotifications && (
-            <div className="notification-panel">
+            <div
+              className="notification-panel"
+              style={{
+                maxHeight: "400px", // Puedes ajustar esta altura como prefieras
+                overflowY: "auto",
+              }}
+            >
               <h3 className="text">Notificaciones</h3>
               <ul>
                 {/* Mostrar la alerta si hay productos con stock bajo */}
                 {lowStockProducts.length > 0 ? (
                   lowStockProducts.map((producto, index) => (
-                    <li key={index}>
+                    <li className="one-notification" key={index}>
                       ⚠️ Queda poca cantidad de {producto.producto}
                     </li>
                   ))
@@ -347,17 +353,20 @@ const Dashboard = () => {
         <div className="main-content" ref={mainContentRef}>
           {activeSection === "dashboard" && (
             <section
-            id="dashboard"
-            style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
-          >
-          
+              id="dashboard"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
+            >
               <div style={{ marginBottom: "1rem", textAlign: "center" }}>
                 <h1 style={{ fontSize: "1.5rem", fontWeight: "bold" }}>
                   Hola, {nombreUsuario} 👋
                 </h1>
               </div>
 
-                    <BarChartProceso />
+              <BarChartProceso />
             </section>
           )}
 
