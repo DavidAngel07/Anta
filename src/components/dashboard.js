@@ -6,6 +6,7 @@ import Simulador from "./simulador";
 import config from "../config";
 import ListaLotes from "./listaLotes";
 import Costos from "./costos";
+import Inventario from "./Inventario1";
 import BarChartProceso from "./BarChartProceso";
 import Swal from "sweetalert2";
 import { Bell } from "lucide-react"; // ícono de campana
@@ -391,7 +392,7 @@ const Dashboard = () => {
 
           {activeSection === "inventario" && (
             <section id="inventario">
-              
+              <Inventario />
             </section>
           )}
 
