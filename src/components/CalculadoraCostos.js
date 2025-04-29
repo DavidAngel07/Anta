@@ -377,7 +377,7 @@ const CalculadoraCostos = () => {
           formatoMoneda(fila.total),
         ])
     ];
-
+ 
     // Añadir filas con el total general y el total por cuero
     todasLasFilas.push([
       "",

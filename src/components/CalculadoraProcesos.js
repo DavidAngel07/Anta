@@ -411,7 +411,7 @@ const CalculadoraProcesos = () => {
     doc.text(`FECHA:            ${formatearFecha(fecha)}`, 14, 38, {
       align: "left",
     });
-    
+     
     if (sulfuradas.length > 0) {
       const primero = sulfuradas[0];
       doc.setTextColor(0, 0, 102);
