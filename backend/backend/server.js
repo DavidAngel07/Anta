@@ -467,9 +467,9 @@ app.post("/guardar-simulacion", async (req, res) => {
     !fecha ||
     simulacionData.length === 0
   ) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       success: false,
-      error: "Faltan datos requeridos." 
+      error: "Faltan datos requeridos.",
     });
   }
 
@@ -498,37 +498,22 @@ app.post("/guardar-simulacion", async (req, res) => {
         0
       );
 
-      // Verificar si el lote ya existe
-      const [loteExistente] = await connection.query(
-        "SELECT id FROM lotes WHERE numero_lote = ?",
+      // Intentar insertar en proceso_lotes, ignorando si ya existe
+      await connection.query(
+        "INSERT IGNORE INTO proceso_lotes (numero_lote, proceso) VALUES (?, 'Llegada')",
         [numeroLote]
       );
 
-      if (loteExistente.length === 0) {
-        // Insertar en proceso_lotes si no existe
-        await connection.query(
-          "INSERT INTO proceso_lotes (numero_lote, proceso) VALUES (?, 'Llegada')",
-          [numeroLote]
-        );
-      } else {
-        // Si el lote ya existe, finalizar sin hacer nada
-        connection.release();
-        return res.status(400).json({
-          success: false,
-          error: "El número de lote ya existe. No se ha realizado ninguna acción."
-        });
-      }
-
       // Verificar primero todo el stock necesario antes de continuar
       const productosACantidad = new Map();
-      
+
       // Acumular las cantidades totales por producto
       for (const sulfurada of simulacionData) {
         for (const fila of sulfurada.filas || []) {
           if (fila.producto && fila.cantidad && parseFloat(fila.cantidad) > 0) {
             const productoId = parseInt(fila.producto);
             const cantidad = parseFloat(fila.cantidad);
-            
+
             if (productosACantidad.has(productoId)) {
               productosACantidad.set(
                 productoId,
@@ -540,7 +525,7 @@ app.post("/guardar-simulacion", async (req, res) => {
           }
         }
       }
-      
+
       // Verificar stock antes de hacer cambios
       for (const [productoId, cantidad] of productosACantidad.entries()) {
         if (cantidad > 0) {
@@ -550,7 +535,7 @@ app.post("/guardar-simulacion", async (req, res) => {
             connection.release();
             return res.status(400).json({
               success: false,
-              error: `Producto ID ${productoId} no encontrado en la base de datos.`
+              error: `Producto ID ${productoId} no encontrado en la base de datos.`,
             });
           }
 
@@ -565,17 +550,17 @@ app.post("/guardar-simulacion", async (req, res) => {
             connection.release();
             return res.status(400).json({
               success: false,
-              error: `No se encontró registro de stock para el producto "${productoInfo.producto}"`
+              error: `No se encontró registro de stock para el producto "${productoInfo.producto}"`,
             });
           }
-          
+
           const stockDisponible = stockActual[0].stock;
           if (stockDisponible < cantidad) {
             await connection.rollback();
             connection.release();
             return res.status(400).json({
               success: false,
-              error: `Cantidad insuficiente para el producto "${productoInfo.producto}".\nStock disponible: ${stockDisponible} kg, Cantidad requerida: ${cantidad} kg`
+              error: `Cantidad insuficiente para el producto "${productoInfo.producto}".\nStock disponible: ${stockDisponible} kg, Cantidad requerida: ${cantidad} kg`,
             });
           }
         }
