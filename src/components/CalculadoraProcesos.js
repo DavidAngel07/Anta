@@ -317,22 +317,36 @@ const CalculadoraProcesos = () => {
         }),
       });
   
-      const data = await response.json(); // ✅ LEE el cuerpo solo una vez
+      const data = await response.json();
   
+      // Verificamos si la respuesta tiene un status de error (400, 500, etc.)
       if (!response.ok) {
-        // ⚠️ Ya tenemos el cuerpo leído, así que usamos `data.error` directamente
-        if (data.error === "Faltan datos requeridos.") {
+        // Si hay un mensaje de error en la respuesta, lo usamos
+        if (data.error) {
           Swal.fire({
-            icon: "warning",
-            title: "Campos incompletos",
-            text: "Por favor, complete todos los campos requeridos.",
+            icon: "error",
+            title: "Error al guardar",
+            html: data.error.replace(/\n/g, "<br/>"),
             confirmButtonText: "OK",
-            confirmButtonColor: "#f59e0b", // Rojo
-            color: "#0e0e0e", // Texto oscuro para fondo rojo
+            confirmButtonColor: "#f59e0b",
+            color: "#0e0e0e",
           });
         } else {
-          throw new Error(data.error || "Error al guardar la simulación.");
+          throw new Error("Error al guardar la simulación");
         }
+        return;
+      }
+  
+      // Verificamos explícitamente si la operación fue exitosa según la respuesta
+      if (data.success === false) {
+        Swal.fire({
+          icon: "error",
+          title: "Error al guardar",
+          html: data.error || "No se pudo guardar la simulación",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#f59e0b",
+          color: "#0e0e0e",
+        });
         return;
       }
   
@@ -347,6 +361,7 @@ const CalculadoraProcesos = () => {
         color: "#0e0e0e",
       });
     } catch (error) {
+      console.error("Error en guardarSimulacion:", error);
       Swal.fire({
         icon: "error",
         title: "Error inesperado",

@@ -467,7 +467,10 @@ app.post("/guardar-simulacion", async (req, res) => {
     !fecha ||
     simulacionData.length === 0
   ) {
-    return res.status(400).json({ error: "Faltan datos requeridos." });
+    return res.status(400).json({ 
+      success: false,
+      error: "Faltan datos requeridos." 
+    });
   }
 
   try {
@@ -476,11 +479,11 @@ app.post("/guardar-simulacion", async (req, res) => {
 
     try {
       // Obtener productos para referencias con JOIN a insumos para verificar la relación
-      const [productos] = await connection.query(`
-        SELECT p.*, i.id AS insumo_id, i.stock 
+      const [productos] = await connection.query(
+        `SELECT p.*, i.id AS insumo_id, i.stock 
         FROM productos p
-        LEFT JOIN insumos i ON p.id = i.id_producto
-      `);
+        LEFT JOIN insumos i ON p.id = i.id_producto`
+      );
 
       // Iniciar transacción
       await connection.beginTransaction();
@@ -510,11 +513,72 @@ app.post("/guardar-simulacion", async (req, res) => {
       } else {
         // Si el lote ya existe, finalizar sin hacer nada
         connection.release();
-        return res.status(200).json({
+        return res.status(400).json({
           success: false,
-          message:
-            "El número de lote ya existe. No se ha realizado ninguna acción.",
+          error: "El número de lote ya existe. No se ha realizado ninguna acción."
         });
+      }
+
+      // Verificar primero todo el stock necesario antes de continuar
+      const productosACantidad = new Map();
+      
+      // Acumular las cantidades totales por producto
+      for (const sulfurada of simulacionData) {
+        for (const fila of sulfurada.filas || []) {
+          if (fila.producto && fila.cantidad && parseFloat(fila.cantidad) > 0) {
+            const productoId = parseInt(fila.producto);
+            const cantidad = parseFloat(fila.cantidad);
+            
+            if (productosACantidad.has(productoId)) {
+              productosACantidad.set(
+                productoId,
+                productosACantidad.get(productoId) + cantidad
+              );
+            } else {
+              productosACantidad.set(productoId, cantidad);
+            }
+          }
+        }
+      }
+      
+      // Verificar stock antes de hacer cambios
+      for (const [productoId, cantidad] of productosACantidad.entries()) {
+        if (cantidad > 0) {
+          const productoInfo = productos.find((p) => p.id === productoId);
+          if (!productoInfo) {
+            await connection.rollback();
+            connection.release();
+            return res.status(400).json({
+              success: false,
+              error: `Producto ID ${productoId} no encontrado en la base de datos.`
+            });
+          }
+
+          const [stockActual] = await connection.query(
+            "SELECT stock FROM insumos WHERE id_producto = ?",
+            [productoId]
+          );
+
+          // Si no hay registro de stock o el stock es insuficiente
+          if (stockActual.length === 0) {
+            await connection.rollback();
+            connection.release();
+            return res.status(400).json({
+              success: false,
+              error: `No se encontró registro de stock para el producto "${productoInfo.producto}"`
+            });
+          }
+          
+          const stockDisponible = stockActual[0].stock;
+          if (stockDisponible < cantidad) {
+            await connection.rollback();
+            connection.release();
+            return res.status(400).json({
+              success: false,
+              error: `Cantidad insuficiente para el producto "${productoInfo.producto}".\nStock disponible: ${stockDisponible} kg, Cantidad requerida: ${cantidad} kg`
+            });
+          }
+        }
       }
 
       // Insertar el lote principal
@@ -530,9 +594,6 @@ app.post("/guardar-simulacion", async (req, res) => {
 
       // Preparar los totales por sulfurada para inserción masiva en total_proceso
       const totalesProcesoValues = [];
-
-      // Mapa para acumular las cantidades por producto
-      const productosACantidad = new Map();
 
       // Procesar cada sulfurada
       for (const sulfurada of simulacionData) {
@@ -561,20 +622,6 @@ app.post("/guardar-simulacion", async (req, res) => {
                   cantidad * parseFloat(productoInfo.precio) ||
                   0,
               ]);
-
-              // Acumular cantidades para actualizar stock
-              if (productosACantidad.has(productoId)) {
-                productosACantidad.set(
-                  productoId,
-                  productosACantidad.get(productoId) + cantidad
-                );
-              } else {
-                productosACantidad.set(productoId, cantidad);
-              }
-
-              console.log(
-                `Agregando producto ID ${productoId} con cantidad ${cantidad} al mapa`
-              );
             }
           }
         }
@@ -589,80 +636,28 @@ app.post("/guardar-simulacion", async (req, res) => {
       }
 
       // Actualizar el stock en la tabla insumos y registrar las salidas
-      console.log(
-        "Productos a actualizar stock:",
-        Array.from(productosACantidad.entries())
-      );
-
       for (const [productoId, cantidad] of productosACantidad.entries()) {
         if (cantidad > 0) {
-          console.log(
-            `Verificando stock para producto ID ${productoId}, cantidad requerida: ${cantidad}`
+          // Actualizar el stock
+          await connection.query(
+            "UPDATE insumos SET stock = stock - ? WHERE id_producto = ?",
+            [cantidad, productoId]
           );
 
-          const productoInfo = productos.find((p) => p.id === productoId);
-          if (!productoInfo) {
-            console.warn(
-              `Producto ID ${productoId} no encontrado en la lista de productos`
-            );
-            continue;
-          }
-
-          const [stockActual] = await connection.query(
-            "SELECT stock FROM insumos WHERE id_producto = ?",
-            [productoId]
+          // Registrar movimiento de salida en movimientos_insumos
+          await connection.query(
+            "INSERT INTO movimientos_insumos (id_producto, tipo_movimiento, cantidad, fecha) VALUES (?, 'salida', ?, ?)",
+            [productoId, cantidad, fechaMysql]
           );
-
-          if (stockActual.length > 0) {
-            const stockDisponible = stockActual[0].stock;
-            console.log(
-              `Stock actual para producto "${productoInfo.producto}": ${stockDisponible}`
-            );
-
-            if (stockDisponible < cantidad) {
-              await connection.rollback();
-              connection.release();
-              return res.status(400).json({
-                success: false,
-                error: `Cantidad insuficiente para el producto "${productoInfo.producto}".\nStock disponible: ${stockDisponible} kg`,
-              });
-            }
-
-            // Si hay suficiente stock, actualizamos el stock
-            await connection.query(
-              "UPDATE insumos SET stock = stock - ? WHERE id_producto = ?",
-              [cantidad, productoId]
-            );
-
-            // Registrar movimiento de salida en movimientos_insumos
-            await connection.query(
-              "INSERT INTO movimientos_insumos (id_producto, tipo_movimiento, cantidad, fecha) VALUES (?, 'salida', ?, ?)",
-              [productoId, cantidad, fechaMysql]
-            );
-
-            console.log(
-              `Movimiento de salida registrado para producto "${productoInfo.producto}", cantidad: ${cantidad}`
-            );
-          } else {
-            console.warn(
-              `No se encontró stock registrado para el producto "${productoInfo.producto}"`
-            );
-          }
         }
       }
 
       // Insertar los totales en la tabla total_proceso si hay datos
       if (totalesProcesoValues.length > 0) {
-        console.log(
-          "Valores a insertar en total_proceso:",
-          totalesProcesoValues
-        );
         await connection.query(
           "INSERT INTO total_proceso (lote_id, total, total_cuero) VALUES ?",
           [totalesProcesoValues]
         );
-      } else {
-        console.log("No hay totales para insertar en total_proceso.");
       }
 
       // Confirmar transacción
