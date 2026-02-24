@@ -29,7 +29,11 @@ const Login = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Error en el inicio de sesión");
+        const mensajeError =
+          typeof errorData === "string"
+            ? errorData
+            : errorData.message || "Error en el inicio de sesión";
+        throw new Error(mensajeError);
       }
 
       const data = await response.json();

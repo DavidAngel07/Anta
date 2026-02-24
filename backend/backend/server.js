@@ -63,7 +63,7 @@ app.post("/register", async (req, res) => {
   try {
     const [results] = await dbPromise.query(
       "SELECT * FROM usuarios WHERE correo = ?",
-      [correo]
+      [correo],
     );
 
     if (results.length > 0) {
@@ -75,7 +75,7 @@ app.post("/register", async (req, res) => {
 
     await dbPromise.query(
       "INSERT INTO usuarios (nombre, correo, contraseña) VALUES (?, ?, ?)",
-      [nombre, correo, hash]
+      [nombre, correo, hash],
     );
 
     console.log("✅ Usuario registrado con éxito.");
@@ -140,7 +140,7 @@ app.post("/login", (req, res) => {
             // Verificamos si la actualización fue exitosa
             if (result.affectedRows === 0) {
               console.error(
-                `No se pudo actualizar el estado online para el correo ${correo}.`
+                `No se pudo actualizar el estado online para el correo ${correo}.`,
               );
               return res
                 .status(500)
@@ -150,9 +150,11 @@ app.post("/login", (req, res) => {
             console.log(`Estado online de ${correo} actualizado a 1.`);
 
             // Generar un token JWT para el usuario (si lo estás usando)
-            const token = jwt.sign({ id: results[0].id }, "tu_secreto", {
-              expiresIn: "1h",
-            });
+            const token = jwt.sign(
+              { id: results[0].id, correo: results[0].correo }, // ✅ agrega correo
+              "tu_secreto",
+              { expiresIn: "1h" },
+            );
 
             res.status(200).json({
               message: "Inicio de sesión exitoso.",
@@ -163,10 +165,10 @@ app.post("/login", (req, res) => {
                 correo: results[0].correo,
               },
             });
-          }
+          },
         );
       });
-    }
+    },
   );
 });
 
@@ -227,10 +229,15 @@ const verificarSesion = (req, res, next) => {
 
         req.user = decoded; // Poner el usuario en la solicitud
         next();
-      }
+      },
     );
   });
 };
+
+// ✅ Ruta para verificar si la sesión sigue activa (NUEVA - agrégala aquí)
+app.get("/verificar-sesion", verificarSesion, (req, res) => {
+  res.status(200).json({ valid: true });
+});
 
 // ✅ Ruta protegida del Dashboard
 app.get("/dashboard", verificarSesion, (req, res) => {
@@ -308,7 +315,7 @@ app.post("/productos", (req, res) => {
           message: "Producto e insumo agregados correctamente",
         });
       });
-    }
+    },
   );
 });
 
@@ -433,7 +440,7 @@ app.put("/productos/:id", (req, res) => {
           message: "Producto actualizado correctamente",
         });
       }
-    }
+    },
   );
 });
 
@@ -482,7 +489,7 @@ app.post("/guardar-simulacion", async (req, res) => {
       const [productos] = await connection.query(
         `SELECT p.*, i.id AS insumo_id, i.stock 
         FROM productos p
-        LEFT JOIN insumos i ON p.id = i.id_producto`
+        LEFT JOIN insumos i ON p.id = i.id_producto`,
       );
 
       // Iniciar transacción
@@ -491,17 +498,17 @@ app.post("/guardar-simulacion", async (req, res) => {
       // Calcular el peso y número de cueros totales del lote
       const pesoTotal = simulacionData.reduce(
         (sum, s) => sum + parseFloat(s.peso || 0),
-        0
+        0,
       );
       const cuerosTotal = simulacionData.reduce(
         (sum, s) => sum + parseInt(s.cueros || 0),
-        0
+        0,
       );
 
       // Intentar insertar en proceso_lotes, ignorando si ya existe
       await connection.query(
         "INSERT IGNORE INTO proceso_lotes (numero_lote, proceso) VALUES (?, 'Llegada')",
-        [numeroLote]
+        [numeroLote],
       );
 
       // Verificar primero todo el stock necesario antes de continuar
@@ -517,7 +524,7 @@ app.post("/guardar-simulacion", async (req, res) => {
             if (productosACantidad.has(productoId)) {
               productosACantidad.set(
                 productoId,
-                productosACantidad.get(productoId) + cantidad
+                productosACantidad.get(productoId) + cantidad,
               );
             } else {
               productosACantidad.set(productoId, cantidad);
@@ -541,7 +548,7 @@ app.post("/guardar-simulacion", async (req, res) => {
 
           const [stockActual] = await connection.query(
             "SELECT stock FROM insumos WHERE id_producto = ?",
-            [productoId]
+            [productoId],
           );
 
           // Si no hay registro de stock o el stock es insuficiente
@@ -569,7 +576,7 @@ app.post("/guardar-simulacion", async (req, res) => {
       // Insertar el lote principal
       const [resultLote] = await connection.query(
         "INSERT INTO lotes (numero_lote, proceso, peso, numero_de_cueros, fecha) VALUES (?, ?, ?, ?, ?)",
-        [numeroLote, nombreProceso, pesoTotal, cuerosTotal, fechaMysql]
+        [numeroLote, nombreProceso, pesoTotal, cuerosTotal, fechaMysql],
       );
 
       const loteId = resultLote.insertId;
@@ -616,7 +623,7 @@ app.post("/guardar-simulacion", async (req, res) => {
       if (detallesValues.length > 0) {
         await connection.query(
           "INSERT INTO detalle_lote_productos (lote_id, producto_nombre, cantidad, precio_unitario, total) VALUES ?",
-          [detallesValues]
+          [detallesValues],
         );
       }
 
@@ -626,13 +633,13 @@ app.post("/guardar-simulacion", async (req, res) => {
           // Actualizar el stock
           await connection.query(
             "UPDATE insumos SET stock = stock - ? WHERE id_producto = ?",
-            [cantidad, productoId]
+            [cantidad, productoId],
           );
 
           // Registrar movimiento de salida en movimientos_insumos
           await connection.query(
             "INSERT INTO movimientos_insumos (id_producto, tipo_movimiento, cantidad, fecha) VALUES (?, 'salida', ?, ?)",
-            [productoId, cantidad, fechaMysql]
+            [productoId, cantidad, fechaMysql],
           );
         }
       }
@@ -641,7 +648,7 @@ app.post("/guardar-simulacion", async (req, res) => {
       if (totalesProcesoValues.length > 0) {
         await connection.query(
           "INSERT INTO total_proceso (lote_id, total, total_cuero) VALUES ?",
-          [totalesProcesoValues]
+          [totalesProcesoValues],
         );
       }
 
@@ -727,7 +734,7 @@ app.get("/lotes/:id", async (req, res) => {
     // Obtener detalles de productos del lote
     const [detalles] = await dbPromise.query(
       "SELECT * FROM detalle_lote_productos WHERE lote_id = ?",
-      [loteId]
+      [loteId],
     );
 
     res.status(200).json({
@@ -765,13 +772,13 @@ app.delete("/eliminar-lote/:loteId", async (req, res) => {
       // Primero eliminar los detalles del lote (tabla detalle_lote_productos)
       await connection.query(
         "DELETE FROM detalle_lote_productos WHERE lote_id = ?",
-        [loteId]
+        [loteId],
       );
 
       // Luego eliminar el lote
       const [result] = await connection.query(
         "DELETE FROM lotes WHERE id = ?",
-        [loteId]
+        [loteId],
       );
 
       // Verificar si se eliminó algún registro
@@ -828,7 +835,7 @@ app.get("/procesos-por-lote/:numeroLote", async (req, res) => {
     // Primero obtenemos el ID del lote
     const [loteResult] = await dbPromise.query(
       "SELECT id FROM lotes WHERE numero_lote = ?",
-      [numeroLote]
+      [numeroLote],
     );
 
     if (loteResult.length === 0) {
@@ -845,7 +852,7 @@ app.get("/procesos-por-lote/:numeroLote", async (req, res) => {
       `SELECT l.proceso, l.id as id_lote
        FROM lotes l
        WHERE l.numero_lote = ?`,
-      [numeroLote]
+      [numeroLote],
     );
 
     if (procesos.length === 0) {
@@ -873,7 +880,7 @@ app.get("/total-cuero/:id_lote", async (req, res) => {
   try {
     const [rows] = await dbPromise.query(
       "SELECT total_cuero FROM total_proceso WHERE lote_id = ?",
-      [id_lote]
+      [id_lote],
     );
 
     console.log("Resultado de la consulta:", rows);
@@ -923,7 +930,7 @@ app.post("/guardar-costos", async (req, res) => {
     // 1. Insertar en la tabla costos
     const [costoResult] = await connection.execute(
       "INSERT INTO costos (numero_lote, peso, numero_cueros, fecha, color, prom_dcm) VALUES (?, ?, ?, ?, ?, ?)",
-      [numeroLote, peso, cueros, fecha, color, promedioDcm]
+      [numeroLote, peso, cueros, fecha, color, promedioDcm],
     );
 
     const costoId = costoResult.insertId;
@@ -941,7 +948,7 @@ app.post("/guardar-costos", async (req, res) => {
               servicio.cantidad,
               servicio.precio,
               servicio.total,
-            ]
+            ],
           );
         }
       }
@@ -950,7 +957,7 @@ app.post("/guardar-costos", async (req, res) => {
     // 3. Calcular y guardar los totales
     const totalGeneral = servicios.reduce(
       (sum, servicio) => sum + (servicio.total || 0),
-      0
+      0,
     );
     const totalPorCuero = cueros > 0 ? totalGeneral / cueros : 0;
     const totalPorDcm =
@@ -958,7 +965,7 @@ app.post("/guardar-costos", async (req, res) => {
 
     await connection.execute(
       "INSERT INTO total_costo (costo_id, total, total_cuero, total_dcm) VALUES (?, ?, ?, ?)",
-      [costoId, totalGeneral, totalPorCuero, totalPorDcm]
+      [costoId, totalGeneral, totalPorCuero, totalPorDcm],
     );
 
     // Confirmar la transacción
@@ -1033,13 +1040,13 @@ app.get("/costos/:id", async (req, res) => {
     // Obtener detalles de servicios del costo
     const [detalles] = await dbPromise.query(
       "SELECT * FROM detalle_costos WHERE costo_id = ?",
-      [costoId]
+      [costoId],
     );
 
     // Obtener el total del costo
     const [totalCosto] = await dbPromise.query(
       "SELECT * FROM total_costo WHERE costo_id = ?",
-      [costoId]
+      [costoId],
     );
 
     res.status(200).json({
@@ -1088,7 +1095,7 @@ app.delete("/eliminar-costo/:costoId", async (req, res) => {
       // Finalmente eliminar el costo
       const [result] = await connection.query(
         "DELETE FROM costos WHERE id = ?",
-        [costoId]
+        [costoId],
       );
 
       // Verificar si se eliminó algún registro
@@ -1219,7 +1226,7 @@ app.post("/api/insumos/stock", (req, res) => {
             success: true,
             message: "Stock actualizado y movimiento registrado correctamente",
           });
-        }
+        },
       );
     });
   });

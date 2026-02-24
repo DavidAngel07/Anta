@@ -134,107 +134,88 @@ const Costos = () => {
   };
 
   // Generar PDF
-  const generarPDF = () => {
-    if (!selectedCosto) {
-      alert("No hay costo seleccionado para generar el PDF.");
-      return;
-    }
+const generarPDF = () => {
+  if (!selectedCosto) {
+    alert("No hay costo seleccionado para generar el PDF.");
+    return;
+  }
 
-    const doc = new jsPDF({
-      orientation: "p", // "p" para portrait, "l" para landscape
-      unit: "mm",
-      format: "letter",
-    });
+  const doc = new jsPDF({
+    orientation: "p",
+    unit: "mm",
+    format: "letter",
+  });
 
-    // Encabezado
-    doc.setFillColor(255, 255, 255);
-    doc.rect(0, 0, 210, 20, "F");
+  // Encabezado
+  doc.setFillColor(255, 255, 255);
+  doc.rect(0, 0, 210, 20, "F");
 
-    if (logo_empresa) {
-      doc.addImage(logo_empresa, "PNG", 10, 5, 20, 20);
-    }
+  if (logo_empresa) {
+    doc.addImage(logo_empresa, "PNG", 10, 5, 20, 20);
+  }
 
-    doc.setTextColor(0, 0, 102);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text("TABLA DE COSTOS DE SERVICIOS", 70, 17);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.text(`COLOR: ${selectedCosto.color || "N/A"}`, 202, 25, {
-      align: "right",
-    });
-    doc.text(`LOTE: ${selectedCosto.numero_lote || "N/A"}`, 202, 17, {
-      align: "right",
-    });
-    doc.text(`FECHA: ${formatearFecha(selectedCosto.fecha)}`, 202, 21, {
-      align: "right",
-    });
-    doc.text(`PROM.DCM: ${(selectedCosto?.prom_dcm)}`, 202, 29, {
-      align: "right",
-    });
+  doc.setTextColor(0, 0, 102);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text("TABLA DE COSTOS DE SERVICIOS", 70, 17);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(`LOTE:               ${selectedCosto.numero_lote || "N/A"}`, 14, 34, { align: "left" });
+  doc.text(`FECHA:            ${formatearFecha(selectedCosto.fecha)}`, 14, 38, { align: "left" });
+  doc.text(`COLOR:            ${selectedCosto.color || "N/A"}`, 14, 42, { align: "left" });
+  doc.text(`PROM.DCM:    ${selectedCosto?.prom_dcm || "N/A"}`, 14, 46, { align: "left" });
+  doc.text(`PESO:              ${selectedCosto.peso} kg`, 14, 50, { align: "left" });
+  doc.text(`CANTIDAD:      ${selectedCosto.numero_cueros} cueros`, 14, 54, { align: "left" });
 
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(11);
-    doc.text(
-      `PESO: ${selectedCosto.peso} kg     /     CANTIDAD: ${selectedCosto.numero_cueros} cueros`,
-      105,
-      35,
-      { align: "center" }
-    );
+  // Tabla de productos
+  let startY = 58;
 
-    // Tabla de productos
-    let startY = 40;
+  const tableColumnas = [
+    "Servicio",
+    "Cantidad",
+    "Precio (COP)",
+    "Total (COP)",
+  ];
 
-    const tableColumnas = [
-      "Servicio",
-      "Cantidad",
-      "Precio (COP)",
-      "Total (COP)",
-    ];
+  const tableRows = detalles.map((detalle) => [
+    detalle.servicio,
+    detalle.cantidad,
+    formatoMoneda(detalle.precio),
+    formatoMoneda(detalle.total),
+  ]);
 
-    const tableRows = detalles.map((detalle) => [
-      detalle.servicio,
-      detalle.cantidad,
-      formatoMoneda(detalle.precio),
-      formatoMoneda(detalle.total),
-    ]);
+  // Totales
+  tableRows.push(["", "", "TOTAL COSTO:", formatoMoneda(calcularTotal())]);
+  tableRows.push(["", "", "TOTAL COSTO POR CUERO:", formatoMoneda(calcularTotalPorCuero())]);
+  tableRows.push(["", "", "TOTAL COSTO POR DCM:", formatoMoneda(selectedCosto?.total_dcm)]);
 
-    // Totales
-    tableRows.push(["", "", "TOTAL COSTO:", formatoMoneda(calcularTotal())]);
-    tableRows.push(["", "", "TOTAL COSTO POR CUERO:",formatoMoneda(calcularTotalPorCuero()),]);
-    tableRows.push(["", "", "TOTAL COSTO POR DCM:",formatoMoneda(selectedCosto?.total_dcm),]);
-
-    doc.autoTable({
-      startY,
-      head: [tableColumnas],
-      body: tableRows,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [0, 0, 102], textColor: 255 },
-      alternateRowStyles: { fillColor: [240, 240, 240] },
-      didParseCell: function (data) {
-        if (
-          data.row.index === tableRows.length - 1 ||
-          data.row.index === tableRows.length - 2 ||
-          data.row.index === tableRows.length - 3
-        ) {
-          if (data.column.index >= 2) {
-            data.cell.styles.fillColor = [210, 210, 210]; // Fondo gris claro
-            data.cell.styles.textColor = [0, 0, 102]; // Texto azul oscuro
-            data.cell.styles.fontStyle = "bold";
-          } else {
-            data.cell.styles.fillColor = [255, 255, 255]; // Fondo blanco
-          }
+  doc.autoTable({
+    startY,
+    head: [tableColumnas],
+    body: tableRows,
+    styles: { fontSize: 10 },
+    headStyles: { fillColor: [0, 0, 102], textColor: 255 },
+    alternateRowStyles: { fillColor: [240, 240, 240] },
+    didParseCell: function (data) {
+      if (data.row.index >= tableRows.length - 3) {
+        if (data.column.index >= 2) {
+          data.cell.styles.fillColor = [210, 210, 210];
+          data.cell.styles.textColor = [0, 0, 102];
+          data.cell.styles.fontStyle = "bold";
+        } else {
+          data.cell.styles.fillColor = [255, 255, 255];
         }
-      },
-    });
+      }
+    },
+  });
 
-    // Logo al pie
-    if (logo) {
-      doc.addImage(logo, "PNG", 10, 255, 30, 15);
-    }
+  // Logo al pie
+  if (logo) {
+    doc.addImage(logo, "PNG", 10, 255, 30, 15);
+  }
 
-    doc.save(`costo_total_${selectedCosto.numero_lote}.pdf`);
-  };
+  doc.save(`costo_total_${selectedCosto.numero_lote}.pdf`);
+};
 
   // Ver detalles del costo
   const verDetalles = (costoId) => {
