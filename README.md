@@ -4,17 +4,16 @@
 
 ---
 
-## 🧩 Módulos actuales
+## Módulos actuales
 
 - ✅ Login y Registro de usuarios
 - ✅ CRUD de Insumos
 - ✅ Calculadora de Fórmulas de Producción (según peso)
-- 🚧 Inventario de Insumos
-- 🚧 Inventario de Productos Terminados
+- ✅ Inventario de Insumos
 
 ---
 
-## ⚙️ Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - **Frontend**: React.js
 - **Backend**: Node.js + Express
@@ -23,7 +22,7 @@
 
 ---
 
-## 🚀 Instalación y ejecución local
+## Instalación y ejecución local
 
 ### Requisitos previos
 
@@ -43,24 +42,24 @@ cd backend/backend
 npm install
 node server.js
 
-## 📌 Próximos módulos (planificación)
+## Próximos módulos (planificación)
 
-- 🔧 Gestión de Producción
-- 🧮 MRP (Planificación de Requerimientos de Materiales)
-- 📦 Inventario / Almacén
-- 🧾 Compras
-- 🚚 Ventas y Distribución
-- 🧑‍🤝‍🧑 Clientes y CRM
-- 📈 Finanzas / Contabilidad
-- 👷 Recursos Humanos / Nómina
-- 📊 Reportes y Dashboard
-- 🔒 Control de Accesos / Usuarios
+- Gestión de Producción
+- MRP (Planificación de Requerimientos de Materiales)
+- Inventario / Almacén
+- Compras
+- Ventas y Distribución
+- Clientes y CRM
+- Finanzas / Contabilidad
+- Recursos Humanos / Nómina
+- Reportes y Dashboard
+- Control de Accesos / Usuarios
 
-## 📄 Licencia
+## Licencia
 
 Este proyecto es de uso privado en desarrollo. Próximamente será empaquetado como solución SaaS para empresas del sector productivo.
 
-## 👨‍💻 Autor
+## Autor
 
 Desarrollado por Cristian David Ángel Osorio
-💼 Ingeniero de Sistemas | Emprendedor Independiente
+Ingeniero de Sistemas | Emprendedor Independiente
