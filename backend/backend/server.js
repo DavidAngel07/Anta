@@ -18,6 +18,12 @@ app.use(cors(corsOptions));
 
 // 🔗 Configuración del pool de conexiones
 
+console.log("Conectando a:", {
+  host: process.env.MYSQLHOST,
+  port: process.env.MYSQLPORT,
+  db: process.env.MYSQLDATABASE,
+});
+
 const db = mysql.createPool({
   host: process.env.MYSQLHOST || "mysql.railway.internal",
   user: process.env.MYSQLUSER || "root",
@@ -33,8 +39,7 @@ const db = mysql.createPool({
 // Probar conexión
 db.getConnection((err, connection) => {
   if (err) {
-    console.error("❌ Error conectando a la base de datos:", err);
-    process.exit(1); // Salir si hay un error de conexión
+    console.error("❌ Error conectando a la base de datos:", err.code, err.message);
   } else {
     console.log("✅ Conexión exitosa a la base de datos");
     connection.release();
