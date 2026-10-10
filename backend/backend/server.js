@@ -1,3 +1,4 @@
+//backend/backend/server.js
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,8 +8,14 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
+const allowedOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim());
+
 const corsOptions = {
-  origin: ["https://anta-system.up.railway.app", "http://localhost:3000"],
+  origin: allowedOrigins,
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -157,7 +164,7 @@ app.post("/login", (req, res) => {
             // Generar un token JWT para el usuario (si lo estás usando)
             const token = jwt.sign(
               { id: results[0].id, correo: results[0].correo }, // ✅ agrega correo
-              "tu_secreto",
+              JWT_SECRET,
               { expiresIn: "1h" },
             );
 
@@ -214,7 +221,7 @@ const verificarSesion = (req, res, next) => {
     return res.status(403).json("No se ha proporcionado un token");
   }
 
-  jwt.verify(token, "tu_secreto", (err, decoded) => {
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
       return res.status(401).json("Token inválido");
     }
